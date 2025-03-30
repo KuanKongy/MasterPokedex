@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,35 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Pokémon type colors
+				poketype: {
+					normal: '#A8A77A',
+					fire: '#EE8130',
+					water: '#6390F0',
+					electric: '#F7D02C',
+					grass: '#7AC74C',
+					ice: '#96D9D6',
+					fighting: '#C22E28',
+					poison: '#A33EA1',
+					ground: '#E2BF65',
+					flying: '#A98FF3',
+					psychic: '#F95587',
+					bug: '#A6B91A',
+					rock: '#B6A136',
+					ghost: '#735797',
+					dragon: '#6F35FC',
+					dark: '#705746',
+					steel: '#B7B7CE',
+					fairy: '#D685AD',
+				},
+				// Pokémon brand colors
+				pokebrand: {
+					red: '#E3350D',
+					darkRed: '#CC0000',
+					white: '#FFFFFF',
+					black: '#222224',
+					gray: '#919191',
 				}
 			},
 			borderRadius: {
@@ -84,11 +114,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pokeball-shake': {
+					'0%, 100%': { transform: 'rotate(0deg)' },
+					'20%, 60%': { transform: 'rotate(-12deg)' },
+					'40%, 80%': { transform: 'rotate(12deg)' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pokeball-shake': 'pokeball-shake 1s ease-in-out infinite',
+				'fade-in': 'fade-in 0.5s ease-in',
 			}
 		}
 	},
