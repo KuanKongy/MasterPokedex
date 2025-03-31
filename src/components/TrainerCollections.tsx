@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerCollections, createCollection, removeTrainerFromCollection, addTrainerToCollection } from '../api/trainerApi';
 import { fetchOtherTrainers } from '../api/otherTrainersApi';
@@ -25,13 +24,14 @@ const TrainerCollections: React.FC = () => {
   
   const { data: collections, isLoading: collectionsLoading } = useQuery({
     queryKey: ['trainerCollections'],
-    queryFn: fetchTrainerCollections,
-    onSuccess: (data) => {
-      if (data.length > 0 && !activeCollection) {
-        setActiveCollection(data[0].id);
-      }
-    }
+    queryFn: fetchTrainerCollections
   });
+  
+  useEffect(() => {
+    if (collections?.length > 0 && !activeCollection) {
+      setActiveCollection(collections[0].id);
+    }
+  }, [collections, activeCollection]);
   
   const { data: otherTrainers, isLoading: trainersLoading } = useQuery({
     queryKey: ['otherTrainers'],
