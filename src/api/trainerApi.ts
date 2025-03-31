@@ -1,3 +1,4 @@
+
 import { Trainer, TrainerItem, TrainerCollection, PokemonCollection } from "../types/trainer";
 
 // Mock data - In a real app, this would come from a backend
@@ -117,8 +118,8 @@ export const fetchTrainerProfile = async (): Promise<Trainer> => {
   });
 };
 
-// Add Pokémon to collection
-export const addPokemonToCollection = async (pokemonId: number): Promise<Trainer> => {
+// Add Pokémon to personal collection
+export const addPokemonToTrainerCollection = async (pokemonId: number): Promise<Trainer> => {
   // In a real app, this would make an API call to update the backend
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -134,8 +135,8 @@ export const addPokemonToCollection = async (pokemonId: number): Promise<Trainer
   });
 };
 
-// Remove Pokémon from collection
-export const removePokemonFromCollection = async (pokemonId: number): Promise<Trainer> => {
+// Remove Pokémon from personal collection
+export const removePokemonFromTrainerCollection = async (pokemonId: number): Promise<Trainer> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       if (MOCK_TRAINER.collectedPokemon.includes(pokemonId)) {
@@ -253,7 +254,7 @@ export const createPokemonCollection = async (collection: Omit<PokemonCollection
   });
 };
 
-// Add Pokémon to collection
+// Add Pokémon to custom collection
 export const addPokemonToCollection = async (collectionId: string, pokemonId: number): Promise<PokemonCollection[]> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -291,7 +292,7 @@ export const addPokemonToCollection = async (collectionId: string, pokemonId: nu
   });
 };
 
-// Remove Pokémon from collection
+// Remove Pokémon from custom collection
 export const removePokemonFromCollection = async (collectionId: string, pokemonId: number): Promise<PokemonCollection[]> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchPokemonList } from '../api/pokemonApi';
-import { addPokemonToCollection } from '../api/trainerApi';
+import { addPokemonToTrainerCollection } from '../api/trainerApi';
 import PokemonCard from '../components/PokemonCard';
 import SearchBar from '../components/SearchBar';
 import TypeFilter from '../components/TypeFilter';
@@ -29,7 +28,7 @@ const PokemonList: React.FC = () => {
   });
 
   const addPokemonMutation = useMutation({
-    mutationFn: addPokemonToCollection,
+    mutationFn: addPokemonToTrainerCollection,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
       toast({
@@ -61,7 +60,6 @@ const PokemonList: React.FC = () => {
       return matchesSearch && matchesType;
     });
     
-    // Sort the filtered Pokémon
     const sorted = [...filtered].sort((a: Pokemon, b: Pokemon) => {
       if (sortBy === 'id') {
         return a.id - b.id;
@@ -72,7 +70,6 @@ const PokemonList: React.FC = () => {
         const totalB = b.stats.reduce((sum, stat) => sum + stat.base_stat, 0);
         return totalB - totalA; // Descending
       } else {
-        // Sort by specific stat
         const statA = a.stats.find(stat => stat.stat.name === sortBy)?.base_stat || 0;
         const statB = b.stats.find(stat => stat.stat.name === sortBy)?.base_stat || 0;
         return statB - statA; // Descending
