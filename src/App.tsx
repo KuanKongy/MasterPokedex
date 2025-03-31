@@ -8,6 +8,9 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import PokemonDetail from "./pages/PokemonDetail";
 import NotFound from "./pages/NotFound";
+import Map from "./pages/Map";
+import Trainer from "./pages/Trainer";
+import Items from "./pages/Items";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +31,9 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/pokemon/:id" element={<PokemonDetail />} />
+            <Route path="/map" element={<Map />} />
+            <Route path="/trainer" element={<Trainer />} />
+            <Route path="/items" element={<Items />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
