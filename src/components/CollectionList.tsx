@@ -8,7 +8,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Trash } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { removePokemonFromCollection } from '../api/trainerApi';
+import { removePokemonFromTrainerCollection } from '../api/trainerApi';
 import { useToast } from '@/hooks/use-toast';
 
 interface CollectionListProps {
@@ -20,7 +20,7 @@ const CollectionList: React.FC<CollectionListProps> = ({ collection }) => {
   const { toast } = useToast();
 
   const removePokemonMutation = useMutation({
-    mutationFn: removePokemonFromCollection,
+    mutationFn: removePokemonFromTrainerCollection,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
       queryClient.invalidateQueries({ queryKey: ['pokemonList'] });
