@@ -2,7 +2,7 @@
 import { Trainer, TrainerItem } from "../types/trainer";
 
 // Mock data - In a real app, this would come from a backend
-const MOCK_TRAINER: Trainer = {
+let MOCK_TRAINER: Trainer = {
   id: "trainer-001",
   name: "Red",
   avatar: "/images/trainer-red.png",
@@ -103,11 +103,14 @@ export const addPokemonToCollection = async (pokemonId: number): Promise<Trainer
   // In a real app, this would make an API call to update the backend
   return new Promise((resolve) => {
     setTimeout(() => {
-      const updatedTrainer = { 
-        ...MOCK_TRAINER,
-        collectedPokemon: [...MOCK_TRAINER.collectedPokemon, pokemonId]
-      };
-      resolve(updatedTrainer);
+      if (!MOCK_TRAINER.collectedPokemon.includes(pokemonId)) {
+        MOCK_TRAINER = {
+          ...MOCK_TRAINER,
+          collectedPokemon: [...MOCK_TRAINER.collectedPokemon, pokemonId],
+          pokemonCaught: MOCK_TRAINER.pokemonCaught + 1
+        };
+      }
+      resolve(MOCK_TRAINER);
     }, 300);
   });
 };
@@ -116,11 +119,27 @@ export const addPokemonToCollection = async (pokemonId: number): Promise<Trainer
 export const removePokemonFromCollection = async (pokemonId: number): Promise<Trainer> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const updatedTrainer = { 
+      if (MOCK_TRAINER.collectedPokemon.includes(pokemonId)) {
+        MOCK_TRAINER = { 
+          ...MOCK_TRAINER,
+          collectedPokemon: MOCK_TRAINER.collectedPokemon.filter(id => id !== pokemonId),
+          pokemonCaught: Math.max(0, MOCK_TRAINER.pokemonCaught - 1)
+        };
+      }
+      resolve(MOCK_TRAINER);
+    }, 300);
+  });
+};
+
+// Update trainer name
+export const updateTrainerName = async (newName: string): Promise<Trainer> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      MOCK_TRAINER = { 
         ...MOCK_TRAINER,
-        collectedPokemon: MOCK_TRAINER.collectedPokemon.filter(id => id !== pokemonId)
+        name: newName
       };
-      resolve(updatedTrainer);
+      resolve(MOCK_TRAINER);
     }, 300);
   });
 };
@@ -149,11 +168,51 @@ export const useItem = async (itemId: number): Promise<TrainerItem[]> => {
         return;
       }
       
-      const updatedItems = MOCK_TRAINER.items.map(i => 
-        i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
-      );
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        items: MOCK_TRAINER.items.map(i => 
+          i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
+        )
+      };
       
-      resolve(updatedItems);
+      resolve(MOCK_TRAINER.items);
+    }, 300);
+  });
+};
+
+// Remove item from inventory
+export const removeItem = async (itemId: number): Promise<TrainerItem[]> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const itemIndex = MOCK_TRAINER.items.findIndex(item => item.id === itemId);
+      if (itemIndex === -1) {
+        reject(new Error("Item not found"));
+        return;
+      }
+      
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        items: MOCK_TRAINER.items.filter(i => i.id !== itemId)
+      };
+      
+      resolve(MOCK_TRAINER.items);
+    }, 300);
+  });
+};
+
+// Add item to inventory
+export const addItem = async (item: Omit<TrainerItem, 'id'>): Promise<TrainerItem[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newId = Math.max(...MOCK_TRAINER.items.map(i => i.id)) + 1;
+      const newItem = { ...item, id: newId };
+      
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        items: [...MOCK_TRAINER.items, newItem]
+      };
+      
+      resolve(MOCK_TRAINER.items);
     }, 300);
   });
 };

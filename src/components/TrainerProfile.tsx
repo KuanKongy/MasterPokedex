@@ -1,17 +1,25 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchTrainerProfile } from '../api/trainerApi';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchTrainerProfile, updateTrainerName } from '../api/trainerApi';
 import { fetchPokemonList } from '../api/pokemonApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import { Avatar } from '@/components/ui/avatar';
-import { User, Medal, Calendar, MapPin } from 'lucide-react';
+import { User, Medal, Calendar, MapPin, Edit, Check, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
+import { useToast } from '@/hooks/use-toast';
 
 const TrainerProfile: React.FC = () => {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const { data: trainer, isLoading: trainerLoading } = useQuery({
     queryKey: ['trainerProfile'],
     queryFn: fetchTrainerProfile
@@ -21,6 +29,42 @@ const TrainerProfile: React.FC = () => {
     queryKey: ['pokemonList'],
     queryFn: fetchPokemonList
   });
+  
+  const updateNameMutation = useMutation({
+    mutationFn: updateTrainerName,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
+      setIsEditingName(false);
+      toast({
+        title: "Name updated",
+        description: "Your trainer name has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update trainer name. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleStartEditName = () => {
+    if (trainer) {
+      setNewName(trainer.name);
+      setIsEditingName(true);
+    }
+  };
+
+  const handleSaveName = () => {
+    if (newName.trim()) {
+      updateNameMutation.mutate(newName);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+  };
 
   if (trainerLoading || pokemonLoading) {
     return <div className="flex justify-center p-8">Loading trainer data...</div>;
@@ -49,9 +93,44 @@ const TrainerProfile: React.FC = () => {
 
             <div className="space-y-4 flex-1">
               <div>
-                <h3 className="flex items-center gap-2 text-xl font-semibold">
-                  <User className="h-5 w-5" /> {trainer.name}
-                </h3>
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      value={newName} 
+                      onChange={(e) => setNewName(e.target.value)}
+                      className="max-w-xs"
+                      placeholder="Enter new name"
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleSaveName}
+                      disabled={updateNameMutation.isPending}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleCancelEdit}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <h3 className="flex items-center gap-2 text-xl font-semibold">
+                    <User className="h-5 w-5" /> 
+                    {trainer.name}
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="ml-2" 
+                      onClick={handleStartEditName}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </h3>
+                )}
                 <p className="text-muted-foreground">{trainer.region} Region</p>
               </div>
 
