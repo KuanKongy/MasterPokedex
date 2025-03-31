@@ -4,14 +4,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerProfile, updateTrainerName } from '../api/trainerApi';
 import { fetchPokemonList } from '../api/pokemonApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Avatar } from '@/components/ui/avatar';
-import { User, Medal, Calendar, MapPin, Edit, Check, X } from 'lucide-react';
+import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
+import PokemonCollections from './PokemonCollections';
 import { useToast } from '@/hooks/use-toast';
 
 const TrainerProfile: React.FC = () => {
@@ -167,12 +167,16 @@ const TrainerProfile: React.FC = () => {
       </Card>
 
       <Tabs defaultValue="collection" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="collection">Collection</TabsTrigger>
+          <TabsTrigger value="pokemon-collections">Pokémon Collections</TabsTrigger>
           <TabsTrigger value="items">Items</TabsTrigger>
         </TabsList>
         <TabsContent value="collection" className="space-y-4">
           <CollectionList collection={collectedPokemonDetails || []} />
+        </TabsContent>
+        <TabsContent value="pokemon-collections">
+          <PokemonCollections />
         </TabsContent>
         <TabsContent value="items">
           <ItemInventory />

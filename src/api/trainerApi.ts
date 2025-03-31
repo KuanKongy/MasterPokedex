@@ -1,4 +1,4 @@
-import { Trainer, TrainerItem, TrainerCollection } from "../types/trainer";
+import { Trainer, TrainerItem, TrainerCollection, PokemonCollection } from "../types/trainer";
 
 // Mock data - In a real app, this would come from a backend
 let MOCK_TRAINER: Trainer = {
@@ -88,21 +88,21 @@ let MOCK_TRAINER: Trainer = {
   collections: [
     {
       id: "collection-001",
-      name: "Rivals",
-      trainers: ["trainer-002"],
-      description: "Trainers that challenge me on my journey"
+      name: "Starter Pokémon",
+      pokemon: [1, 4, 7],
+      description: "My collection of starter Pokémon"
     },
     {
       id: "collection-002",
-      name: "Gym Leaders",
-      trainers: [],
-      description: "Strong trainers who lead Pokémon gyms"
+      name: "Favorites",
+      pokemon: [25, 143],
+      description: "My favorite Pokémon"
     },
     {
       id: "collection-003",
-      name: "Friends",
-      trainers: ["trainer-003"],
-      description: "Trainers I've befriended on my journey"
+      name: "Legendaries",
+      pokemon: [149],
+      description: "Legendary Pokémon I've caught"
     }
   ]
 };
@@ -236,17 +236,8 @@ export const addItem = async (item: Omit<TrainerItem, 'id'>): Promise<TrainerIte
   });
 };
 
-// Fetch trainer collections
-export const fetchTrainerCollections = async (): Promise<TrainerCollection[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_TRAINER.collections || []);
-    }, 300);
-  });
-};
-
-// Create a new collection
-export const createCollection = async (collection: Omit<TrainerCollection, 'id'>): Promise<TrainerCollection[]> => {
+// Create a new Pokémon collection
+export const createPokemonCollection = async (collection: Omit<PokemonCollection, 'id'>): Promise<PokemonCollection[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const newId = `collection-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -262,8 +253,8 @@ export const createCollection = async (collection: Omit<TrainerCollection, 'id'>
   });
 };
 
-// Add trainer to collection
-export const addTrainerToCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+// Add Pokémon to collection
+export const addPokemonToCollection = async (collectionId: string, pokemonId: number): Promise<PokemonCollection[]> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (!MOCK_TRAINER.collections) {
@@ -277,17 +268,17 @@ export const addTrainerToCollection = async (collectionId: string, trainerId: st
         return;
       }
       
-      // Check if trainer is already in collection
-      if (MOCK_TRAINER.collections[collectionIndex].trainers.includes(trainerId)) {
+      // Check if Pokémon is already in collection
+      if (MOCK_TRAINER.collections[collectionIndex].pokemon.includes(pokemonId)) {
         resolve(MOCK_TRAINER.collections);
         return;
       }
       
-      // Add trainer to collection
+      // Add Pokémon to collection
       const updatedCollections = [...MOCK_TRAINER.collections];
       updatedCollections[collectionIndex] = {
         ...updatedCollections[collectionIndex],
-        trainers: [...updatedCollections[collectionIndex].trainers, trainerId]
+        pokemon: [...updatedCollections[collectionIndex].pokemon, pokemonId]
       };
       
       MOCK_TRAINER = {
@@ -300,8 +291,8 @@ export const addTrainerToCollection = async (collectionId: string, trainerId: st
   });
 };
 
-// Remove trainer from collection
-export const removeTrainerFromCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+// Remove Pokémon from collection
+export const removePokemonFromCollection = async (collectionId: string, pokemonId: number): Promise<PokemonCollection[]> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (!MOCK_TRAINER.collections) {
@@ -315,11 +306,11 @@ export const removeTrainerFromCollection = async (collectionId: string, trainerI
         return;
       }
       
-      // Remove trainer from collection
+      // Remove Pokémon from collection
       const updatedCollections = [...MOCK_TRAINER.collections];
       updatedCollections[collectionIndex] = {
         ...updatedCollections[collectionIndex],
-        trainers: updatedCollections[collectionIndex].trainers.filter(id => id !== trainerId)
+        pokemon: updatedCollections[collectionIndex].pokemon.filter(id => id !== pokemonId)
       };
       
       MOCK_TRAINER = {
@@ -328,6 +319,43 @@ export const removeTrainerFromCollection = async (collectionId: string, trainerI
       };
       
       resolve(MOCK_TRAINER.collections);
+    }, 300);
+  });
+};
+
+// The functions below are for the old trainer collections system, keeping them for backwards compatibility
+// Fetch trainer collections
+export const fetchTrainerCollections = async (): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([]);
+    }, 300);
+  });
+};
+
+// Create a new collection
+export const createCollection = async (collection: Omit<TrainerCollection, 'id'>): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([]);
+    }, 300);
+  });
+};
+
+// Add trainer to collection
+export const addTrainerToCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([]);
+    }, 300);
+  });
+};
+
+// Remove trainer from collection
+export const removeTrainerFromCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([]);
     }, 300);
   });
 };

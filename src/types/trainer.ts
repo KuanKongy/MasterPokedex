@@ -10,7 +10,7 @@ export interface Trainer {
   joinDate: string;
   collectedPokemon: number[];
   items: TrainerItem[];
-  collections?: TrainerCollection[];
+  collections?: PokemonCollection[];
 }
 
 export interface TrainerItem {
@@ -35,5 +35,12 @@ export interface TrainerCollection {
   id: string;
   name: string;
   trainers: string[];
+  description: string;
+}
+
+export interface PokemonCollection {
+  id: string;
+  name: string;
+  pokemon: number[];
   description: string;
 }
