@@ -8,9 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { User, Medal } from 'lucide-react';
+import TrainerCollections from '../components/TrainerCollections';
+import OtherTrainerProfile from '../components/OtherTrainerProfile';
 
 const Trainer = () => {
   const [activeTab, setActiveTab] = useState('my-profile');
+  const [selectedTrainerId, setSelectedTrainerId] = useState<string | null>(null);
   
   const { data: otherTrainers, isLoading } = useQuery({
     queryKey: ['otherTrainers'],
@@ -26,8 +29,9 @@ const Trainer = () => {
       </p>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="my-profile">My Profile</TabsTrigger>
+          <TabsTrigger value="collections">Collections</TabsTrigger>
           <TabsTrigger value="other-trainers">Other Trainers</TabsTrigger>
         </TabsList>
         
@@ -35,17 +39,35 @@ const Trainer = () => {
           <TrainerProfile />
         </TabsContent>
         
+        <TabsContent value="collections">
+          <TrainerCollections />
+        </TabsContent>
+        
         <TabsContent value="other-trainers">
           {isLoading ? (
             <div className="flex justify-center p-8">Loading trainers...</div>
+          ) : selectedTrainerId ? (
+            <div>
+              <button
+                onClick={() => setSelectedTrainerId(null)}
+                className="mb-6 text-sm flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ← Back to trainer list
+              </button>
+              <OtherTrainerProfile trainerId={selectedTrainerId} />
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {otherTrainers?.map((trainer) => (
-                <Card key={trainer.id} className="overflow-hidden">
+                <Card 
+                  key={trainer.id} 
+                  className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setSelectedTrainerId(trainer.id)}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <Avatar className="w-16 h-16 rounded-md border-2 border-pokebrand-red">
-                        <img src="/placeholder.svg" alt={trainer.name} />
+                        <img src={trainer.avatar} alt={trainer.name} />
                       </Avatar>
                       
                       <div className="space-y-2">

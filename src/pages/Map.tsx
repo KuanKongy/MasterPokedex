@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PokemonMap from '../components/PokemonMap';
 import { useQuery } from '@tanstack/react-query';
 import { fetchRegions } from '../api/regionApi';
@@ -7,10 +7,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Map = () => {
+  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
+  
   const { data: regions, isLoading } = useQuery({
     queryKey: ['regions'],
     queryFn: fetchRegions
   });
+
+  // Set default region when data loads
+  useEffect(() => {
+    if (regions && regions.length > 0 && !selectedRegionId) {
+      setSelectedRegionId(regions[0].id);
+    }
+  }, [regions, selectedRegionId]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -23,7 +32,10 @@ const Map = () => {
         <div className="flex justify-center p-8">Loading region data...</div>
       ) : (
         <div className="space-y-6">
-          <Tabs defaultValue={regions?.[0]?.id.toString()}>
+          <Tabs 
+            defaultValue={regions?.[0]?.id.toString()} 
+            onValueChange={(value) => setSelectedRegionId(Number(value))}
+          >
             <TabsList className="mb-4 flex overflow-x-auto">
               {regions?.map(region => (
                 <TabsTrigger key={region.id} value={region.id.toString()}>
@@ -79,7 +91,7 @@ const Map = () => {
             ))}
           </Tabs>
           
-          <PokemonMap />
+          <PokemonMap regionId={selectedRegionId || 1} />
         </div>
       )}
     </div>

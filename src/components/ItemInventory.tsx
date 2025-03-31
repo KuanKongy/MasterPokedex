@@ -9,6 +9,7 @@ import { Badge } from './ui/badge';
 import { Trash } from 'lucide-react';
 import { ItemCategory } from '../types/trainer';
 import { useToast } from '@/hooks/use-toast';
+import AddItemForm from './AddItemForm';
 
 const ItemInventory: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'all'>('all');
@@ -87,8 +88,9 @@ const ItemInventory: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Item Inventory</CardTitle>
+        <AddItemForm />
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap gap-2">

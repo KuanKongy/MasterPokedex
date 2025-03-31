@@ -10,6 +10,7 @@ export interface Trainer {
   joinDate: string;
   collectedPokemon: number[];
   items: TrainerItem[];
+  collections?: TrainerCollection[];
 }
 
 export interface TrainerItem {
@@ -29,3 +30,10 @@ export type ItemCategory =
   | "evolution" 
   | "machine" 
   | "key";
+
+export interface TrainerCollection {
+  id: string;
+  name: string;
+  trainers: string[];
+  description: string;
+}

@@ -1,5 +1,4 @@
-
-import { Trainer, TrainerItem } from "../types/trainer";
+import { Trainer, TrainerItem, TrainerCollection } from "../types/trainer";
 
 // Mock data - In a real app, this would come from a backend
 let MOCK_TRAINER: Trainer = {
@@ -84,6 +83,26 @@ let MOCK_TRAINER: Trainer = {
       category: "key",
       sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png",
       quantity: 1
+    }
+  ],
+  collections: [
+    {
+      id: "collection-001",
+      name: "Rivals",
+      trainers: ["trainer-002"],
+      description: "Trainers that challenge me on my journey"
+    },
+    {
+      id: "collection-002",
+      name: "Gym Leaders",
+      trainers: [],
+      description: "Strong trainers who lead Pokémon gyms"
+    },
+    {
+      id: "collection-003",
+      name: "Friends",
+      trainers: ["trainer-003"],
+      description: "Trainers I've befriended on my journey"
     }
   ]
 };
@@ -213,6 +232,102 @@ export const addItem = async (item: Omit<TrainerItem, 'id'>): Promise<TrainerIte
       };
       
       resolve(MOCK_TRAINER.items);
+    }, 300);
+  });
+};
+
+// Fetch trainer collections
+export const fetchTrainerCollections = async (): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_TRAINER.collections || []);
+    }, 300);
+  });
+};
+
+// Create a new collection
+export const createCollection = async (collection: Omit<TrainerCollection, 'id'>): Promise<TrainerCollection[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newId = `collection-${Math.floor(1000 + Math.random() * 9000)}`;
+      const newCollection = { ...collection, id: newId };
+      
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        collections: [...(MOCK_TRAINER.collections || []), newCollection]
+      };
+      
+      resolve(MOCK_TRAINER.collections || []);
+    }, 300);
+  });
+};
+
+// Add trainer to collection
+export const addTrainerToCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!MOCK_TRAINER.collections) {
+        reject(new Error("Collections not found"));
+        return;
+      }
+      
+      const collectionIndex = MOCK_TRAINER.collections.findIndex(c => c.id === collectionId);
+      if (collectionIndex === -1) {
+        reject(new Error("Collection not found"));
+        return;
+      }
+      
+      // Check if trainer is already in collection
+      if (MOCK_TRAINER.collections[collectionIndex].trainers.includes(trainerId)) {
+        resolve(MOCK_TRAINER.collections);
+        return;
+      }
+      
+      // Add trainer to collection
+      const updatedCollections = [...MOCK_TRAINER.collections];
+      updatedCollections[collectionIndex] = {
+        ...updatedCollections[collectionIndex],
+        trainers: [...updatedCollections[collectionIndex].trainers, trainerId]
+      };
+      
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        collections: updatedCollections
+      };
+      
+      resolve(MOCK_TRAINER.collections);
+    }, 300);
+  });
+};
+
+// Remove trainer from collection
+export const removeTrainerFromCollection = async (collectionId: string, trainerId: string): Promise<TrainerCollection[]> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!MOCK_TRAINER.collections) {
+        reject(new Error("Collections not found"));
+        return;
+      }
+      
+      const collectionIndex = MOCK_TRAINER.collections.findIndex(c => c.id === collectionId);
+      if (collectionIndex === -1) {
+        reject(new Error("Collection not found"));
+        return;
+      }
+      
+      // Remove trainer from collection
+      const updatedCollections = [...MOCK_TRAINER.collections];
+      updatedCollections[collectionIndex] = {
+        ...updatedCollections[collectionIndex],
+        trainers: updatedCollections[collectionIndex].trainers.filter(id => id !== trainerId)
+      };
+      
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        collections: updatedCollections
+      };
+      
+      resolve(MOCK_TRAINER.collections);
     }, 300);
   });
 };
