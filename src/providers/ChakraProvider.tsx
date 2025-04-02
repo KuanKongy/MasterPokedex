@@ -1,26 +1,28 @@
 
 import React from 'react';
-import { ChakraProvider as BaseChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider as BaseChakraProvider, ChakraProviderProps } from '@chakra-ui/react';
 
-// Define a simpler theme structure without using extendTheme
-const theme = {
-  colors: {
-    pokebrand: {
-      red: '#ea384c',
-      darkRed: '#c3303f',
-      blue: '#1EAEDB',
-      lightBlue: '#33C3F0',
+const chakraProps: ChakraProviderProps = {
+  value: {
+    colors: {
+      pokebrand: {
+        red: '#ea384c',
+        darkRed: '#c3303f',
+        blue: '#1EAEDB',
+        lightBlue: '#33C3F0',
+      }
     }
   },
-  config: {
-    initialColorMode: 'light',
-    useSystemColorMode: false,
+  colorModeManager: {
+    get: () => 'light',
+    set: () => {},
+    type: 'localStorage'
   }
 };
 
 export const ChakraProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <BaseChakraProvider>
+    <BaseChakraProvider {...chakraProps}>
       {children}
     </BaseChakraProvider>
   );

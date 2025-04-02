@@ -12,14 +12,14 @@ import {
   Input,
   Icon,
   Stack,
-  Avatar,
-  AvatarBadge,
 } from '@chakra-ui/react';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
 import PokemonCollections from './PokemonCollections';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const TrainerProfile: React.FC = () => {
   const [isEditingName, setIsEditingName] = useState(false);
@@ -102,12 +102,9 @@ const TrainerProfile: React.FC = () => {
       >
         <Stack direction="column" gap={4} align="stretch">
           <Flex gap={6} alignItems="flex-start">
-            <Avatar 
-              size="xl" 
-              src="/placeholder.svg" 
-              name={trainer.name} 
-            >
-              <AvatarBadge boxSize="1.25em" bg="red.500" />
+            <Avatar className="w-16 h-16">
+              <AvatarImage src="/placeholder.svg" alt={trainer.name} />
+              <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
             </Avatar>
 
             <Stack direction="column" gap={4} align="stretch" flex={1}>
@@ -124,7 +121,7 @@ const TrainerProfile: React.FC = () => {
                       size="sm" 
                       variant="outline" 
                       onClick={handleSaveName}
-                      isDisabled={updateNameMutation.isPending}
+                      disabled={updateNameMutation.isPending}
                     >
                       <Icon as={Check} />
                     </Button>
@@ -200,66 +197,30 @@ const TrainerProfile: React.FC = () => {
       </Box>
 
       <Box>
-        {/* Custom tabs implementation instead of ChakraUI Tabs */}
-        <Box>
-          <Box borderWidth="1px" p={2} borderRadius="md" mb={2}>
-            <Flex>
-              <Box 
-                flex="1" 
-                textAlign="center" 
-                py={2} 
-                cursor="pointer" 
-                borderRadius="md" 
-                bg={tabIndex === 0 ? "gray.100" : "transparent"}
-                _hover={{ bg: "gray.100" }}
-                onClick={() => setTabIndex(0)}
-              >
-                Collection
-              </Box>
-              <Box 
-                flex="1" 
-                textAlign="center" 
-                py={2} 
-                cursor="pointer" 
-                borderRadius="md" 
-                bg={tabIndex === 1 ? "gray.100" : "transparent"}
-                _hover={{ bg: "gray.100" }}
-                onClick={() => setTabIndex(1)}
-              >
-                Pokémon Collections
-              </Box>
-              <Box 
-                flex="1" 
-                textAlign="center" 
-                py={2} 
-                cursor="pointer" 
-                borderRadius="md" 
-                bg={tabIndex === 2 ? "gray.100" : "transparent"}
-                _hover={{ bg: "gray.100" }}
-                onClick={() => setTabIndex(2)}
-              >
-                Items
-              </Box>
-            </Flex>
-          </Box>
-
-          <Box p={0}>
-            {tabIndex === 0 && trainer.collections && trainer.collections[0] && (
+        <Tabs defaultIndex={tabIndex} onChange={setTabIndex}>
+          <TabsList>
+            <TabsTrigger value="collection">Collection</TabsTrigger>
+            <TabsTrigger value="collections">Pokémon Collections</TabsTrigger>
+            <TabsTrigger value="items">Items</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="collection">
+            {trainer.collections && trainer.collections[0] && (
               <CollectionList 
                 collectionId={trainer.collections[0].id}
                 onSelectPokemon={handleSelectPokemon}
               />
             )}
-            
-            {tabIndex === 1 && (
-              <PokemonCollections />
-            )}
-            
-            {tabIndex === 2 && (
-              <ItemInventory />
-            )}
-          </Box>
-        </Box>
+          </TabsContent>
+          
+          <TabsContent value="collections">
+            <PokemonCollections />
+          </TabsContent>
+          
+          <TabsContent value="items">
+            <ItemInventory />
+          </TabsContent>
+        </Tabs>
       </Box>
     </Stack>
   );
