@@ -1,53 +1,126 @@
-import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-import { cn } from "@/lib/utils"
+import React, { useState } from "react";
+import { Box, Flex } from "@chakra-ui/react";
 
-const Tabs = TabsPrimitive.Root
+interface TabsProps {
+  defaultIndex?: number;
+  children: React.ReactNode;
+}
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-      className
-    )}
-    {...props}
-  />
-))
-TabsList.displayName = TabsPrimitive.List.displayName
+export const Tabs = ({ defaultIndex = 0, children }: TabsProps) => {
+  const [activeIndex, setActiveIndex] = useState(defaultIndex);
+  
+  const tabsList = React.Children.toArray(children).filter(
+    (child) => React.isValidElement(child) && child.type === TabsList
+  );
+  
+  const tabsContent = React.Children.toArray(children).filter(
+    (child) => React.isValidElement(child) && child.type === TabsContent
+  );
+  
+  return (
+    <Box className="tabs">
+      {React.Children.map(tabsList, (child) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            activeIndex,
+            setActiveIndex,
+          });
+        }
+        return child;
+      })}
+      
+      {React.Children.map(tabsContent, (child, index) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            index,
+            activeIndex,
+          });
+        }
+        return child;
+      })}
+    </Box>
+  );
+};
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
+interface TabsListProps {
+  children: React.ReactNode;
+  activeIndex?: number;
+  setActiveIndex?: (index: number) => void;
+  className?: string;
+}
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
-    )}
-    {...props}
-  />
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
+export const TabsList = ({ children, activeIndex = 0, setActiveIndex, className }: TabsListProps) => {
+  return (
+    <Flex 
+      className={`tabs-list bg-muted p-1 rounded-md ${className}`} 
+      gap={1}
+      borderWidth="1px"
+      borderRadius="md"
+      overflow="hidden"
+    >
+      {React.Children.map(children, (child, index) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as React.ReactElement<any>, {
+            isActive: index === activeIndex,
+            onSelect: () => setActiveIndex?.(index),
+          });
+        }
+        return child;
+      })}
+    </Flex>
+  );
+};
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+interface TabsTriggerProps {
+  children: React.ReactNode;
+  value: string;
+  isActive?: boolean;
+  onSelect?: () => void;
+  className?: string;
+}
+
+export const TabsTrigger = ({ 
+  children, 
+  isActive = false, 
+  onSelect,
+  className 
+}: TabsTriggerProps) => {
+  return (
+    <Box
+      className={`tabs-trigger px-3 py-1.5 rounded-sm cursor-pointer ${className}`}
+      onClick={onSelect}
+      flex="1"
+      textAlign="center"
+      fontWeight={isActive ? "medium" : "normal"}
+      bg={isActive ? "white" : "transparent"}
+      color={isActive ? "gray.800" : "gray.600"}
+      shadow={isActive ? "sm" : "none"}
+    >
+      {children}
+    </Box>
+  );
+};
+
+interface TabsContentProps {
+  children: React.ReactNode;
+  value: string;
+  index?: number;
+  activeIndex?: number;
+  className?: string;
+}
+
+export const TabsContent = ({ 
+  children, 
+  index = 0, 
+  activeIndex = 0,
+  className 
+}: TabsContentProps) => {
+  if (index !== activeIndex) return null;
+  
+  return (
+    <Box className={`tabs-content mt-2 ${className}`}>
+      {children}
+    </Box>
+  );
+};

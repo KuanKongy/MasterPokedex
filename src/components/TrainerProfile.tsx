@@ -5,22 +5,17 @@ import { fetchTrainerProfile, updateTrainerName } from '../api/trainerApi';
 import { fetchPokemonList } from '../api/pokemonApi';
 import { 
   Box, 
-  VStack, 
-  HStack, 
+  Flex, 
   Heading, 
   Text, 
-  Avatar, 
   Button, 
-  Input, 
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel,
-  Flex,
-  Badge,
-  Icon
+  Input,
+  Icon,
+  Avatar as ChakraAvatar,
+  AvatarBadge,
+  Stack,
 } from '@chakra-ui/react';
+import { Tabs, TabPanels, TabPanel } from '@chakra-ui/tabs';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
@@ -97,7 +92,7 @@ const TrainerProfile: React.FC = () => {
   }
 
   return (
-    <VStack spacing={6} align="stretch">
+    <Stack direction="column" gap={6} align="stretch">
       <Box 
         borderWidth={1} 
         borderRadius="lg" 
@@ -105,20 +100,20 @@ const TrainerProfile: React.FC = () => {
         boxShadow="md" 
         bg="white"
       >
-        <VStack spacing={4} align="stretch">
-          <HStack spacing={6} alignItems="start">
-            <Avatar 
+        <Stack direction="column" gap={4} align="stretch">
+          <Flex gap={6} alignItems="flex-start">
+            <ChakraAvatar 
               size="xl" 
               src="/placeholder.svg" 
               name={trainer.name} 
-              borderWidth={2} 
-              borderColor="red.500"
-            />
+            >
+              <AvatarBadge boxSize="1.25em" bg="red.500" />
+            </ChakraAvatar>
 
-            <VStack spacing={4} align="stretch" flex={1}>
+            <Stack direction="column" gap={4} align="stretch" flex={1}>
               <Box>
                 {isEditingName ? (
-                  <HStack spacing={2}>
+                  <Flex gap={2}>
                     <Input 
                       value={newName} 
                       onChange={(e) => setNewName(e.target.value)}
@@ -129,7 +124,7 @@ const TrainerProfile: React.FC = () => {
                       size="sm" 
                       variant="outline" 
                       onClick={handleSaveName}
-                      isLoading={updateNameMutation.isPending}
+                      isDisabled={updateNameMutation.isPending}
                     >
                       <Icon as={Check} />
                     </Button>
@@ -140,9 +135,9 @@ const TrainerProfile: React.FC = () => {
                     >
                       <Icon as={X} />
                     </Button>
-                  </HStack>
+                  </Flex>
                 ) : (
-                  <HStack spacing={2} alignItems="center">
+                  <Flex gap={2} alignItems="center">
                     <Icon as={User} />
                     <Heading size="lg">{trainer.name}</Heading>
                     <Button 
@@ -152,7 +147,7 @@ const TrainerProfile: React.FC = () => {
                     >
                       <Icon as={Edit} />
                     </Button>
-                  </HStack>
+                  </Flex>
                 )}
                 <Text color="gray.500">{trainer.region} Region</Text>
               </Box>
@@ -192,43 +187,47 @@ const TrainerProfile: React.FC = () => {
                     flex="1 1 0"
                   >
                     <Text color="gray.500" fontSize="sm">{stat.label}</Text>
-                    <HStack>
+                    <Flex>
                       <Icon as={stat.icon} color={stat.color} />
-                      <Text fontWeight="semibold">{stat.value}</Text>
-                    </HStack>
+                      <Text fontWeight="semibold" ml={1}>{stat.value}</Text>
+                    </Flex>
                   </Box>
                 ))}
               </Flex>
-            </VStack>
-          </HStack>
-        </VStack>
+            </Stack>
+          </Flex>
+        </Stack>
       </Box>
 
-      <Tabs>
-        <TabList>
-          <Tab>Collection</Tab>
-          <Tab>Pokémon Collections</Tab>
-          <Tab>Items</Tab>
-        </TabList>
+      <Box>
+        <Tabs variant="enclosed">
+          <Box borderWidth="1px" p={2} borderRadius="md" mb={2}>
+            <Flex>
+              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Collection</Box>
+              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Pokémon Collections</Box>
+              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Items</Box>
+            </Flex>
+          </Box>
 
-        <TabPanels>
-          <TabPanel>
-            {trainer.collections && trainer.collections[0] && (
-              <CollectionList 
-                collectionId={trainer.collections[0].id}
-                onSelectPokemon={handleSelectPokemon}
-              />
-            )}
-          </TabPanel>
-          <TabPanel>
-            <PokemonCollections />
-          </TabPanel>
-          <TabPanel>
-            <ItemInventory />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </VStack>
+          <TabPanels>
+            <TabPanel p={0}>
+              {trainer.collections && trainer.collections[0] && (
+                <CollectionList 
+                  collectionId={trainer.collections[0].id}
+                  onSelectPokemon={handleSelectPokemon}
+                />
+              )}
+            </TabPanel>
+            <TabPanel p={0}>
+              <PokemonCollections />
+            </TabPanel>
+            <TabPanel p={0}>
+              <ItemInventory />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Box>
+    </Stack>
   );
 };
 

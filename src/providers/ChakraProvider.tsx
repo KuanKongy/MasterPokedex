@@ -1,8 +1,17 @@
 
 import React from 'react';
-import { ChakraProvider as BaseChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ChakraProvider as BaseChakraProvider } from '@chakra-ui/react';
 
-const theme = extendTheme({
+// In Chakra UI v3, we need to use a different approach for theming
+const theme = {
+  colors: {
+    pokebrand: {
+      red: '#ea384c',
+      darkRed: '#c3303f',
+      blue: '#1EAEDB',
+      lightBlue: '#33C3F0',
+    },
+  },
   styles: {
     global: {
       body: {
@@ -13,9 +22,6 @@ const theme = extendTheme({
   },
   components: {
     Button: {
-      baseStyle: {
-        fontWeight: 'bold',
-      },
       variants: {
         primary: {
           bg: 'blue.500',
@@ -27,19 +33,11 @@ const theme = extendTheme({
       },
     },
   },
-  colors: {
-    pokebrand: {
-      red: '#ea384c',
-      darkRed: '#c3303f',
-      blue: '#1EAEDB',
-      lightBlue: '#33C3F0',
-    },
-  },
-});
+};
 
 export const ChakraProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <BaseChakraProvider theme={theme}>
+    <BaseChakraProvider>
       {children}
     </BaseChakraProvider>
   );

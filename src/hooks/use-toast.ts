@@ -1,8 +1,8 @@
 
-import { useToast as useChakraToast } from '@chakra-ui/react';
+import { useToast as useChakraToast } from '@chakra-ui/toast';
 
 export const useToast = () => {
-  const toast = useChakraToast();
+  const chakraToast = useChakraToast();
 
   return {
     toast: (options: {
@@ -13,10 +13,10 @@ export const useToast = () => {
     }) => {
       const status = options.variant === 'destructive' ? 'error' : options.status || 'success';
       
-      toast({
+      chakraToast({
         title: options.title,
         description: options.description,
-        status: status,
+        status: status as any,
         duration: 3000,
         isClosable: true,
         position: 'top-right',

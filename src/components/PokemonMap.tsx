@@ -7,14 +7,10 @@ import { Location } from '../types/location';
 import { 
   Grid, 
   GridItem, 
-  Card, 
-  CardHeader, 
-  CardBody, 
+  Box,
   Heading, 
   Text,
-  Box,
   Flex,
-  Divider,
   Icon
 } from '@chakra-ui/react';
 import { MapPin, Compass } from 'lucide-react';
@@ -65,8 +61,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
   return (
     <Grid templateColumns={{ base: "1fr", lg: "1fr 2fr" }} gap={6}>
       <GridItem>
-        <Card shadow="md" h="full">
-          <CardHeader>
+        <Box shadow="md" borderRadius="md" borderWidth="1px" bg="white" h="full">
+          <Box p={4} borderBottomWidth="1px">
             <Flex alignItems="center" gap={2}>
               <Icon as={MapPin} color="red.500" boxSize={5} />
               <Heading size="md">{regionName} Locations</Heading>
@@ -74,8 +70,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
             <Text color="gray.500" fontSize="sm">
               Select a location to see which Pokémon can be found there
             </Text>
-          </CardHeader>
-          <CardBody pt={0}>
+          </Box>
+          <Box p={0}>
             <Box maxH="calc(100vh - 300px)" overflowY="auto">
               <Box>
                 {regionLocations?.length ? (
@@ -103,21 +99,21 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
                 )}
               </Box>
             </Box>
-          </CardBody>
-        </Card>
+          </Box>
+        </Box>
       </GridItem>
 
       <GridItem>
         {selectedLocation ? (
           <LocationDetails location={selectedLocation} />
         ) : (
-          <Card h="full" display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={6} textAlign="center" shadow="md">
+          <Box h="full" display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={6} textAlign="center" shadow="md" borderWidth="1px" borderRadius="md" bg="white">
             <Icon as={MapPin} boxSize={12} color="gray.300" mb={4} />
             <Heading as="h3" size="md" mb={2}>Select a Location</Heading>
             <Text color="gray.500">
               Click on a location from the list to view detailed information and Pokémon encounters
             </Text>
-          </Card>
+          </Box>
         )}
       </GridItem>
     </Grid>

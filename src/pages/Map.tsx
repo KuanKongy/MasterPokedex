@@ -7,26 +7,18 @@ import {
   Box, 
   Heading, 
   Text, 
-  Card, 
-  CardHeader, 
-  CardBody, 
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel,
+  Image,
+  Flex,
   Grid,
   GridItem,
-  Image,
-  List,
-  ListItem,
-  Flex,
   Badge,
-  Avatar
+  Icon
 } from '@chakra-ui/react';
+import { Compass } from 'lucide-react';
 
 const Map = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
   
   const { data: regions, isLoading } = useQuery({
     queryKey: ['regions'],
@@ -40,6 +32,13 @@ const Map = () => {
     }
   }, [regions, selectedRegionId]);
 
+  const handleTabChange = (index: number) => {
+    setActiveTab(index);
+    if (regions && regions[index]) {
+      setSelectedRegionId(regions[index].id);
+    }
+  };
+
   return (
     <Box maxW="container.xl" mx="auto" px={4} py={8}>
       <Heading as="h1" size="xl" fontWeight="extrabold" mb={2}>Pokémon Map</Heading>
@@ -51,26 +50,34 @@ const Map = () => {
         <Flex justify="center" p={8}>Loading region data...</Flex>
       ) : (
         <Box>
-          <Tabs 
-            defaultValue={regions?.[0]?.id.toString()} 
-            onChange={(idx) => setSelectedRegionId(Number(idx)+1)}
-            mb={6}
-          >
-            <TabList mb={4} overflowX="auto" display="flex">
+          <Box mb={6}>
+            <Flex borderBottom="1px" borderColor="gray.200" mb={4} overflowX="auto">
               {regions?.map((region, idx) => (
-                <Tab key={region.id}>{region.name}</Tab>
+                <Box 
+                  key={region.id}
+                  px={4} 
+                  py={2} 
+                  cursor="pointer"
+                  borderBottom={activeTab === idx ? "2px solid" : "none"}
+                  borderColor={activeTab === idx ? "blue.500" : "transparent"}
+                  color={activeTab === idx ? "blue.500" : "gray.600"}
+                  fontWeight={activeTab === idx ? "semibold" : "normal"}
+                  onClick={() => handleTabChange(idx)}
+                >
+                  {region.name}
+                </Box>
               ))}
-            </TabList>
+            </Flex>
             
-            <TabPanels>
-              {regions?.map(region => (
-                <TabPanel key={region.id} p={0}>
-                  <Card variant="outline" mb={6}>
-                    <CardHeader>
+            <Box>
+              {regions?.map((region, idx) => (
+                <Box key={region.id} display={activeTab === idx ? "block" : "none"}>
+                  <Box borderWidth="1px" borderRadius="md" mb={6} overflow="hidden">
+                    <Box p={4}>
                       <Heading size="md">{region.name} Region</Heading>
                       <Text color="gray.500">{region.description}</Text>
-                    </CardHeader>
-                    <CardBody>
+                    </Box>
+                    <Box p={4}>
                       <Grid templateColumns={{ md: "repeat(2, 1fr)" }} gap={8}>
                         <GridItem>
                           <Image 
@@ -83,9 +90,9 @@ const Map = () => {
                         </GridItem>
                         <GridItem>
                           <Heading as="h3" size="md" mb={2}>Notable Locations</Heading>
-                          <List spacing={4}>
+                          <Box>
                             {region.locations.map(location => (
-                              <ListItem key={location.id} pb={3} borderBottomWidth="1px">
+                              <Box key={location.id} pb={3} mb={3} borderBottomWidth="1px">
                                 <Text fontWeight="medium">{location.name}</Text>
                                 <Text fontSize="sm" color="gray.500">{location.description}</Text>
                                 {location.pokemonEncounters.length > 0 && (
@@ -110,17 +117,17 @@ const Map = () => {
                                     </Flex>
                                   </Box>
                                 )}
-                              </ListItem>
+                              </Box>
                             ))}
-                          </List>
+                          </Box>
                         </GridItem>
                       </Grid>
-                    </CardBody>
-                  </Card>
-                </TabPanel>
+                    </Box>
+                  </Box>
+                </Box>
               ))}
-            </TabPanels>
-          </Tabs>
+            </Box>
+          </Box>
           
           <PokemonMap regionId={selectedRegionId || 1} />
         </Box>
