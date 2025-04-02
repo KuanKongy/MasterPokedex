@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 const TrainerProfile: React.FC = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+  const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -66,6 +67,15 @@ const TrainerProfile: React.FC = () => {
     setIsEditingName(false);
   };
 
+  const handleSelectPokemon = (pokemonId: number) => {
+    setSelectedPokemonId(pokemonId);
+    // Additional logic for selected Pokémon can be added here
+    toast({
+      title: "Pokémon Selected",
+      description: `You selected Pokémon #${pokemonId}`,
+    });
+  };
+
   if (trainerLoading || pokemonLoading) {
     return <div className="flex justify-center p-8">Loading trainer data...</div>;
   }
@@ -73,10 +83,6 @@ const TrainerProfile: React.FC = () => {
   if (!trainer) {
     return <div className="text-red-500 p-4">Error loading trainer profile</div>;
   }
-
-  const collectedPokemonDetails = allPokemon?.filter(
-    (pokemon: any) => trainer.collectedPokemon.includes(pokemon.id)
-  );
 
   return (
     <div className="space-y-6">
@@ -173,7 +179,12 @@ const TrainerProfile: React.FC = () => {
           <TabsTrigger value="items">Items</TabsTrigger>
         </TabsList>
         <TabsContent value="collection" className="space-y-4">
-          <CollectionList collection={collectedPokemonDetails || []} />
+          {trainer.collections && trainer.collections[0] && (
+            <CollectionList 
+              collectionId={trainer.collections[0].id}
+              onSelectPokemon={handleSelectPokemon}
+            />
+          )}
         </TabsContent>
         <TabsContent value="pokemon-collections">
           <PokemonCollections />
