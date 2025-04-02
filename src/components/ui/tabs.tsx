@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Box, Flex } from "@chakra-ui/react";
 
 interface TabsProps {
   defaultIndex?: number;
@@ -27,7 +26,7 @@ export const Tabs = ({
   const handleTabChange = (idx: number) => {
     if (onChange) {
       onChange(idx);
-    } else if (!index) {
+    } else if (index === undefined) {
       setActiveIndex(idx);
     }
   };
@@ -52,7 +51,7 @@ export const Tabs = ({
   );
   
   return (
-    <Box className={`tabs ${className}`}>
+    <div className={`tabs ${className}`}>
       {React.Children.map(tabsList, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {
@@ -76,7 +75,7 @@ export const Tabs = ({
         }
         return child;
       })}
-    </Box>
+    </div>
   );
 };
 
@@ -98,12 +97,8 @@ export const TabsList = ({
   className = ""
 }: TabsListProps) => {
   return (
-    <Flex 
-      className={`tabs-list bg-muted p-1 rounded-md ${className}`} 
-      gap={1}
-      borderWidth="1px"
-      borderRadius="md"
-      overflow="hidden"
+    <div 
+      className={`tabs-list flex bg-muted p-1 rounded-md border gap-1 ${className}`}
     >
       {React.Children.map(children, (child, index) => {
         if (React.isValidElement(child)) {
@@ -125,7 +120,7 @@ export const TabsList = ({
         }
         return child;
       })}
-    </Flex>
+    </div>
   );
 };
 
@@ -145,18 +140,15 @@ export const TabsTrigger = ({
   className = ""
 }: TabsTriggerProps) => {
   return (
-    <Box
-      className={`tabs-trigger px-3 py-1.5 rounded-sm cursor-pointer ${className}`}
+    <button
+      className={`tabs-trigger px-3 py-1.5 rounded-sm cursor-pointer flex-1 text-center
+        ${isActive ? 'bg-white text-gray-800 font-medium shadow-sm' : 'bg-transparent text-gray-600 font-normal'}
+        ${className}`}
       onClick={onSelect}
-      flex="1"
-      textAlign="center"
-      fontWeight={isActive ? "medium" : "normal"}
-      bg={isActive ? "white" : "transparent"}
-      color={isActive ? "gray.800" : "gray.600"}
-      shadow={isActive ? "sm" : "none"}
+      type="button"
     >
       {children}
-    </Box>
+    </button>
   );
 };
 
@@ -184,8 +176,8 @@ export const TabsContent = ({
   if (!isVisible) return null;
   
   return (
-    <Box className={`tabs-content mt-2 ${className}`}>
+    <div className={`tabs-content mt-2 ${className}`}>
       {children}
-    </Box>
+    </div>
   );
 };
