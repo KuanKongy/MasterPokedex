@@ -3,12 +3,25 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerProfile, updateTrainerName } from '../api/trainerApi';
 import { fetchPokemonList } from '../api/pokemonApi';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Avatar } from '@/components/ui/avatar';
+import { 
+  Box, 
+  VStack, 
+  HStack, 
+  Heading, 
+  Text, 
+  Avatar, 
+  Button, 
+  Input, 
+  Tabs, 
+  TabList, 
+  TabPanels, 
+  Tab, 
+  TabPanel,
+  Flex,
+  Badge,
+  Icon
+} from '@chakra-ui/react';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
 import PokemonCollections from './PokemonCollections';
@@ -69,7 +82,6 @@ const TrainerProfile: React.FC = () => {
 
   const handleSelectPokemon = (pokemonId: number) => {
     setSelectedPokemonId(pokemonId);
-    // Additional logic for selected Pokémon can be added here
     toast({
       title: "Pokémon Selected",
       description: `You selected Pokémon #${pokemonId}`,
@@ -77,123 +89,146 @@ const TrainerProfile: React.FC = () => {
   };
 
   if (trainerLoading || pokemonLoading) {
-    return <div className="flex justify-center p-8">Loading trainer data...</div>;
+    return <Box display="flex" justifyContent="center" p={8}>Loading trainer data...</Box>;
   }
 
   if (!trainer) {
-    return <div className="text-red-500 p-4">Error loading trainer profile</div>;
+    return <Box color="red.500" p={4}>Error loading trainer profile</Box>;
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-2xl">Trainer Profile</CardTitle>
-          <CardDescription>View and manage your Pokémon journey</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row items-start gap-6">
-            <Avatar className="w-24 h-24 border-2 border-pokebrand-red">
-              <img src="/placeholder.svg" alt={trainer.name} />
-            </Avatar>
+    <VStack spacing={6} align="stretch">
+      <Box 
+        borderWidth={1} 
+        borderRadius="lg" 
+        p={6} 
+        boxShadow="md" 
+        bg="white"
+      >
+        <VStack spacing={4} align="stretch">
+          <HStack spacing={6} alignItems="start">
+            <Avatar 
+              size="xl" 
+              src="/placeholder.svg" 
+              name={trainer.name} 
+              borderWidth={2} 
+              borderColor="red.500"
+            />
 
-            <div className="space-y-4 flex-1">
-              <div>
+            <VStack spacing={4} align="stretch" flex={1}>
+              <Box>
                 {isEditingName ? (
-                  <div className="flex items-center gap-2">
+                  <HStack spacing={2}>
                     <Input 
                       value={newName} 
                       onChange={(e) => setNewName(e.target.value)}
-                      className="max-w-xs"
+                      maxW="xs"
                       placeholder="Enter new name"
                     />
                     <Button 
                       size="sm" 
                       variant="outline" 
                       onClick={handleSaveName}
-                      disabled={updateNameMutation.isPending}
+                      isLoading={updateNameMutation.isPending}
                     >
-                      <Check className="h-4 w-4" />
+                      <Icon as={Check} />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline" 
                       onClick={handleCancelEdit}
                     >
-                      <X className="h-4 w-4" />
+                      <Icon as={X} />
                     </Button>
-                  </div>
+                  </HStack>
                 ) : (
-                  <h3 className="flex items-center gap-2 text-xl font-semibold">
-                    <User className="h-5 w-5" /> 
-                    {trainer.name}
+                  <HStack spacing={2} alignItems="center">
+                    <Icon as={User} />
+                    <Heading size="lg">{trainer.name}</Heading>
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="ml-2" 
                       onClick={handleStartEditName}
                     >
-                      <Edit className="h-4 w-4" />
+                      <Icon as={Edit} />
                     </Button>
-                  </h3>
+                  </HStack>
                 )}
-                <p className="text-muted-foreground">{trainer.region} Region</p>
-              </div>
+                <Text color="gray.500">{trainer.region} Region</Text>
+              </Box>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Badges</div>
-                  <div className="flex items-center gap-1 font-semibold">
-                    <Medal className="h-4 w-4 text-yellow-500" />
-                    {trainer.badges}
-                  </div>
-                </div>
+              <Flex wrap="wrap" gap={4}>
+                {[
+                  { 
+                    icon: Medal, 
+                    color: "yellow.500", 
+                    label: "Badges", 
+                    value: trainer.badges 
+                  },
+                  { 
+                    icon: User, 
+                    color: "green.500", 
+                    label: "Pokémon Caught", 
+                    value: trainer.pokemonCaught 
+                  },
+                  { 
+                    icon: Calendar, 
+                    color: "blue.500", 
+                    label: "Favorite Type", 
+                    value: trainer.favoriteType 
+                  },
+                  { 
+                    icon: Calendar, 
+                    color: "purple.500", 
+                    label: "Joined", 
+                    value: new Date(trainer.joinDate).toLocaleDateString() 
+                  }
+                ].map((stat, index) => (
+                  <Box 
+                    key={index} 
+                    bg="gray.100" 
+                    p={3} 
+                    borderRadius="md"
+                    flex="1 1 0"
+                  >
+                    <Text color="gray.500" fontSize="sm">{stat.label}</Text>
+                    <HStack>
+                      <Icon as={stat.icon} color={stat.color} />
+                      <Text fontWeight="semibold">{stat.value}</Text>
+                    </HStack>
+                  </Box>
+                ))}
+              </Flex>
+            </VStack>
+          </HStack>
+        </VStack>
+      </Box>
 
-                <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Pokémon Caught</div>
-                  <div className="font-semibold">{trainer.pokemonCaught}</div>
-                </div>
+      <Tabs>
+        <TabList>
+          <Tab>Collection</Tab>
+          <Tab>Pokémon Collections</Tab>
+          <Tab>Items</Tab>
+        </TabList>
 
-                <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Favorite Type</div>
-                  <div className="font-semibold capitalize">{trainer.favoriteType}</div>
-                </div>
-                
-                <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Joined</div>
-                  <div className="flex items-center gap-1 font-semibold">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(trainer.joinDate).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="collection" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="collection">Collection</TabsTrigger>
-          <TabsTrigger value="pokemon-collections">Pokémon Collections</TabsTrigger>
-          <TabsTrigger value="items">Items</TabsTrigger>
-        </TabsList>
-        <TabsContent value="collection" className="space-y-4">
-          {trainer.collections && trainer.collections[0] && (
-            <CollectionList 
-              collectionId={trainer.collections[0].id}
-              onSelectPokemon={handleSelectPokemon}
-            />
-          )}
-        </TabsContent>
-        <TabsContent value="pokemon-collections">
-          <PokemonCollections />
-        </TabsContent>
-        <TabsContent value="items">
-          <ItemInventory />
-        </TabsContent>
+        <TabPanels>
+          <TabPanel>
+            {trainer.collections && trainer.collections[0] && (
+              <CollectionList 
+                collectionId={trainer.collections[0].id}
+                onSelectPokemon={handleSelectPokemon}
+              />
+            )}
+          </TabPanel>
+          <TabPanel>
+            <PokemonCollections />
+          </TabPanel>
+          <TabPanel>
+            <ItemInventory />
+          </TabPanel>
+        </TabPanels>
       </Tabs>
-    </div>
+    </VStack>
   );
 };
 
