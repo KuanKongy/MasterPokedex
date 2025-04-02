@@ -1,26 +1,77 @@
 
-import { useToast as useChakraToast } from '@chakra-ui/react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+
+interface ToastOptions {
+  title?: string;
+  description?: string;
+  status?: 'success' | 'error' | 'warning' | 'info';
+  variant?: 'destructive';
+}
 
 export const useToast = () => {
-  const chakraToast = useChakraToast();
+  const showToast = useCallback((options: ToastOptions) => {
+    const { title, description, status, variant } = options;
+
+    if (variant === 'destructive' || status === 'error') {
+      toast.error(title, {
+        description,
+      });
+      return;
+    }
+
+    if (status === 'warning') {
+      toast.warning(title, {
+        description,
+      });
+      return;
+    }
+
+    if (status === 'info') {
+      toast.info(title, {
+        description,
+      });
+      return;
+    }
+
+    // Default is success
+    toast.success(title, {
+      description,
+    });
+  }, []);
 
   return {
-    toast: (options: {
-      title?: string;
-      description?: string;
-      status?: 'success' | 'error' | 'warning' | 'info';
-      variant?: 'destructive';
-    }) => {
-      const status = options.variant === 'destructive' ? 'error' : options.status || 'success';
-      
-      chakraToast({
-        title: options.title,
-        description: options.description,
-        status: status as any,
-        duration: 3000,
-        isClosable: true,
-        position: 'top-right',
-      });
-    }
+    toast: showToast,
   };
+};
+
+// For direct import
+export const showToast = (options: ToastOptions) => {
+  const { title, description, status, variant } = options;
+
+  if (variant === 'destructive' || status === 'error') {
+    toast.error(title, {
+      description,
+    });
+    return;
+  }
+
+  if (status === 'warning') {
+    toast.warning(title, {
+      description,
+    });
+    return;
+  }
+
+  if (status === 'info') {
+    toast.info(title, {
+      description,
+    });
+    return;
+  }
+
+  // Default is success
+  toast.success(title, {
+    description,
+  });
 };

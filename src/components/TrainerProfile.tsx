@@ -11,15 +11,9 @@ import {
   Button, 
   Input,
   Icon,
-  Avatar,
-  Badge,
   Stack,
-  TabList as ChakraTabList,
-  TabPanels as ChakraTabPanels,
-  Tab as ChakraTab,
-  TabPanel as ChakraTabPanel,
-  Tabs as ChakraTabs,
-  useTab,
+  Avatar,
+  AvatarBadge,
 } from '@chakra-ui/react';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import CollectionList from './CollectionList';
@@ -31,9 +25,9 @@ const TrainerProfile: React.FC = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
   const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
+  const [tabIndex, setTabIndex] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [tabIndex, setTabIndex] = useState(0);
   
   const { data: trainer, isLoading: trainerLoading } = useQuery({
     queryKey: ['trainerProfile'],
@@ -113,7 +107,7 @@ const TrainerProfile: React.FC = () => {
               src="/placeholder.svg" 
               name={trainer.name} 
             >
-              <Badge boxSize="1.25em" bg="red.500" position="absolute" bottom="0" right="0" borderRadius="full" />
+              <AvatarBadge boxSize="1.25em" bg="red.500" />
             </Avatar>
 
             <Stack direction="column" gap={4} align="stretch" flex={1}>
@@ -130,7 +124,7 @@ const TrainerProfile: React.FC = () => {
                       size="sm" 
                       variant="outline" 
                       onClick={handleSaveName}
-                      disabled={updateNameMutation.isPending}
+                      isDisabled={updateNameMutation.isPending}
                     >
                       <Icon as={Check} />
                     </Button>
@@ -206,7 +200,8 @@ const TrainerProfile: React.FC = () => {
       </Box>
 
       <Box>
-        <ChakraTabs index={tabIndex} onChange={setTabIndex}>
+        {/* Custom tabs implementation instead of ChakraUI Tabs */}
+        <Box>
           <Box borderWidth="1px" p={2} borderRadius="md" mb={2}>
             <Flex>
               <Box 
@@ -248,23 +243,23 @@ const TrainerProfile: React.FC = () => {
             </Flex>
           </Box>
 
-          <ChakraTabPanels>
-            <ChakraTabPanel p={0}>
-              {trainer.collections && trainer.collections[0] && (
-                <CollectionList 
-                  collectionId={trainer.collections[0].id}
-                  onSelectPokemon={handleSelectPokemon}
-                />
-              )}
-            </ChakraTabPanel>
-            <ChakraTabPanel p={0}>
+          <Box p={0}>
+            {tabIndex === 0 && trainer.collections && trainer.collections[0] && (
+              <CollectionList 
+                collectionId={trainer.collections[0].id}
+                onSelectPokemon={handleSelectPokemon}
+              />
+            )}
+            
+            {tabIndex === 1 && (
               <PokemonCollections />
-            </ChakraTabPanel>
-            <ChakraTabPanel p={0}>
+            )}
+            
+            {tabIndex === 2 && (
               <ItemInventory />
-            </ChakraTabPanel>
-          </ChakraTabPanels>
-        </ChakraTabs>
+            )}
+          </Box>
+        </Box>
       </Box>
     </Stack>
   );

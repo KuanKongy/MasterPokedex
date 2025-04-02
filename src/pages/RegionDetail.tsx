@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchRegionById } from '../api/regionApi';
@@ -12,24 +12,16 @@ import {
   Grid, 
   GridItem, 
   Image, 
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel, 
-  Card, 
-  CardHeader, 
-  CardBody, 
+  Icon,
   Badge, 
   SimpleGrid,
-  Icon,
-  Link as ChakraLink
 } from '@chakra-ui/react';
 import { MapPin, Cloud, Route, ArrowLeft } from 'lucide-react';
 
 const RegionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const regionId = id ? parseInt(id) : 1;
+  const [tabIndex, setTabIndex] = useState(0);
   
   const { data: region, isLoading, error } = useQuery({
     queryKey: ['region', regionId],
@@ -45,25 +37,31 @@ const RegionDetail: React.FC = () => {
       <Box maxW="container.xl" mx="auto" px={4} py={8} textAlign="center">
         <Heading as="h2" size="lg" mb={4}>Region not found</Heading>
         <Text color="gray.500" mb={4}>We couldn't find the region you're looking for.</Text>
-        <ChakraLink as={Link} to="/regions" color="blue.500" _hover={{ textDecoration: "underline" }}>
+        <Box 
+          as={Link} 
+          to="/regions" 
+          color="blue.500" 
+          _hover={{ textDecoration: "underline" }}
+        >
           Return to regions list
-        </ChakraLink>
+        </Box>
       </Box>
     );
   }
   
   return (
     <Box maxW="container.xl" mx="auto" px={4} py={8}>
-      <Flex 
+      <Box 
         as={Link} 
         to="/regions" 
+        display="flex"
         alignItems="center" 
         color="gray.500" 
         _hover={{ color: "gray.800" }}
         mb={6}
       >
         <Icon as={ArrowLeft} boxSize={4} mr={1} /> Back to Regions
-      </Flex>
+      </Box>
       
       <Flex flexDir={{ base: "column", md: "row" }} gap={6} mb={8}>
         <Box width={{ base: "100%", md: "33%" }}>
@@ -112,27 +110,63 @@ const RegionDetail: React.FC = () => {
         </Box>
       </Flex>
       
-      <Tabs variant="enclosed" mb={8}>
-        <TabList mb={4}>
-          <Tab>Locations</Tab>
-          <Tab>Routes</Tab>
-          <Tab>Interactive Map</Tab>
-        </TabList>
-        
-        <TabPanels>
-          <TabPanel px={0}>
+      {/* Custom tabs implementation */}
+      <Box>
+        <Box mb={4} borderWidth="1px" p={2} borderRadius="md">
+          <Flex>
+            <Box 
+              flex="1" 
+              textAlign="center" 
+              py={2} 
+              cursor="pointer" 
+              borderRadius="md" 
+              bg={tabIndex === 0 ? "gray.100" : "transparent"}
+              _hover={{ bg: "gray.100" }}
+              onClick={() => setTabIndex(0)}
+            >
+              Locations
+            </Box>
+            <Box 
+              flex="1" 
+              textAlign="center" 
+              py={2} 
+              cursor="pointer" 
+              borderRadius="md" 
+              bg={tabIndex === 1 ? "gray.100" : "transparent"}
+              _hover={{ bg: "gray.100" }}
+              onClick={() => setTabIndex(1)}
+            >
+              Routes
+            </Box>
+            <Box 
+              flex="1" 
+              textAlign="center" 
+              py={2} 
+              cursor="pointer" 
+              borderRadius="md" 
+              bg={tabIndex === 2 ? "gray.100" : "transparent"}
+              _hover={{ bg: "gray.100" }}
+              onClick={() => setTabIndex(2)}
+            >
+              Interactive Map
+            </Box>
+          </Flex>
+        </Box>
+
+        <Box mb={8}>
+          {tabIndex === 0 && (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
               {region.locations.map(location => (
-                <Card key={location.id} variant="outline">
-                  <CardHeader pb={2}>
+                <Box key={location.id} variant="outline" borderWidth="1px" borderRadius="md">
+                  <Box p={4} pb={2}>
                     <Flex justifyContent="space-between" alignItems="start">
                       <Heading size="sm">{location.name}</Heading>
                       <Badge variant="outline" fontSize="xs">
                         {location.pokemonEncounters.length > 0 ? `${location.pokemonEncounters.length} Pokémon` : 'No encounters'}
                       </Badge>
                     </Flex>
-                  </CardHeader>
-                  <CardBody pt={0}>
+                  </Box>
+                  <Box p={4} pt={0}>
                     <Text fontSize="sm" color="gray.500" mb={2}>{location.description}</Text>
                     
                     {location.weather.length > 0 && (
@@ -167,22 +201,22 @@ const RegionDetail: React.FC = () => {
                         </Flex>
                       </Box>
                     )}
-                  </CardBody>
-                </Card>
+                  </Box>
+                </Box>
               ))}
             </SimpleGrid>
-          </TabPanel>
+          )}
           
-          <TabPanel px={0}>
+          {tabIndex === 1 && (
             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mb={4}>
-              <Card variant="outline">
-                <CardHeader pb={2}>
+              <Box borderWidth="1px" borderRadius="md">
+                <Box p={4} pb={2}>
                   <Flex alignItems="center" gap={2}>
                     <Icon as={Route} boxSize={5} /> 
                     <Heading size="md">{region.name} Routes</Heading>
                   </Flex>
-                </CardHeader>
-                <CardBody>
+                </Box>
+                <Box p={4}>
                   <Flex direction="column" gap={3}>
                     {region.locations.filter((_, i) => i % 2 === 1).map((location) => (
                       <Flex 
@@ -202,8 +236,8 @@ const RegionDetail: React.FC = () => {
                       </Flex>
                     ))}
                   </Flex>
-                </CardBody>
-              </Card>
+                </Box>
+              </Box>
               
               <Flex 
                 bg="gray.50" 
@@ -222,13 +256,13 @@ const RegionDetail: React.FC = () => {
                 </Text>
               </Flex>
             </Grid>
-          </TabPanel>
+          )}
           
-          <TabPanel px={0}>
+          {tabIndex === 2 && (
             <PokemonMap regionId={regionId} />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+          )}
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -1,7 +1,14 @@
 
 import React from 'react';
-// ChakraProvider handles toasts with its own internal system
+import { Toaster as SonnerToaster } from 'sonner';
+
 export function Toaster() {
-  // The actual toast rendering is handled by Chakra UI
-  return null;
+  return (
+    <SonnerToaster 
+      position="top-right"
+      toastOptions={{
+        duration: 3000,
+      }}
+    />
+  );
 }
