@@ -11,7 +11,7 @@ export const useToast = () => {
       status?: 'success' | 'error' | 'warning' | 'info';
       variant?: 'destructive';
     }) => {
-      const status = options.variant === 'destructive' ? 'error' : 'success';
+      const status = options.variant === 'destructive' ? 'error' : options.status || 'success';
       
       toast({
         title: options.title,

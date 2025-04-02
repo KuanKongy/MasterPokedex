@@ -27,6 +27,14 @@ const theme = extendTheme({
       },
     },
   },
+  colors: {
+    pokebrand: {
+      red: '#ea384c',
+      darkRed: '#c3303f',
+      blue: '#1EAEDB',
+      lightBlue: '#33C3F0',
+    },
+  },
 });
 
 export const ChakraProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

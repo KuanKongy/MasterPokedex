@@ -1,10 +1,29 @@
 
 import React, { useState, useEffect } from 'react';
-import PokemonMap from '../components/PokemonMap';
 import { useQuery } from '@tanstack/react-query';
 import { fetchRegions } from '../api/regionApi';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PokemonMap from '../components/PokemonMap';
+import { 
+  Box, 
+  Heading, 
+  Text, 
+  Card, 
+  CardHeader, 
+  CardBody, 
+  Tabs, 
+  TabList, 
+  TabPanels, 
+  Tab, 
+  TabPanel,
+  Grid,
+  GridItem,
+  Image,
+  List,
+  ListItem,
+  Flex,
+  Badge,
+  Avatar
+} from '@chakra-ui/react';
 
 const Map = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
@@ -22,79 +41,91 @@ const Map = () => {
   }, [regions, selectedRegionId]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Map</h1>
-      <p className="text-muted-foreground mb-8">
+    <Box maxW="container.xl" mx="auto" px={4} py={8}>
+      <Heading as="h1" size="xl" fontWeight="extrabold" mb={2}>Pokémon Map</Heading>
+      <Text color="gray.500" mb={8}>
         Explore locations and discover which Pokémon can be found in different areas
-      </p>
+      </Text>
       
       {isLoading ? (
-        <div className="flex justify-center p-8">Loading region data...</div>
+        <Flex justify="center" p={8}>Loading region data...</Flex>
       ) : (
-        <div className="space-y-6">
+        <Box>
           <Tabs 
             defaultValue={regions?.[0]?.id.toString()} 
-            onValueChange={(value) => setSelectedRegionId(Number(value))}
+            onChange={(idx) => setSelectedRegionId(Number(idx)+1)}
+            mb={6}
           >
-            <TabsList className="mb-4 flex overflow-x-auto">
-              {regions?.map(region => (
-                <TabsTrigger key={region.id} value={region.id.toString()}>
-                  {region.name}
-                </TabsTrigger>
+            <TabList mb={4} overflowX="auto" display="flex">
+              {regions?.map((region, idx) => (
+                <Tab key={region.id}>{region.name}</Tab>
               ))}
-            </TabsList>
+            </TabList>
             
-            {regions?.map(region => (
-              <TabsContent key={region.id} value={region.id.toString()}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{region.name} Region</CardTitle>
-                    <CardDescription>{region.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div>
-                        <img 
-                          src={region.mainImage} 
-                          alt={`Map of ${region.name}`}
-                          className="rounded-md shadow-md w-full"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Notable Locations</h3>
-                        <ul className="space-y-4">
-                          {region.locations.map(location => (
-                            <li key={location.id} className="border-b pb-3">
-                              <div className="font-medium">{location.name}</div>
-                              <div className="text-sm text-muted-foreground">{location.description}</div>
-                              {location.pokemonEncounters.length > 0 && (
-                                <div className="mt-2">
-                                  <div className="text-xs font-medium mb-1">Pokémon Encounters:</div>
-                                  <div className="flex flex-wrap gap-2">
-                                    {location.pokemonEncounters.map(encounter => (
-                                      <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md text-xs">
-                                        <img src={encounter.sprite} alt={encounter.name} className="w-4 h-4" />
-                                        <span>{encounter.name}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            ))}
+            <TabPanels>
+              {regions?.map(region => (
+                <TabPanel key={region.id} p={0}>
+                  <Card variant="outline" mb={6}>
+                    <CardHeader>
+                      <Heading size="md">{region.name} Region</Heading>
+                      <Text color="gray.500">{region.description}</Text>
+                    </CardHeader>
+                    <CardBody>
+                      <Grid templateColumns={{ md: "repeat(2, 1fr)" }} gap={8}>
+                        <GridItem>
+                          <Image 
+                            src={region.mainImage} 
+                            alt={`Map of ${region.name}`}
+                            borderRadius="md"
+                            boxShadow="md"
+                            w="full"
+                          />
+                        </GridItem>
+                        <GridItem>
+                          <Heading as="h3" size="md" mb={2}>Notable Locations</Heading>
+                          <List spacing={4}>
+                            {region.locations.map(location => (
+                              <ListItem key={location.id} pb={3} borderBottomWidth="1px">
+                                <Text fontWeight="medium">{location.name}</Text>
+                                <Text fontSize="sm" color="gray.500">{location.description}</Text>
+                                {location.pokemonEncounters.length > 0 && (
+                                  <Box mt={2}>
+                                    <Text fontSize="xs" fontWeight="medium" mb={1}>Pokémon Encounters:</Text>
+                                    <Flex flexWrap="wrap" gap={2}>
+                                      {location.pokemonEncounters.map(encounter => (
+                                        <Flex 
+                                          key={encounter.pokemonId} 
+                                          alignItems="center" 
+                                          gap={1} 
+                                          bg="gray.100" 
+                                          px={2} 
+                                          py={1} 
+                                          borderRadius="md" 
+                                          fontSize="xs"
+                                        >
+                                          <Image src={encounter.sprite} alt={encounter.name} w={4} h={4} />
+                                          <Text>{encounter.name}</Text>
+                                        </Flex>
+                                      ))}
+                                    </Flex>
+                                  </Box>
+                                )}
+                              </ListItem>
+                            ))}
+                          </List>
+                        </GridItem>
+                      </Grid>
+                    </CardBody>
+                  </Card>
+                </TabPanel>
+              ))}
+            </TabPanels>
           </Tabs>
           
           <PokemonMap regionId={selectedRegionId || 1} />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

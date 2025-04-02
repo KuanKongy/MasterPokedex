@@ -3,11 +3,29 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchRegionById } from '../api/regionApi';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Cloud, Route, ArrowLeft } from 'lucide-react';
 import PokemonMap from '@/components/PokemonMap';
+import { 
+  Box, 
+  Heading, 
+  Text, 
+  Flex, 
+  Grid, 
+  GridItem, 
+  Image, 
+  Tabs, 
+  TabList, 
+  TabPanels, 
+  Tab, 
+  TabPanel, 
+  Card, 
+  CardHeader, 
+  CardBody, 
+  Badge, 
+  SimpleGrid,
+  Icon,
+  Link as ChakraLink
+} from '@chakra-ui/react';
+import { MapPin, Cloud, Route, ArrowLeft } from 'lucide-react';
 
 const RegionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,158 +37,199 @@ const RegionDetail: React.FC = () => {
   });
   
   if (isLoading) {
-    return <div className="container mx-auto px-4 py-8 text-center">Loading region details...</div>;
+    return <Box maxW="container.xl" mx="auto" px={4} py={8} textAlign="center">Loading region details...</Box>;
   }
   
   if (error || !region) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Region not found</h2>
-        <p className="text-muted-foreground">We couldn't find the region you're looking for.</p>
-        <Link to="/regions" className="text-primary hover:underline mt-4 inline-block">
+      <Box maxW="container.xl" mx="auto" px={4} py={8} textAlign="center">
+        <Heading as="h2" size="lg" mb={4}>Region not found</Heading>
+        <Text color="gray.500" mb={4}>We couldn't find the region you're looking for.</Text>
+        <ChakraLink as={Link} to="/regions" color="blue.500" _hover={{ textDecoration: "underline" }}>
           Return to regions list
-        </Link>
-      </div>
+        </ChakraLink>
+      </Box>
     );
   }
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link to="/regions" className="flex items-center text-muted-foreground hover:text-foreground mb-6">
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Regions
-      </Link>
+    <Box maxW="container.xl" mx="auto" px={4} py={8}>
+      <Flex 
+        as={Link} 
+        to="/regions" 
+        alignItems="center" 
+        color="gray.500" 
+        _hover={{ color: "gray.800" }}
+        mb={6}
+      >
+        <Icon as={ArrowLeft} boxSize={4} mr={1} /> Back to Regions
+      </Flex>
       
-      <div className="flex flex-col md:flex-row gap-6 items-start mb-8">
-        <div className="md:w-1/3">
-          <img 
+      <Flex flexDir={{ base: "column", md: "row" }} gap={6} mb={8}>
+        <Box width={{ base: "100%", md: "33%" }}>
+          <Image 
             src={region.mainImage} 
             alt={`${region.name} region map`}
-            className="w-full rounded-lg shadow-md" 
+            borderRadius="lg" 
+            shadow="md"
+            width="100%" 
           />
-        </div>
+        </Box>
         
-        <div className="md:w-2/3">
-          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{region.name} Region</h1>
-          <p className="text-muted-foreground mb-6">{region.description}</p>
+        <Box width={{ base: "100%", md: "67%" }}>
+          <Heading as="h1" size="xl" fontWeight="extrabold" mb={2}>{region.name} Region</Heading>
+          <Text color="gray.500" mb={6}>{region.description}</Text>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-card border rounded-md p-3 text-center">
-              <p className="text-sm text-muted-foreground">Locations</p>
-              <p className="text-xl font-bold">{region.locations.length}</p>
-            </div>
+          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={4} mb={6}>
+            <Box bg="white" border="1px" borderColor="gray.200" p={3} borderRadius="md" textAlign="center">
+              <Text fontSize="sm" color="gray.500">Locations</Text>
+              <Flex justifyContent="center" alignItems="center">
+                <Text fontSize="xl" fontWeight="bold">{region.locations.length}</Text>
+              </Flex>
+            </Box>
             
-            <div className="bg-card border rounded-md p-3 text-center">
-              <p className="text-sm text-muted-foreground">Routes</p>
-              <p className="text-xl font-bold">{Math.floor(region.locations.length / 2)}</p>
-            </div>
+            <Box bg="white" border="1px" borderColor="gray.200" p={3} borderRadius="md" textAlign="center">
+              <Text fontSize="sm" color="gray.500">Routes</Text>
+              <Flex justifyContent="center" alignItems="center">
+                <Text fontSize="xl" fontWeight="bold">{Math.floor(region.locations.length / 2)}</Text>
+              </Flex>
+            </Box>
             
-            <div className="bg-card border rounded-md p-3 text-center">
-              <p className="text-sm text-muted-foreground">Cities/Towns</p>
-              <p className="text-xl font-bold">{Math.ceil(region.locations.length / 2)}</p>
-            </div>
-          </div>
+            <Box bg="white" border="1px" borderColor="gray.200" p={3} borderRadius="md" textAlign="center">
+              <Text fontSize="sm" color="gray.500">Cities/Towns</Text>
+              <Flex justifyContent="center" alignItems="center">
+                <Text fontSize="xl" fontWeight="bold">{Math.ceil(region.locations.length / 2)}</Text>
+              </Flex>
+            </Box>
+          </SimpleGrid>
           
-          <h2 className="text-xl font-bold mb-3">About This Region</h2>
-          <p className="text-muted-foreground">
+          <Heading as="h2" size="md" mb={3}>About This Region</Heading>
+          <Text color="gray.500">
             {region.name} is a vibrant region with diverse ecosystems and Pokémon habitats.
             Trainers from all over the world come to {region.name} to catch unique Pokémon and 
             challenge the region's Gym Leaders.
-          </p>
-        </div>
-      </div>
+          </Text>
+        </Box>
+      </Flex>
       
-      <Tabs defaultValue="locations" className="mb-8">
-        <TabsList className="mb-4">
-          <TabsTrigger value="locations">Locations</TabsTrigger>
-          <TabsTrigger value="routes">Routes</TabsTrigger>
-          <TabsTrigger value="map">Interactive Map</TabsTrigger>
-        </TabsList>
+      <Tabs variant="enclosed" mb={8}>
+        <TabList mb={4}>
+          <Tab>Locations</Tab>
+          <Tab>Routes</Tab>
+          <Tab>Interactive Map</Tab>
+        </TabList>
         
-        <TabsContent value="locations">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {region.locations.map(location => (
-              <Card key={location.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{location.name}</CardTitle>
-                    <Badge variant="outline" className="text-xs">
-                      {location.pokemonEncounters.length > 0 ? `${location.pokemonEncounters.length} Pokémon` : 'No encounters'}
-                    </Badge>
-                  </div>
+        <TabPanels>
+          <TabPanel px={0}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+              {region.locations.map(location => (
+                <Card key={location.id} variant="outline">
+                  <CardHeader pb={2}>
+                    <Flex justifyContent="space-between" alignItems="start">
+                      <Heading size="sm">{location.name}</Heading>
+                      <Badge variant="outline" fontSize="xs">
+                        {location.pokemonEncounters.length > 0 ? `${location.pokemonEncounters.length} Pokémon` : 'No encounters'}
+                      </Badge>
+                    </Flex>
+                  </CardHeader>
+                  <CardBody pt={0}>
+                    <Text fontSize="sm" color="gray.500" mb={2}>{location.description}</Text>
+                    
+                    {location.weather.length > 0 && (
+                      <Flex alignItems="center" gap={1} fontSize="xs" mt={3}>
+                        <Icon as={Cloud} boxSize={3} />
+                        <Text color="gray.500">Weather:</Text>
+                        <Flex gap={1}>
+                          {location.weather.map(w => (
+                            <Badge key={w} variant="subtle" fontSize="xs" textTransform="capitalize">{w}</Badge>
+                          ))}
+                        </Flex>
+                      </Flex>
+                    )}
+                    
+                    {location.pokemonEncounters.length > 0 && (
+                      <Box mt={3}>
+                        <Text fontSize="xs" fontWeight="medium" mb={1}>Pokémon encounters:</Text>
+                        <Flex flexWrap="wrap" gap={1}>
+                          {location.pokemonEncounters.map(encounter => (
+                            <Flex 
+                              key={encounter.pokemonId} 
+                              alignItems="center" 
+                              gap={1} 
+                              bg="gray.100" 
+                              p={1} 
+                              borderRadius="md"
+                            >
+                              <Image src={encounter.sprite} alt={encounter.name} boxSize="6" />
+                              <Text fontSize="xs" textTransform="capitalize">{encounter.name}</Text>
+                            </Flex>
+                          ))}
+                        </Flex>
+                      </Box>
+                    )}
+                  </CardBody>
+                </Card>
+              ))}
+            </SimpleGrid>
+          </TabPanel>
+          
+          <TabPanel px={0}>
+            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} mb={4}>
+              <Card variant="outline">
+                <CardHeader pb={2}>
+                  <Flex alignItems="center" gap={2}>
+                    <Icon as={Route} boxSize={5} /> 
+                    <Heading size="md">{region.name} Routes</Heading>
+                  </Flex>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2">{location.description}</p>
-                  
-                  {location.weather.length > 0 && (
-                    <div className="flex items-center gap-1 text-xs mt-3">
-                      <Cloud className="h-3 w-3" />
-                      <span className="text-muted-foreground">Weather:</span>
-                      <div className="flex gap-1">
-                        {location.weather.map(w => (
-                          <Badge key={w} variant="secondary" className="text-xs capitalize">{w}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {location.pokemonEncounters.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs font-medium mb-1">Pokémon encounters:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {location.pokemonEncounters.map(encounter => (
-                          <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted p-1 rounded-md">
-                            <img src={encounter.sprite} alt={encounter.name} className="w-6 h-6" />
-                            <span className="text-xs capitalize">{encounter.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
+                <CardBody>
+                  <Flex direction="column" gap={3}>
+                    {region.locations.filter((_, i) => i % 2 === 1).map((location) => (
+                      <Flex 
+                        key={location.id} 
+                        alignItems="center" 
+                        gap={3} 
+                        p={2} 
+                        border="1px" 
+                        borderColor="gray.200" 
+                        borderRadius="md"
+                      >
+                        <Icon as={MapPin} boxSize={4} color="gray.400" />
+                        <Box>
+                          <Text fontWeight="medium">{`Route ${location.id}`}</Text>
+                          <Text fontSize="xs" color="gray.500">Connects to {location.name}</Text>
+                        </Box>
+                      </Flex>
+                    ))}
+                  </Flex>
+                </CardBody>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="routes">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Route className="h-5 w-5" /> {region.name} Routes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {region.locations.filter((_, i) => i % 2 === 1).map((location) => (
-                    <div key={location.id} className="flex items-center gap-3 p-2 border rounded-md">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{`Route ${location.id}`}</p>
-                        <p className="text-xs text-muted-foreground">Connects to {location.name}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <div className="bg-muted/30 rounded-lg p-6 flex flex-col items-center justify-center text-center">
-              <Route className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Route Information</h3>
-              <p className="text-muted-foreground">
-                Routes connect different locations within the {region.name} region. They are paths where
-                trainers can encounter wild Pokémon, battle other trainers, and discover new areas.
-              </p>
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="map">
-          <PokemonMap regionId={regionId} />
-        </TabsContent>
+              
+              <Flex 
+                bg="gray.50" 
+                borderRadius="lg" 
+                p={6} 
+                direction="column" 
+                alignItems="center" 
+                justifyContent="center" 
+                textAlign="center"
+              >
+                <Icon as={Route} boxSize={12} color="gray.400" mb={4} />
+                <Heading as="h3" size="md" mb={2}>Route Information</Heading>
+                <Text color="gray.500">
+                  Routes connect different locations within the {region.name} region. They are paths where
+                  trainers can encounter wild Pokémon, battle other trainers, and discover new areas.
+                </Text>
+              </Flex>
+            </Grid>
+          </TabPanel>
+          
+          <TabPanel px={0}>
+            <PokemonMap regionId={regionId} />
+          </TabPanel>
+        </TabPanels>
       </Tabs>
-    </div>
+    </Box>
   );
 };
 
