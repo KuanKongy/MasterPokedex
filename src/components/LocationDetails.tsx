@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { MapPin, CloudRain, Sun, Moon, Star } from 'lucide-react';
 
 interface LocationDetailsProps {
-  location: Location;
+  location?: Location;
 }
 
 const rarityColors: Record<string, string> = {
@@ -52,9 +52,17 @@ const PokemonEncounterCard: React.FC<{ encounter: PokemonEncounter }> = ({ encou
 };
 
 const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
+  if (!location) {
+    return (
+      <div className="border border-gray-200 rounded-md p-8 text-center">
+        <p className="text-gray-500">Location details not available</p>
+      </div>
+    );
+  }
+  
   const getWeatherIcon = (weather: string) => {
     switch (weather) {
-      case 'rainy': return <CloudRain className="h-4 w-4" />;
+      case 'rain': return <CloudRain className="h-4 w-4" />;
       case 'sunny': return <Sun className="h-4 w-4" />;
       case 'night': return <Moon className="h-4 w-4" />;
       default: return <Star className="h-4 w-4" />;
@@ -72,7 +80,7 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
             </p>
           </div>
           <div className="flex gap-1">
-            {location.weather.map((weather) => (
+            {location.weather && location.weather.map((weather) => (
               <Badge key={weather} variant="secondary" className="capitalize">
                 <span className="flex items-center gap-1">
                   {getWeatherIcon(weather)} {weather}
@@ -86,11 +94,15 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
         <p className="text-sm mb-6">{location.description}</p>
 
         <h3 className="font-semibold text-lg mb-3">Pokémon Encounters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {location.pokemonEncounters.map((encounter) => (
-            <PokemonEncounterCard key={encounter.pokemonId} encounter={encounter} />
-          ))}
-        </div>
+        {location.pokemonEncounters && location.pokemonEncounters.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {location.pokemonEncounters.map((encounter) => (
+              <PokemonEncounterCard key={encounter.pokemonId} encounter={encounter} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center">No Pokémon encounters available for this location</p>
+        )}
       </CardContent>
     </Card>
   );
