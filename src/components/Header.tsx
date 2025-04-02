@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CircleUser, MapPin, Map, Home, Users, PokeBall, Backpack } from "lucide-react";
+import { CircleUser, MapPin, Map, Home, Users, Package, Backpack } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,16 +12,16 @@ import {
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useIsMobile();
 
   const navigationItems = [
     { name: "Home", path: "/", icon: <Home className="h-4 w-4 mr-1" /> },
-    { name: "Pokédex", path: "/", icon: <PokeBall className="h-4 w-4 mr-1" /> },
+    { name: "Pokédex", path: "/", icon: <Package className="h-4 w-4 mr-1" /> }, // Replaced PokeBall with Package
     { name: "Map", path: "/map", icon: <Map className="h-4 w-4 mr-1" /> },
     { name: "Regions", path: "/regions", icon: <MapPin className="h-4 w-4 mr-1" /> },
     { name: "Trainers", path: "/trainers", icon: <Users className="h-4 w-4 mr-1" /> },

@@ -75,7 +75,7 @@ const OtherTrainers: React.FC = () => {
         
         <div className="lg:col-span-2">
           {selectedTrainer ? (
-            <OtherTrainerProfile trainer={selectedTrainer} />
+            <OtherTrainerProfile trainerId={selectedTrainer.id} />
           ) : (
             <Card className="h-full flex flex-col items-center justify-center p-8 text-center">
               <Avatar className="w-20 h-20 mb-4">
