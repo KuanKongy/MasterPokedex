@@ -11,7 +11,7 @@ import { ChevronLeft, MapPin } from 'lucide-react';
 
 const RegionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   
   const { data: region, isLoading: isLoadingRegion } = useQuery({
     queryKey: ['region', id],
@@ -59,7 +59,7 @@ const RegionDetail: React.FC = () => {
             <h1 className="text-2xl font-bold">{region.name}</h1>
             
             <div className="flex flex-col gap-2">
-              {/* Display region properties if they exist, otherwise placeholder */}
+              {/* Display region properties if they exist */}
               <div className="flex">
                 <p className="font-bold w-[150px]">Region:</p>
                 <p>{region.name}</p>

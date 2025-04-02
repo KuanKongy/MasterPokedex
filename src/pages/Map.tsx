@@ -1,36 +1,34 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { fetchLocations } from '../api/locationApi';
+import { Location } from '../types/location';
 import { 
   Box, 
-  Flex,
   Heading, 
   Text, 
-  Image,
-  Button,
+  Flex,
+  Icon
 } from '@chakra-ui/react';
-import { fetchLocations, fetchLocationById } from '../api/locationApi';
+import { MapPin } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { MapPin, Pokemon } from 'lucide-react';
 
 const Map: React.FC = () => {
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: fetchLocations
   });
   
-  const { data: locationDetails } = useQuery({
-    queryKey: ['location', selectedLocation],
-    queryFn: () => selectedLocation ? fetchLocationById(selectedLocation) : null,
-    enabled: !!selectedLocation
-  });
+  const locationDetails = selectedLocation 
+    ? locations.find(location => location.id === selectedLocation) 
+    : null;
   
-  const handleLocationSelect = (locationId: string) => {
+  const handleLocationSelect = (locationId: number) => {
     setSelectedLocation(locationId);
   };
   
@@ -61,7 +59,7 @@ const Map: React.FC = () => {
             mb={4}
           >
             <PokemonMap 
-              locations={locations} 
+              regionId={1} // Default to Kanto region
               selectedLocation={selectedLocation}
               onLocationSelect={handleLocationSelect}
             />
@@ -78,20 +76,18 @@ const Map: React.FC = () => {
                   <CardHeader>
                     <Flex justify="space-between" align="center">
                       <Heading size="md">{locationDetails.name}</Heading>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
+                      <button 
+                        className="text-sm bg-transparent border-none cursor-pointer"
                         onClick={clearSelection}
                       >
                         ×
-                      </Button>
+                      </button>
                     </Flex>
                   </CardHeader>
                   <CardContent>
                     <Text mb={2}>{locationDetails.description}</Text>
                     <Flex wrap="wrap" gap={2} mt={3}>
                       <Badge>{locationDetails.region}</Badge>
-                      <Badge variant="outline">{locationDetails.type}</Badge>
                     </Flex>
                   </CardContent>
                 </Card>
@@ -107,7 +103,7 @@ const Map: React.FC = () => {
             gap={4}
           >
             {locations.map((location) => (
-              <Card key={location.id} cursor="pointer" onClick={() => handleLocationSelect(location.id)}>
+              <Card key={location.id} className="cursor-pointer" onClick={() => handleLocationSelect(location.id)}>
                 <CardContent className="p-4">
                   <Flex align="center" mb={2}>
                     <MapPin size={16} className="mr-2" />
@@ -116,9 +112,9 @@ const Map: React.FC = () => {
                   <Text fontSize="sm" color="gray.600">{location.region}</Text>
                   
                   <Flex mt={3} gap={2}>
-                    <Badge variant="outline">{location.type}</Badge>
-                    {location.hasPokemonCenter && (
-                      <Badge colorScheme="red">Pokémon Center</Badge>
+                    <Badge variant="outline">Location</Badge>
+                    {location.weather && location.weather.length > 0 && (
+                      <Badge variant="secondary">Has Weather</Badge>
                     )}
                   </Flex>
                 </CardContent>

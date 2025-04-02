@@ -17,10 +17,21 @@ import { MapPin, Compass } from 'lucide-react';
 
 interface PokemonMapProps {
   regionId?: number;
+  selectedLocation?: number | null;
+  onLocationSelect?: (locationId: number) => void;
 }
 
-const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+const PokemonMap: React.FC<PokemonMapProps> = ({ 
+  regionId, 
+  selectedLocation: externalSelectedLocation, 
+  onLocationSelect 
+}) => {
+  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+  
+  // Use external state if provided
+  const activeLocation = externalSelectedLocation !== undefined 
+    ? externalSelectedLocation 
+    : selectedLocation;
   
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
@@ -39,6 +50,15 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
     
     return location.region === regionNames[regionId];
   });
+  
+  // Handle location selection
+  const handleLocationClick = (locationId: number) => {
+    if (onLocationSelect) {
+      onLocationSelect(locationId);
+    } else {
+      setSelectedLocation(locationId);
+    }
+  };
   
   // Reset selected location when region changes
   useEffect(() => {
@@ -79,11 +99,11 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
                     <Box 
                       key={location.id}
                       p={3}
-                      bg={selectedLocation?.id === location.id ? 'gray.100' : undefined}
+                      bg={activeLocation === location.id ? 'gray.100' : undefined}
                       _hover={{ bg: 'gray.50' }}
                       cursor="pointer"
                       transition="background-color 0.2s"
-                      onClick={() => setSelectedLocation(location)}
+                      onClick={() => handleLocationClick(location.id)}
                       borderBottomWidth="1px"
                     >
                       <Text fontWeight="medium">{location.name}</Text>
@@ -104,8 +124,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
       </GridItem>
 
       <GridItem>
-        {selectedLocation ? (
-          <LocationDetails location={selectedLocation} />
+        {activeLocation && regionLocations ? (
+          <LocationDetails location={regionLocations.find(loc => loc.id === activeLocation)} />
         ) : (
           <Box h="full" display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={6} textAlign="center" shadow="md" borderWidth="1px" borderRadius="md" bg="white">
             <Icon as={MapPin} boxSize={12} color="gray.300" mb={4} />
