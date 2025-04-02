@@ -4,11 +4,34 @@ import { Box, Flex } from "@chakra-ui/react";
 
 interface TabsProps {
   defaultIndex?: number;
+  index?: number;
+  onChange?: (index: number) => void;
+  value?: string;
+  onValueChange?: (value: string) => void;
   children: React.ReactNode;
+  className?: string;
 }
 
-export const Tabs = ({ defaultIndex = 0, children }: TabsProps) => {
+export const Tabs = ({
+  defaultIndex = 0,
+  index,
+  onChange,
+  value,
+  onValueChange,
+  children,
+  className = ""
+}: TabsProps) => {
   const [activeIndex, setActiveIndex] = useState(defaultIndex);
+  
+  const handleTabChange = (idx: number) => {
+    if (onChange) {
+      onChange(idx);
+    } else if (!index) {
+      setActiveIndex(idx);
+    }
+  };
+  
+  const currentIndex = index !== undefined ? index : activeIndex;
   
   const tabsList = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === TabsList
@@ -19,12 +42,14 @@ export const Tabs = ({ defaultIndex = 0, children }: TabsProps) => {
   );
   
   return (
-    <Box className="tabs">
+    <Box className={`tabs ${className}`}>
       {React.Children.map(tabsList, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {
-            activeIndex,
-            setActiveIndex,
+            activeIndex: currentIndex,
+            setActiveIndex: handleTabChange,
+            value,
+            onValueChange
           });
         }
         return child;
@@ -34,7 +59,9 @@ export const Tabs = ({ defaultIndex = 0, children }: TabsProps) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {
             index,
-            activeIndex,
+            activeIndex: currentIndex,
+            value: (child.props as any).value,
+            selectedValue: value,
           });
         }
         return child;
@@ -47,10 +74,19 @@ interface TabsListProps {
   children: React.ReactNode;
   activeIndex?: number;
   setActiveIndex?: (index: number) => void;
+  value?: string;
+  onValueChange?: (value: string) => void;
   className?: string;
 }
 
-export const TabsList = ({ children, activeIndex = 0, setActiveIndex, className }: TabsListProps) => {
+export const TabsList = ({ 
+  children, 
+  activeIndex = 0, 
+  setActiveIndex,
+  value,
+  onValueChange, 
+  className = ""
+}: TabsListProps) => {
   return (
     <Flex 
       className={`tabs-list bg-muted p-1 rounded-md ${className}`} 
@@ -61,9 +97,20 @@ export const TabsList = ({ children, activeIndex = 0, setActiveIndex, className 
     >
       {React.Children.map(children, (child, index) => {
         if (React.isValidElement(child)) {
+          const childValue = (child.props as any).value;
+          const isActive = value !== undefined 
+            ? childValue === value 
+            : index === activeIndex;
+          
           return React.cloneElement(child as React.ReactElement<any>, {
-            isActive: index === activeIndex,
-            onSelect: () => setActiveIndex?.(index),
+            isActive,
+            onSelect: () => {
+              if (value !== undefined && onValueChange) {
+                onValueChange(childValue);
+              } else if (setActiveIndex) {
+                setActiveIndex(index);
+              }
+            },
           });
         }
         return child;
@@ -82,9 +129,10 @@ interface TabsTriggerProps {
 
 export const TabsTrigger = ({ 
   children, 
+  value,
   isActive = false, 
   onSelect,
-  className 
+  className = ""
 }: TabsTriggerProps) => {
   return (
     <Box
@@ -104,7 +152,8 @@ export const TabsTrigger = ({
 
 interface TabsContentProps {
   children: React.ReactNode;
-  value: string;
+  value?: string;
+  selectedValue?: string;
   index?: number;
   activeIndex?: number;
   className?: string;
@@ -112,11 +161,17 @@ interface TabsContentProps {
 
 export const TabsContent = ({ 
   children, 
+  value,
+  selectedValue,
   index = 0, 
   activeIndex = 0,
-  className 
+  className = ""
 }: TabsContentProps) => {
-  if (index !== activeIndex) return null;
+  const isVisible = value !== undefined && selectedValue !== undefined
+    ? value === selectedValue
+    : index === activeIndex;
+    
+  if (!isVisible) return null;
   
   return (
     <Box className={`tabs-content mt-2 ${className}`}>

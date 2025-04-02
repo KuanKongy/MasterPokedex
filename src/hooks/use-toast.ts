@@ -1,5 +1,5 @@
 
-import { useToast as useChakraToast } from '@chakra-ui/toast';
+import { useToast as useChakraToast } from '@chakra-ui/react';
 
 export const useToast = () => {
   const chakraToast = useChakraToast();

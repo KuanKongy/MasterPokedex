@@ -1,7 +1,7 @@
 
 import React from 'react';
-
-// Chakra UI handles toasts with its own internal system
+// ChakraProvider handles toasts with its own internal system
 export function Toaster() {
+  // The actual toast rendering is handled by Chakra UI
   return null;
 }

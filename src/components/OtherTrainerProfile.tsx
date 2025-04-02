@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTrainerById } from '../api/otherTrainersApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -13,6 +13,8 @@ interface OtherTrainerProfileProps {
 }
 
 const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) => {
+  const [activeTab, setActiveTab] = useState('collection');
+  
   const { data: trainer, isLoading } = useQuery({
     queryKey: ['trainerProfile', trainerId],
     queryFn: () => fetchTrainerById(trainerId)
@@ -80,7 +82,7 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="collection" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="collection">Collection</TabsTrigger>
           <TabsTrigger value="items">Items</TabsTrigger>

@@ -11,11 +11,16 @@ import {
   Button, 
   Input,
   Icon,
-  Avatar as ChakraAvatar,
-  AvatarBadge,
+  Avatar,
+  Badge,
   Stack,
+  TabList as ChakraTabList,
+  TabPanels as ChakraTabPanels,
+  Tab as ChakraTab,
+  TabPanel as ChakraTabPanel,
+  Tabs as ChakraTabs,
+  useTab,
 } from '@chakra-ui/react';
-import { Tabs, TabPanels, TabPanel } from '@chakra-ui/tabs';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
@@ -28,6 +33,7 @@ const TrainerProfile: React.FC = () => {
   const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [tabIndex, setTabIndex] = useState(0);
   
   const { data: trainer, isLoading: trainerLoading } = useQuery({
     queryKey: ['trainerProfile'],
@@ -102,13 +108,13 @@ const TrainerProfile: React.FC = () => {
       >
         <Stack direction="column" gap={4} align="stretch">
           <Flex gap={6} alignItems="flex-start">
-            <ChakraAvatar 
+            <Avatar 
               size="xl" 
               src="/placeholder.svg" 
               name={trainer.name} 
             >
-              <AvatarBadge boxSize="1.25em" bg="red.500" />
-            </ChakraAvatar>
+              <Badge boxSize="1.25em" bg="red.500" position="absolute" bottom="0" right="0" borderRadius="full" />
+            </Avatar>
 
             <Stack direction="column" gap={4} align="stretch" flex={1}>
               <Box>
@@ -124,7 +130,7 @@ const TrainerProfile: React.FC = () => {
                       size="sm" 
                       variant="outline" 
                       onClick={handleSaveName}
-                      isDisabled={updateNameMutation.isPending}
+                      disabled={updateNameMutation.isPending}
                     >
                       <Icon as={Check} />
                     </Button>
@@ -200,32 +206,65 @@ const TrainerProfile: React.FC = () => {
       </Box>
 
       <Box>
-        <Tabs variant="enclosed">
+        <ChakraTabs index={tabIndex} onChange={setTabIndex}>
           <Box borderWidth="1px" p={2} borderRadius="md" mb={2}>
             <Flex>
-              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Collection</Box>
-              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Pokémon Collections</Box>
-              <Box flex="1" textAlign="center" py={2} cursor="pointer" borderRadius="md" _hover={{ bg: "gray.100" }}>Items</Box>
+              <Box 
+                flex="1" 
+                textAlign="center" 
+                py={2} 
+                cursor="pointer" 
+                borderRadius="md" 
+                bg={tabIndex === 0 ? "gray.100" : "transparent"}
+                _hover={{ bg: "gray.100" }}
+                onClick={() => setTabIndex(0)}
+              >
+                Collection
+              </Box>
+              <Box 
+                flex="1" 
+                textAlign="center" 
+                py={2} 
+                cursor="pointer" 
+                borderRadius="md" 
+                bg={tabIndex === 1 ? "gray.100" : "transparent"}
+                _hover={{ bg: "gray.100" }}
+                onClick={() => setTabIndex(1)}
+              >
+                Pokémon Collections
+              </Box>
+              <Box 
+                flex="1" 
+                textAlign="center" 
+                py={2} 
+                cursor="pointer" 
+                borderRadius="md" 
+                bg={tabIndex === 2 ? "gray.100" : "transparent"}
+                _hover={{ bg: "gray.100" }}
+                onClick={() => setTabIndex(2)}
+              >
+                Items
+              </Box>
             </Flex>
           </Box>
 
-          <TabPanels>
-            <TabPanel p={0}>
+          <ChakraTabPanels>
+            <ChakraTabPanel p={0}>
               {trainer.collections && trainer.collections[0] && (
                 <CollectionList 
                   collectionId={trainer.collections[0].id}
                   onSelectPokemon={handleSelectPokemon}
                 />
               )}
-            </TabPanel>
-            <TabPanel p={0}>
+            </ChakraTabPanel>
+            <ChakraTabPanel p={0}>
               <PokemonCollections />
-            </TabPanel>
-            <TabPanel p={0}>
+            </ChakraTabPanel>
+            <ChakraTabPanel p={0}>
               <ItemInventory />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </ChakraTabPanel>
+          </ChakraTabPanels>
+        </ChakraTabs>
       </Box>
     </Stack>
   );
