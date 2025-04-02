@@ -22,6 +22,7 @@ export const Tabs = ({
   className = ""
 }: TabsProps) => {
   const [activeIndex, setActiveIndex] = useState(defaultIndex);
+  const [activeValue, setActiveValue] = useState<string | undefined>(value);
   
   const handleTabChange = (idx: number) => {
     if (onChange) {
@@ -31,7 +32,16 @@ export const Tabs = ({
     }
   };
   
+  const handleValueChange = (val: string) => {
+    if (onValueChange) {
+      onValueChange(val);
+    } else {
+      setActiveValue(val);
+    }
+  };
+  
   const currentIndex = index !== undefined ? index : activeIndex;
+  const currentValue = value !== undefined ? value : activeValue;
   
   const tabsList = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === TabsList
@@ -48,8 +58,8 @@ export const Tabs = ({
           return React.cloneElement(child as React.ReactElement<any>, {
             activeIndex: currentIndex,
             setActiveIndex: handleTabChange,
-            value,
-            onValueChange
+            value: currentValue,
+            onValueChange: handleValueChange
           });
         }
         return child;
@@ -61,7 +71,7 @@ export const Tabs = ({
             index,
             activeIndex: currentIndex,
             value: (child.props as any).value,
-            selectedValue: value,
+            selectedValue: currentValue,
           });
         }
         return child;

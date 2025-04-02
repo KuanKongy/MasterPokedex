@@ -77,7 +77,7 @@ const RegionDetail: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="locations">
+      <Tabs value="locations">
         <TabsList>
           <TabsTrigger value="locations">Locations</TabsTrigger>
         </TabsList>

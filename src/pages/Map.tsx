@@ -3,13 +3,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLocations } from '../api/locationApi';
 import { Location } from '../types/location';
-import { 
-  Box, 
-  Heading, 
-  Text, 
-  Flex,
-  Icon
-} from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Icon } from '@chakra-ui/react';
 import { MapPin } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
@@ -43,7 +37,7 @@ const Map: React.FC = () => {
         Explore regions and locations throughout the Pokémon world
       </Text>
       
-      <Tabs defaultValue="map">
+      <Tabs value="map">
         <TabsList>
           <TabsTrigger value="map">Interactive Map</TabsTrigger>
           <TabsTrigger value="list">Locations List</TabsTrigger>
@@ -88,6 +82,9 @@ const Map: React.FC = () => {
                     <Text mb={2}>{locationDetails.description}</Text>
                     <Flex wrap="wrap" gap={2} mt={3}>
                       <Badge>{locationDetails.region}</Badge>
+                      {locationDetails.weather && locationDetails.weather.length > 0 && (
+                        <Badge variant="secondary">Has Weather</Badge>
+                      )}
                     </Flex>
                   </CardContent>
                 </Card>
