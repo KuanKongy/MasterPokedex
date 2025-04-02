@@ -1,11 +1,20 @@
 
 import React from 'react';
-import { ChakraProvider as BaseChakraProvider } from '@chakra-ui/react';
+import { 
+  ChakraProvider as BaseChakraProvider, 
+  ChakraProviderProps
+} from '@chakra-ui/react';
 
-// Simple provider without theme customization since extendTheme is not available
+// Create a simplified provider without theme customization
 export const ChakraProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Basic provider configuration that doesn't rely on extendTheme
+  const providerProps: ChakraProviderProps = {
+    resetCSS: true,
+    portalZIndex: 40
+  };
+
   return (
-    <BaseChakraProvider>
+    <BaseChakraProvider {...providerProps}>
       {children}
     </BaseChakraProvider>
   );

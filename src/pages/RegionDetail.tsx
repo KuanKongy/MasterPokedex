@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchRegionById } from '../api/regionApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import PokemonCard from '../components/PokemonCard';
 import LocationDetails from '../components/LocationDetails';
 import { ChevronLeft, MapPin } from 'lucide-react';
 
@@ -27,9 +26,9 @@ const RegionDetail: React.FC = () => {
       <div className="p-8 text-center">
         <p>Region not found</p>
         <div className="mt-4">
-          <RouterLink to="/regions" className="text-blue-500 hover:underline">
+          <Link to="/regions" className="text-blue-500 hover:underline">
             Return to Regions List
-          </RouterLink>
+          </Link>
         </div>
       </div>
     );
@@ -40,10 +39,10 @@ const RegionDetail: React.FC = () => {
   
   return (
     <div className="mx-auto p-4 max-w-[1200px]">
-      <RouterLink to="/regions" className="flex items-center text-blue-500 mb-4">
+      <Link to="/regions" className="flex items-center text-blue-500 mb-4">
         <ChevronLeft size={16} />
         <span className="ml-1">Back to Regions</span>
-      </RouterLink>
+      </Link>
       
       <div className="mb-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -59,7 +58,6 @@ const RegionDetail: React.FC = () => {
             <h1 className="text-2xl font-bold">{region.name}</h1>
             
             <div className="flex flex-col gap-2">
-              {/* Display region properties if they exist */}
               <div className="flex">
                 <p className="font-bold w-[150px]">Region:</p>
                 <p>{region.name}</p>

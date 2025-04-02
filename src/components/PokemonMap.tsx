@@ -4,15 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchLocations } from '../api/locationApi';
 import LocationDetails from './LocationDetails';
 import { Location } from '../types/location';
-import { 
-  Grid, 
-  GridItem, 
-  Box,
-  Heading, 
-  Text,
-  Flex,
-  Icon
-} from '@chakra-ui/react';
 import { MapPin, Compass } from 'lucide-react';
 
 interface PokemonMapProps {
@@ -66,11 +57,11 @@ const PokemonMap: React.FC<PokemonMapProps> = ({
   }, [regionId]);
   
   if (isLoading) {
-    return <Flex alignItems="center" justifyContent="center" h="64px"><Text>Loading map data...</Text></Flex>;
+    return <div className="flex items-center justify-center h-16"><p>Loading map data...</p></div>;
   }
   
   if (error) {
-    return <Box color="red.500" p={4}>Error loading map data</Box>;
+    return <div className="text-red-500 p-4">Error loading map data</div>;
   }
   
   // Get current region name
@@ -79,64 +70,60 @@ const PokemonMap: React.FC<PokemonMapProps> = ({
     "Kanto";
   
   return (
-    <Grid templateColumns={{ base: "1fr", lg: "1fr 2fr" }} gap={6}>
-      <GridItem>
-        <Box shadow="md" borderRadius="md" borderWidth="1px" bg="white" h="full">
-          <Box p={4} borderBottomWidth="1px">
-            <Flex alignItems="center" gap={2}>
-              <Icon as={MapPin} color="red.500" boxSize={5} />
-              <Heading size="md">{regionName} Locations</Heading>
-            </Flex>
-            <Text color="gray.500" fontSize="sm">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-1">
+        <div className="shadow-md rounded-md border bg-white h-full">
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-2">
+              <MapPin className="text-red-500" size={20} />
+              <h2 className="text-lg font-medium">{regionName} Locations</h2>
+            </div>
+            <p className="text-gray-500 text-sm">
               Select a location to see which Pokémon can be found there
-            </Text>
-          </Box>
-          <Box p={0}>
-            <Box maxH="calc(100vh - 300px)" overflowY="auto">
-              <Box>
+            </p>
+          </div>
+          <div>
+            <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
+              <div>
                 {regionLocations?.length ? (
                   regionLocations.map((location) => (
-                    <Box 
+                    <div 
                       key={location.id}
-                      p={3}
-                      bg={activeLocation === location.id ? 'gray.100' : undefined}
-                      _hover={{ bg: 'gray.50' }}
-                      cursor="pointer"
-                      transition="background-color 0.2s"
+                      className={`p-3 ${activeLocation === location.id ? 'bg-gray-100' : ''} 
+                      hover:bg-gray-50 cursor-pointer transition-colors border-b`}
                       onClick={() => handleLocationClick(location.id)}
-                      borderBottomWidth="1px"
                     >
-                      <Text fontWeight="medium">{location.name}</Text>
-                      <Flex alignItems="center" gap={1} color="gray.500" fontSize="sm">
-                        <Icon as={Compass} boxSize={3} /> {location.region}
-                      </Flex>
-                    </Box>
+                      <p className="font-medium">{location.name}</p>
+                      <div className="flex items-center gap-1 text-gray-500 text-sm">
+                        <Compass size={12} /> {location.region}
+                      </div>
+                    </div>
                   ))
                 ) : (
-                  <Box p={3} textAlign="center" color="gray.500">
+                  <div className="p-3 text-center text-gray-500">
                     No locations found for this region
-                  </Box>
+                  </div>
                 )}
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </GridItem>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <GridItem>
+      <div className="lg:col-span-2">
         {activeLocation && regionLocations ? (
           <LocationDetails location={regionLocations.find(loc => loc.id === activeLocation)} />
         ) : (
-          <Box h="full" display="flex" flexDirection="column" alignItems="center" justifyContent="center" p={6} textAlign="center" shadow="md" borderWidth="1px" borderRadius="md" bg="white">
-            <Icon as={MapPin} boxSize={12} color="gray.300" mb={4} />
-            <Heading as="h3" size="md" mb={2}>Select a Location</Heading>
-            <Text color="gray.500">
+          <div className="h-full flex flex-col items-center justify-center p-6 text-center shadow-md border rounded-md bg-white">
+            <MapPin size={48} className="text-gray-300 mb-4" />
+            <h3 className="text-lg font-medium mb-2">Select a Location</h3>
+            <p className="text-gray-500">
               Click on a location from the list to view detailed information and Pokémon encounters
-            </Text>
-          </Box>
+            </p>
+          </div>
         )}
-      </GridItem>
-    </Grid>
+      </div>
+    </div>
   );
 };
 

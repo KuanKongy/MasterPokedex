@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLocations } from '../api/locationApi';
 import { Location } from '../types/location';
-import { Box, Heading, Text, Flex, Icon } from '@chakra-ui/react';
 import { MapPin } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
@@ -31,11 +30,11 @@ const Map: React.FC = () => {
   };
   
   return (
-    <Box className="container mx-auto px-4 py-8">
-      <Heading as="h1" size="2xl" mb={2}>Pokémon World Map</Heading>
-      <Text color="gray.600" mb={8}>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-2">Pokémon World Map</h1>
+      <p className="text-gray-600 mb-8">
         Explore regions and locations throughout the Pokémon world
-      </Text>
+      </p>
       
       <Tabs value="map">
         <TabsList>
@@ -44,13 +43,8 @@ const Map: React.FC = () => {
         </TabsList>
         
         <TabsContent value="map">
-          <Box 
-            height="600px" 
-            position="relative"
-            borderRadius="lg"
-            overflow="hidden"
-            borderWidth="1px"
-            mb={4}
+          <div 
+            className="h-[600px] relative rounded-lg overflow-hidden border mb-4"
           >
             <PokemonMap 
               regionId={1} // Default to Kanto region
@@ -59,68 +53,62 @@ const Map: React.FC = () => {
             />
             
             {selectedLocation && locationDetails && (
-              <Box 
-                position="absolute" 
-                bottom={4} 
-                right={4} 
-                width={{ base: 'calc(100% - 2rem)', md: '350px' }}
-                zIndex={10}
+              <div 
+                className="absolute bottom-4 right-4 w-full md:w-[350px] z-10"
               >
                 <Card>
                   <CardHeader>
-                    <Flex justify="space-between" align="center">
-                      <Heading size="md">{locationDetails.name}</Heading>
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-lg">{locationDetails.name}</h3>
                       <button 
                         className="text-sm bg-transparent border-none cursor-pointer"
                         onClick={clearSelection}
                       >
                         ×
                       </button>
-                    </Flex>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <Text mb={2}>{locationDetails.description}</Text>
-                    <Flex wrap="wrap" gap={2} mt={3}>
+                    <p className="mb-2">{locationDetails.description}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
                       <Badge>{locationDetails.region}</Badge>
                       {locationDetails.weather && locationDetails.weather.length > 0 && (
                         <Badge variant="secondary">Has Weather</Badge>
                       )}
-                    </Flex>
+                    </div>
                   </CardContent>
                 </Card>
-              </Box>
+              </div>
             )}
-          </Box>
+          </div>
         </TabsContent>
         
         <TabsContent value="list">
-          <Box 
-            display="grid"
-            gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-            gap={4}
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {locations.map((location) => (
               <Card key={location.id} className="cursor-pointer" onClick={() => handleLocationSelect(location.id)}>
                 <CardContent className="p-4">
-                  <Flex align="center" mb={2}>
+                  <div className="flex items-center mb-2">
                     <MapPin size={16} className="mr-2" />
-                    <Heading size="md">{location.name}</Heading>
-                  </Flex>
-                  <Text fontSize="sm" color="gray.600">{location.region}</Text>
+                    <h3 className="font-semibold">{location.name}</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">{location.region}</p>
                   
-                  <Flex mt={3} gap={2}>
+                  <div className="mt-3 flex gap-2">
                     <Badge variant="outline">Location</Badge>
                     {location.weather && location.weather.length > 0 && (
                       <Badge variant="secondary">Has Weather</Badge>
                     )}
-                  </Flex>
+                  </div>
                 </CardContent>
               </Card>
             ))}
-          </Box>
+          </div>
         </TabsContent>
       </Tabs>
-    </Box>
+    </div>
   );
 };
 
