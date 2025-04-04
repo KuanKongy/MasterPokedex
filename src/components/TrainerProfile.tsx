@@ -3,16 +3,6 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerProfile, updateTrainerName } from '../api/trainerApi';
 import { fetchPokemonList } from '../api/pokemonApi';
-import { 
-  Box, 
-  Flex, 
-  Heading, 
-  Text, 
-  Button, 
-  Input,
-  Icon,
-  Stack,
-} from '@chakra-ui/react';
 import { User, Medal, Calendar, Edit, Check, X } from 'lucide-react';
 import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
@@ -84,119 +74,109 @@ const TrainerProfile: React.FC = () => {
   };
 
   if (trainerLoading || pokemonLoading) {
-    return <Box display="flex" justifyContent="center" p={8}>Loading trainer data...</Box>;
+    return <div className="flex justify-center p-8">Loading trainer data...</div>;
   }
 
   if (!trainer) {
-    return <Box color="red.500" p={4}>Error loading trainer profile</Box>;
+    return <div className="text-red-500 p-4">Error loading trainer profile</div>;
   }
 
   return (
-    <Stack direction="column" gap={6} align="stretch">
-      <Box 
-        borderWidth={1} 
-        borderRadius="lg" 
-        p={6} 
-        boxShadow="md" 
-        bg="white"
+    <div className="flex flex-col gap-6">
+      <div
+        className="border rounded-lg p-6 shadow-md bg-white"
       >
-        <Stack direction="column" gap={4} align="stretch">
-          <Flex gap={6} alignItems="flex-start">
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-6 items-start">
             <Avatar className="w-16 h-16">
               <AvatarImage src="/placeholder.svg" alt={trainer.name} />
               <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
             </Avatar>
 
-            <Stack direction="column" gap={4} align="stretch" flex={1}>
-              <Box>
+            <div className="flex flex-col gap-4 flex-1">
+              <div>
                 {isEditingName ? (
-                  <Flex gap={2}>
-                    <Input 
+                  <div className="flex gap-2">
+                    <input 
                       value={newName} 
                       onChange={(e) => setNewName(e.target.value)}
-                      maxW="xs"
+                      className="max-w-xs px-3 py-1.5 border border-gray-300 rounded-md"
                       placeholder="Enter new name"
                     />
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <button 
+                      className="size-sm px-2 py-1 border border-gray-300 rounded-md"
                       onClick={handleSaveName}
                       disabled={updateNameMutation.isPending}
                     >
-                      <Icon as={Check} />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button 
+                      className="size-sm px-2 py-1 border border-gray-300 rounded-md"
                       onClick={handleCancelEdit}
                     >
-                      <Icon as={X} />
-                    </Button>
-                  </Flex>
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 ) : (
-                  <Flex gap={2} alignItems="center">
-                    <Icon as={User} />
-                    <Heading size="lg">{trainer.name}</Heading>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
+                  <div className="flex gap-2 items-center">
+                    <User className="h-5 w-5" />
+                    <h2 className="text-2xl font-semibold">{trainer.name}</h2>
+                    <button 
+                      className="size-sm px-2 py-1 text-gray-500 hover:text-gray-700"
                       onClick={handleStartEditName}
                     >
-                      <Icon as={Edit} />
-                    </Button>
-                  </Flex>
+                      <Edit className="h-4 w-4" />
+                    </button>
+                  </div>
                 )}
-                <Text color="gray.500">{trainer.region} Region</Text>
-              </Box>
+                <p className="text-gray-500">{trainer.region} Region</p>
+              </div>
 
-              <Flex wrap="wrap" gap={4}>
+              <div className="flex flex-wrap gap-4">
                 {[
                   { 
                     icon: Medal, 
-                    color: "yellow.500", 
+                    color: "text-yellow-500", 
                     label: "Badges", 
                     value: trainer.badges 
                   },
                   { 
                     icon: User, 
-                    color: "green.500", 
+                    color: "text-green-500", 
                     label: "Pokémon Caught", 
                     value: trainer.pokemonCaught 
                   },
                   { 
                     icon: Calendar, 
-                    color: "blue.500", 
+                    color: "text-blue-500", 
                     label: "Favorite Type", 
                     value: trainer.favoriteType 
                   },
                   { 
                     icon: Calendar, 
-                    color: "purple.500", 
+                    color: "text-purple-500", 
                     label: "Joined", 
                     value: new Date(trainer.joinDate).toLocaleDateString() 
                   }
                 ].map((stat, index) => (
-                  <Box 
+                  <div 
                     key={index} 
-                    bg="gray.100" 
-                    p={3} 
-                    borderRadius="md"
-                    flex="1 1 0"
+                    className="bg-gray-100 p-3 rounded-md flex-1"
                   >
-                    <Text color="gray.500" fontSize="sm">{stat.label}</Text>
-                    <Flex>
-                      <Icon as={stat.icon} color={stat.color} />
-                      <Text fontWeight="semibold" ml={1}>{stat.value}</Text>
-                    </Flex>
-                  </Box>
+                    <p className="text-gray-500 text-sm">{stat.label}</p>
+                    <div className="flex">
+                      <stat.icon className={stat.color + " h-5 w-5"} />
+                      <span className="font-semibold ml-1">{stat.value}</span>
+                    </div>
+                  </div>
                 ))}
-              </Flex>
-            </Stack>
-          </Flex>
-        </Stack>
-      </Box>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <Box>
+      <div>
         <Tabs defaultIndex={tabIndex} onChange={setTabIndex}>
           <TabsList>
             <TabsTrigger value="collection">Collection</TabsTrigger>
@@ -221,8 +201,8 @@ const TrainerProfile: React.FC = () => {
             <ItemInventory />
           </TabsContent>
         </Tabs>
-      </Box>
-    </Stack>
+      </div>
+    </div>
   );
 };
 
