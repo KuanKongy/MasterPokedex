@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Location } from '../types/location';
 import { Badge } from './ui/badge';
 import { MapPin, Map } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import { fetchPokemonDetails } from '../api/pokemonApi';
 
 interface LocationDetailsProps {
@@ -12,13 +12,13 @@ interface LocationDetailsProps {
 }
 
 const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
-  // Fetch all pokemon for this location
-  const pokemonQueries = location.pokemon.map(pokemonId => {
-    return useQuery({
+  // Use useQueries instead of map + useQuery to avoid hooks rendering inconsistently
+  const pokemonQueries = useQueries({
+    queries: location.pokemon.map(pokemonId => ({
       queryKey: ['pokemon', pokemonId],
       queryFn: () => fetchPokemonDetails(pokemonId),
       staleTime: 1000 * 60 * 60, // 1 hour
-    });
+    }))
   });
 
   // Check if all pokemon data has been loaded
