@@ -83,8 +83,7 @@ const PokemonCollections: React.FC = () => {
   });
   
   const removePokemonFromCollectionMutation = useMutation({
-    mutationFn: ({collectionId, pokemonId}: {collectionId: string, pokemonId: number}) =>
-      removePokemonFromCollection(collectionId, pokemonId),
+    mutationFn: (pokemonId: number) => removePokemonFromCollection(pokemonId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
       toast({
@@ -134,12 +133,7 @@ const PokemonCollections: React.FC = () => {
   };
   
   const handleRemovePokemon = (pokemonId: number) => {
-    if (!activeCollection) return;
-    
-    removePokemonFromCollectionMutation.mutate({
-      collectionId: activeCollection,
-      pokemonId
-    });
+    removePokemonFromCollectionMutation.mutate(pokemonId);
   };
   
   const isPokemonInCollection = (pokemonId: number) => {
