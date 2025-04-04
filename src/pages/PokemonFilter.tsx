@@ -311,7 +311,8 @@ const PokemonFilter: React.FC = () => {
           </div>
         );
       case 'base_experience':
-        return pokemon.base_experience || 'N/A';
+        // Handle potential undefined base_experience
+        return typeof pokemon.base_experience !== 'undefined' ? pokemon.base_experience.toString() : 'N/A';
       case 'sprites':
         return (
           <div className="flex justify-center">

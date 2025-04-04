@@ -88,12 +88,23 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
   ]
 };
 
+// Fetch all locations (consolidated from regions)
+export const fetchLocations = async (): Promise<Location[]> => {
+  // Simulate API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const allLocations = Object.values(MOCK_LOCATIONS).flat();
+      resolve(allLocations);
+    }, 500);
+  });
+};
+
 // Fetch locations by region
 export const fetchLocationsByRegion = async (region: string): Promise<Location[]> => {
   // Simulate API call
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const locations = MOCK_LOCATIONS[region];
+      const locations = MOCK_LOCATIONS[region.toLowerCase()];
       if (locations) {
         resolve(locations);
       } else {
@@ -107,7 +118,7 @@ export const fetchLocationsByRegion = async (region: string): Promise<Location[]
 export const fetchLocationDetail = async (region: string, locationId: string): Promise<Location | undefined> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const locations = MOCK_LOCATIONS[region];
+      const locations = MOCK_LOCATIONS[region.toLowerCase()];
       const location = locations?.find(loc => loc.id === locationId);
       resolve(location);
     }, 300);

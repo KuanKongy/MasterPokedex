@@ -1,12 +1,18 @@
 
 export interface Location {
-  id: number;
+  id: string;
   name: string;
-  region: string;
+  image: string;
   description: string;
-  coordinates: [number, number]; // [latitude, longitude]
-  weather: string[];
-  pokemonEncounters: PokemonEncounter[];
+  region: string;
+  type: string;
+  trainers: string[];
+  pokemon: number[]; // Pokemon IDs
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  neighboringLocations: string[];
 }
 
 export interface PokemonEncounter {
@@ -23,5 +29,10 @@ export interface Region {
   name: string;
   description: string;
   mainImage: string;
-  locations: Location[];
+  locations: {
+    id: string;
+    name: string;
+    description: string;
+    pokemonEncounters: PokemonEncounter[];
+  }[];
 }

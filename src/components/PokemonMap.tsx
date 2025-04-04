@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchLocations } from '../api/locationApi';
+import { fetchLocationsByRegion } from '../api/locationApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { MapPin, Compass, AlertTriangle } from 'lucide-react';
 import LocationDetails from './LocationDetails';
@@ -16,22 +16,14 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const { toast } = useToast();
   
-  const { data: locations, isLoading, error } = useQuery({
-    queryKey: ['locations'],
-    queryFn: fetchLocations
-  });
+  // Get region name based on ID
+  const regionName = regionId ? 
+    (regionId === 1 ? "kanto" : regionId === 2 ? "johto" : regionId === 3 ? "hoenn" : "unknown") : 
+    "kanto";
   
-  // Filter locations by region
-  const regionLocations = locations?.filter(location => {
-    if (!regionId) return location.region === "Kanto"; // Default to Kanto
-    
-    const regionNames: Record<number, string> = {
-      1: "Kanto",
-      2: "Johto",
-      3: "Hoenn"
-    };
-    
-    return location.region === regionNames[regionId];
+  const { data: locations, isLoading, error } = useQuery({
+    queryKey: ['locations', regionName],
+    queryFn: () => fetchLocationsByRegion(regionName)
   });
   
   // Reset selected location when region changes
@@ -63,10 +55,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
     );
   }
   
-  // Get current region name
-  const regionName = regionId ? 
-    (regionId === 1 ? "Kanto" : regionId === 2 ? "Johto" : regionId === 3 ? "Hoenn" : "Unknown") : 
-    "Kanto";
+  // Format region name for display (capitalize)
+  const displayRegionName = regionName.charAt(0).toUpperCase() + regionName.slice(1);
   
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -75,7 +65,7 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-pokebrand-red" />
-              {regionName} Locations
+              {displayRegionName} Locations
             </CardTitle>
             <CardDescription>
               Select a location to see which Pokémon can be found there
@@ -84,8 +74,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
           <CardContent className="p-0">
             <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
               <div className="divide-y">
-                {regionLocations?.length ? (
-                  regionLocations.map((location) => (
+                {locations && locations.length > 0 ? (
+                  locations.map((location) => (
                     <div 
                       key={location.id}
                       className={`p-3 hover:bg-secondary/50 cursor-pointer transition-colors ${
