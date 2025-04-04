@@ -1,102 +1,102 @@
 
 import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTrainerProfile, removePokemonFromCollection as removePokemonFromCollectionApi } from '../api/trainerApi';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
+import { Pokemon } from '../types/pokemon';
+import { Card, CardContent } from './ui/card';
+import { getPokemonTypeColor } from '../utils/helpers';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Trash } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { removePokemonFromCollection } from '../api/trainerApi';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2 } from 'lucide-react';
-import { PokemonCollection } from '@/types/trainer';
 
 interface CollectionListProps {
-  collectionId: string;
-  onSelectPokemon: (pokemonId: number) => void;
+  collection: Pokemon[];
 }
 
-const CollectionList: React.FC<CollectionListProps> = ({ collectionId, onSelectPokemon }) => {
-  const { toast } = useToast();
+const CollectionList: React.FC<CollectionListProps> = ({ collection }) => {
   const queryClient = useQueryClient();
-  
-  const { data: trainer, isLoading } = useQuery({
-    queryKey: ['trainer'],
-    queryFn: fetchTrainerProfile
-  });
+  const { toast } = useToast();
 
   const removePokemonMutation = useMutation({
-    mutationFn: async ({ collectionId, pokemonId }: { collectionId: string, pokemonId: number }) => {
-      return removePokemonFromCollectionApi(collectionId, pokemonId);
-    },
+    mutationFn: removePokemonFromCollection,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainer'] });
+      queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['pokemonList'] });
       toast({
         title: "Pokémon removed",
-        description: "The Pokémon has been removed from this collection."
+        description: "The Pokémon has been removed from your collection.",
       });
     },
-    onError: (error: Error) => {
+    onError: () => {
       toast({
-        variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to remove Pokémon from collection"
+        description: "Failed to remove the Pokémon. Please try again.",
+        variant: "destructive",
       });
     }
   });
 
-  const handleRemove = (pokemonId: number) => {
-    removePokemonMutation.mutate({ collectionId, pokemonId });
+  const handleRemovePokemon = (pokemonId: number, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    removePokemonMutation.mutate(pokemonId);
   };
 
-  if (isLoading) {
-    return <div>Loading collection...</div>;
-  }
-
-  const collection = trainer?.collections?.find(c => c.id === collectionId);
-  
-  if (!collection) {
-    return <div>Collection not found</div>;
+  if (collection.length === 0) {
+    return (
+      <div className="text-center p-8 bg-muted/30 rounded-lg">
+        <h3 className="text-xl font-semibold mb-2">No Pokémon in collection yet</h3>
+        <p className="text-muted-foreground">
+          Start your journey by adding Pokémon to your collection
+        </p>
+      </div>
+    );
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
-        <CardTitle>{collection.name}</CardTitle>
-        <CardDescription>{collection.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="text-sm">
-          {collection.pokemon.length === 0 ? (
-            <p className="text-muted-foreground">No Pokémon in this collection yet.</p>
-          ) : (
-            <ul className="space-y-1">
-              {collection.pokemon.map((pokemonId) => (
-                <li key={pokemonId} className="flex items-center justify-between p-2 hover:bg-accent/50 rounded-md">
-                  <button
-                    onClick={() => onSelectPokemon(pokemonId)}
-                    className="text-sm font-medium hover:underline"
-                  >
-                    Pokémon #{pokemonId}
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemove(pokemonId)}
-                    className="h-6 w-6"
-                    disabled={removePokemonMutation.isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end pt-2">
-        <div className="text-xs text-muted-foreground">
-          {collection.pokemon.length} Pokémon
-        </div>
-      </CardFooter>
-    </Card>
+    <div>
+      <h3 className="text-lg font-semibold mb-4">My Collection ({collection.length})</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {collection.map((pokemon) => (
+          <Link key={pokemon.id} to={`/pokemon/${pokemon.id}`}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer h-full relative group">
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                onClick={(e) => handleRemovePokemon(pokemon.id, e)}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
+              <CardContent className="p-3 flex flex-col items-center text-center">
+                <img
+                  src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
+                  alt={pokemon.name}
+                  className="w-28 h-28 object-contain"
+                />
+                <div className="mt-2">
+                  <div className="text-sm font-medium capitalize">{pokemon.name}</div>
+                  <div className="text-xs text-muted-foreground">#{pokemon.id.toString().padStart(3, '0')}</div>
+                  <div className="flex justify-center gap-1 mt-2">
+                    {pokemon.types.map((typeInfo) => (
+                      <Badge
+                        key={typeInfo.type.name}
+                        className="text-xs text-white"
+                        style={{ backgroundColor: getPokemonTypeColor(typeInfo.type.name) }}
+                      >
+                        {typeInfo.type.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 };
 

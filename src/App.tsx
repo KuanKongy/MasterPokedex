@@ -11,9 +11,6 @@ import NotFound from "./pages/NotFound";
 import Map from "./pages/Map";
 import Trainer from "./pages/Trainer";
 import Items from "./pages/Items";
-import OtherTrainers from "./pages/OtherTrainers";
-import Regions from "./pages/Regions";
-import RegionDetail from "./pages/RegionDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,9 +34,6 @@ const App = () => (
             <Route path="/map" element={<Map />} />
             <Route path="/trainer" element={<Trainer />} />
             <Route path="/items" element={<Items />} />
-            <Route path="/trainers" element={<OtherTrainers />} />
-            <Route path="/regions" element={<Regions />} />
-            <Route path="/regions/:id" element={<RegionDetail />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
