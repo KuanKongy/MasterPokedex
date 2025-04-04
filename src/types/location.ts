@@ -30,7 +30,7 @@ export interface Region {
   description: string;
   mainImage: string;
   locations: {
-    id: string;
+    id: string; // Changed from number to string to match Location interface
     name: string;
     description: string;
     pokemonEncounters: PokemonEncounter[];

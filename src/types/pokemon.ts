@@ -14,6 +14,7 @@ export interface Pokemon {
   stats: PokemonStat[];
   height: number;
   weight: number;
+  base_experience?: number; // Added as optional since it might be missing from some API responses
   abilities: PokemonAbility[];
   species: {
     url: string;

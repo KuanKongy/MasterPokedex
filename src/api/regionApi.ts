@@ -1,4 +1,3 @@
-
 import { Region } from "../types/location";
 
 // Mock data for regions
@@ -10,7 +9,7 @@ const MOCK_REGIONS: Region[] = [
     mainImage: "https://archives.bulbagarden.net/media/upload/thumb/f/f3/LGPE_Kanto_Map.png/300px-LGPE_Kanto_Map.png",
     locations: [
       {
-        id: 1,
+        id: "1", // Changed from number to string
         name: "Pallet Town",
         region: "Kanto",
         description: "A small, quiet town where many trainers begin their Pokémon journey.",
@@ -19,7 +18,7 @@ const MOCK_REGIONS: Region[] = [
         pokemonEncounters: []
       },
       {
-        id: 2,
+        id: "2", // Changed from number to string
         name: "Viridian Forest",
         region: "Kanto",
         description: "A dense forest home to many Bug and Grass type Pokémon.",
@@ -58,7 +57,7 @@ const MOCK_REGIONS: Region[] = [
     mainImage: "https://archives.bulbagarden.net/media/upload/thumb/6/64/JohtoMap.png/300px-JohtoMap.png",
     locations: [
       {
-        id: 3,
+        id: "3", // Changed from number to string
         name: "New Bark Town",
         region: "Johto",
         description: "A town where winds of a new beginning blow.",
@@ -67,7 +66,7 @@ const MOCK_REGIONS: Region[] = [
         pokemonEncounters: []
       },
       {
-        id: 4,
+        id: "4", // Changed from number to string
         name: "Ilex Forest",
         region: "Johto",
         description: "A mysterious forest said to be protected by the forest's guardian.",
@@ -100,7 +99,7 @@ const MOCK_REGIONS: Region[] = [
     mainImage: "https://archives.bulbagarden.net/media/upload/thumb/8/85/Hoenn_ORAS.png/300px-Hoenn_ORAS.png",
     locations: [
       {
-        id: 5,
+        id: "5", // Changed from number to string
         name: "Littleroot Town",
         region: "Hoenn",
         description: "A small town with the scent of wild flowers.",
@@ -109,7 +108,7 @@ const MOCK_REGIONS: Region[] = [
         pokemonEncounters: []
       },
       {
-        id: 6,
+        id: "6", // Changed from number to string
         name: "Petalburg Woods",
         region: "Hoenn",
         description: "A lush forest teeming with Bug Pokémon.",

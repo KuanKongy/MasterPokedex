@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonList } from '../api/pokemonApi';
@@ -80,7 +79,6 @@ const PokemonFilter: React.FC = () => {
   };
   
   const removeCondition = (id: string) => {
-    // Don't remove if it's the only condition
     if (conditions.length <= 1) return;
     
     setConditions(conditions.filter(c => c.id !== id));
@@ -112,7 +110,6 @@ const PokemonFilter: React.FC = () => {
     conditions.forEach((condition, index) => {
       let filterFn: (pokemon: Pokemon) => boolean;
       
-      // Handle different field types and operators
       switch (condition.field) {
         case 'name':
           switch (condition.operator) {
@@ -221,15 +218,11 @@ const PokemonFilter: React.FC = () => {
           filterFn = () => true;
       }
       
-      // Apply the connection logic
       if (index === 0 || !condition.connector) {
-        // First condition OR connector is null (shouldn't happen except for first)
         result = result.filter(filterFn);
       } else if (condition.connector === 'AND') {
-        // AND condition narrows down the current results
         result = result.filter(filterFn);
       } else if (condition.connector === 'OR') {
-        // OR condition adds more results
         const additionalResults = allPokemon.filter(filterFn);
         const idsSet = new Set(result.map(p => p.id));
         additionalResults.forEach(p => {
@@ -243,7 +236,6 @@ const PokemonFilter: React.FC = () => {
     setFilteredPokemon(result);
   };
   
-  // Get field options based on condition field
   const getOperatorOptions = (field: string) => {
     switch (field) {
       case 'name':
@@ -273,7 +265,6 @@ const PokemonFilter: React.FC = () => {
     }
   };
 
-  // Format the value based on the field type
   const formatCellValue = (pokemon: Pokemon, field: string) => {
     switch (field) {
       case 'id':
@@ -311,8 +302,7 @@ const PokemonFilter: React.FC = () => {
           </div>
         );
       case 'base_experience':
-        // Handle potential undefined base_experience
-        return typeof pokemon.base_experience !== 'undefined' ? pokemon.base_experience.toString() : 'N/A';
+        return pokemon.base_experience !== undefined ? pokemon.base_experience.toString() : 'N/A';
       case 'sprites':
         return (
           <div className="flex justify-center">
@@ -336,7 +326,6 @@ const PokemonFilter: React.FC = () => {
       </p>
       
       <div className="grid grid-cols-1 gap-6">
-        {/* Selection (Filtering) */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -347,7 +336,6 @@ const PokemonFilter: React.FC = () => {
             <div className="space-y-4">
               {conditions.map((condition, index) => (
                 <div key={condition.id} className="grid grid-cols-12 gap-3 items-center">
-                  {/* Logic connector */}
                   {index > 0 && (
                     <div className="col-span-12 sm:col-span-1">
                       <Select
@@ -365,7 +353,6 @@ const PokemonFilter: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* Field selector */}
                   <div className={`${index > 0 ? 'col-span-12 sm:col-span-3' : 'col-span-12 sm:col-span-4'}`}>
                     <Select
                       value={condition.field}
@@ -386,7 +373,6 @@ const PokemonFilter: React.FC = () => {
                     </Select>
                   </div>
                   
-                  {/* Operator selector */}
                   <div className="col-span-12 sm:col-span-3">
                     <Select
                       value={condition.operator}
@@ -403,7 +389,6 @@ const PokemonFilter: React.FC = () => {
                     </Select>
                   </div>
                   
-                  {/* Value input */}
                   <div className="col-span-10 sm:col-span-4">
                     <Input
                       placeholder="Value"
@@ -412,7 +397,6 @@ const PokemonFilter: React.FC = () => {
                     />
                   </div>
                   
-                  {/* Remove button */}
                   <div className="col-span-2 sm:col-span-1 flex justify-end">
                     <Button
                       variant="ghost"
@@ -443,7 +427,6 @@ const PokemonFilter: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Projection */}
         <Card>
           <CardHeader>
             <CardTitle>Projection (Fields to Display)</CardTitle>
@@ -469,7 +452,6 @@ const PokemonFilter: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Results */}
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>
