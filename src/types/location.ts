@@ -30,9 +30,12 @@ export interface Region {
   description: string;
   mainImage: string;
   locations: {
-    id: string; // Changed from number to string to match Location interface
+    id: string;
     name: string;
     description: string;
+    region: string; // Added this property to match the data structure
+    coordinates?: number[]; // Added this as optional since it appears in the data
+    weather?: string[]; // Added this as optional since it appears in the data
     pokemonEncounters: PokemonEncounter[];
   }[];
 }
