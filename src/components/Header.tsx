@@ -10,7 +10,7 @@ import { MapPin, User, ShoppingBag, Home, Filter } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { fetchTrainerProfile } from '../api/trainerApi';
 import { useToast } from '@/hooks/use-toast';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -23,7 +23,7 @@ const navigation = [
 const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemonList'],
@@ -108,7 +108,7 @@ const Header: React.FC = () => {
 
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <DialogContent className={isMobile ? "max-w-full p-0 h-full" : ""}>
-          <SearchBar pokemon={pokemon || []} isLoading={isLoading} />
+          <SearchBar />
         </DialogContent>
       </Dialog>
     </header>
