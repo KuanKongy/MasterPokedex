@@ -2,27 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLocations } from '../api/locationApi';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { MapPin, Compass } from 'lucide-react';
 import LocationDetails from './LocationDetails';
 import { Location } from '../types/location';
-import { MapPin, Compass } from 'lucide-react';
 
 interface PokemonMapProps {
   regionId?: number;
-  selectedLocation?: number | null;
-  onLocationSelect?: (locationId: number) => void;
 }
 
-const PokemonMap: React.FC<PokemonMapProps> = ({ 
-  regionId, 
-  selectedLocation: externalSelectedLocation, 
-  onLocationSelect 
-}) => {
-  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
-  
-  // Use external state if provided
-  const activeLocation = externalSelectedLocation !== undefined 
-    ? externalSelectedLocation 
-    : selectedLocation;
+const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
@@ -42,22 +32,13 @@ const PokemonMap: React.FC<PokemonMapProps> = ({
     return location.region === regionNames[regionId];
   });
   
-  // Handle location selection
-  const handleLocationClick = (locationId: number) => {
-    if (onLocationSelect) {
-      onLocationSelect(locationId);
-    } else {
-      setSelectedLocation(locationId);
-    }
-  };
-  
   // Reset selected location when region changes
   useEffect(() => {
     setSelectedLocation(null);
   }, [regionId]);
   
   if (isLoading) {
-    return <div className="flex items-center justify-center h-16"><p>Loading map data...</p></div>;
+    return <div className="flex items-center justify-center h-64"><p>Loading map data...</p></div>;
   }
   
   if (error) {
@@ -72,55 +53,56 @@ const PokemonMap: React.FC<PokemonMapProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-1">
-        <div className="shadow-md rounded-md border bg-white h-full">
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-2">
-              <MapPin className="text-red-500" size={20} />
-              <h2 className="text-lg font-medium">{regionName} Locations</h2>
-            </div>
-            <p className="text-gray-500 text-sm">
+        <Card className="shadow-md h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-pokebrand-red" />
+              {regionName} Locations
+            </CardTitle>
+            <CardDescription>
               Select a location to see which Pokémon can be found there
-            </p>
-          </div>
-          <div>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
             <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
-              <div>
+              <div className="divide-y">
                 {regionLocations?.length ? (
                   regionLocations.map((location) => (
                     <div 
                       key={location.id}
-                      className={`p-3 ${activeLocation === location.id ? 'bg-gray-100' : ''} 
-                      hover:bg-gray-50 cursor-pointer transition-colors border-b`}
-                      onClick={() => handleLocationClick(location.id)}
+                      className={`p-3 hover:bg-secondary/50 cursor-pointer transition-colors ${
+                        selectedLocation?.id === location.id ? 'bg-secondary' : ''
+                      }`}
+                      onClick={() => setSelectedLocation(location)}
                     >
-                      <p className="font-medium">{location.name}</p>
-                      <div className="flex items-center gap-1 text-gray-500 text-sm">
-                        <Compass size={12} /> {location.region}
+                      <div className="font-medium">{location.name}</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Compass className="h-3 w-3" /> {location.region}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-3 text-center text-gray-500">
+                  <div className="p-3 text-center text-muted-foreground">
                     No locations found for this region
                   </div>
                 )}
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="lg:col-span-2">
-        {activeLocation && regionLocations ? (
-          <LocationDetails location={regionLocations.find(loc => loc.id === activeLocation)} />
+        {selectedLocation ? (
+          <LocationDetails location={selectedLocation} />
         ) : (
-          <div className="h-full flex flex-col items-center justify-center p-6 text-center shadow-md border rounded-md bg-white">
-            <MapPin size={48} className="text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium mb-2">Select a Location</h3>
-            <p className="text-gray-500">
+          <Card className="h-full flex flex-col items-center justify-center p-6 text-center shadow-md">
+            <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-medium mb-2">Select a Location</h3>
+            <p className="text-muted-foreground">
               Click on a location from the list to view detailed information and Pokémon encounters
             </p>
-          </div>
+          </Card>
         )}
       </div>
     </div>

@@ -1,113 +1,99 @@
 
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchLocations } from '../api/locationApi';
-import { Location } from '../types/location';
-import { MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import PokemonMap from '../components/PokemonMap';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
+import { fetchRegions } from '../api/regionApi';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const Map: React.FC = () => {
-  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+const Map = () => {
+  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
   
-  const { data: locations = [] } = useQuery({
-    queryKey: ['locations'],
-    queryFn: fetchLocations
+  const { data: regions, isLoading } = useQuery({
+    queryKey: ['regions'],
+    queryFn: fetchRegions
   });
-  
-  const locationDetails = selectedLocation 
-    ? locations.find(location => location.id === selectedLocation) 
-    : null;
-  
-  const handleLocationSelect = (locationId: number) => {
-    setSelectedLocation(locationId);
-  };
-  
-  const clearSelection = () => {
-    setSelectedLocation(null);
-  };
-  
+
+  // Set default region when data loads
+  useEffect(() => {
+    if (regions && regions.length > 0 && !selectedRegionId) {
+      setSelectedRegionId(regions[0].id);
+    }
+  }, [regions, selectedRegionId]);
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Pokémon World Map</h1>
-      <p className="text-gray-600 mb-8">
-        Explore regions and locations throughout the Pokémon world
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Map</h1>
+      <p className="text-muted-foreground mb-8">
+        Explore locations and discover which Pokémon can be found in different areas
       </p>
       
-      <Tabs value="map">
-        <TabsList>
-          <TabsTrigger value="map">Interactive Map</TabsTrigger>
-          <TabsTrigger value="list">Locations List</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="map">
-          <div 
-            className="h-[600px] relative rounded-lg overflow-hidden border mb-4"
+      {isLoading ? (
+        <div className="flex justify-center p-8">Loading region data...</div>
+      ) : (
+        <div className="space-y-6">
+          <Tabs 
+            defaultValue={regions?.[0]?.id.toString()} 
+            onValueChange={(value) => setSelectedRegionId(Number(value))}
           >
-            <PokemonMap 
-              regionId={1} // Default to Kanto region
-              selectedLocation={selectedLocation}
-              onLocationSelect={handleLocationSelect}
-            />
+            <TabsList className="mb-4 flex overflow-x-auto">
+              {regions?.map(region => (
+                <TabsTrigger key={region.id} value={region.id.toString()}>
+                  {region.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             
-            {selectedLocation && locationDetails && (
-              <div 
-                className="absolute bottom-4 right-4 w-full md:w-[350px] z-10"
-              >
+            {regions?.map(region => (
+              <TabsContent key={region.id} value={region.id.toString()}>
                 <Card>
                   <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-lg">{locationDetails.name}</h3>
-                      <button 
-                        className="text-sm bg-transparent border-none cursor-pointer"
-                        onClick={clearSelection}
-                      >
-                        ×
-                      </button>
-                    </div>
+                    <CardTitle>{region.name} Region</CardTitle>
+                    <CardDescription>{region.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-2">{locationDetails.description}</p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <Badge>{locationDetails.region}</Badge>
-                      {locationDetails.weather && locationDetails.weather.length > 0 && (
-                        <Badge variant="secondary">Has Weather</Badge>
-                      )}
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div>
+                        <img 
+                          src={region.mainImage} 
+                          alt={`Map of ${region.name}`}
+                          className="rounded-md shadow-md w-full"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Notable Locations</h3>
+                        <ul className="space-y-4">
+                          {region.locations.map(location => (
+                            <li key={location.id} className="border-b pb-3">
+                              <div className="font-medium">{location.name}</div>
+                              <div className="text-sm text-muted-foreground">{location.description}</div>
+                              {location.pokemonEncounters.length > 0 && (
+                                <div className="mt-2">
+                                  <div className="text-xs font-medium mb-1">Pokémon Encounters:</div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {location.pokemonEncounters.map(encounter => (
+                                      <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md text-xs">
+                                        <img src={encounter.sprite} alt={encounter.name} className="w-4 h-4" />
+                                        <span>{encounter.name}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="list">
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          >
-            {locations.map((location) => (
-              <Card key={location.id} className="cursor-pointer" onClick={() => handleLocationSelect(location.id)}>
-                <CardContent className="p-4">
-                  <div className="flex items-center mb-2">
-                    <MapPin size={16} className="mr-2" />
-                    <h3 className="font-semibold">{location.name}</h3>
-                  </div>
-                  <p className="text-sm text-gray-600">{location.region}</p>
-                  
-                  <div className="mt-3 flex gap-2">
-                    <Badge variant="outline">Location</Badge>
-                    {location.weather && location.weather.length > 0 && (
-                      <Badge variant="secondary">Has Weather</Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              </TabsContent>
             ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+          </Tabs>
+          
+          <PokemonMap regionId={selectedRegionId || 1} />
+        </div>
+      )}
     </div>
   );
 };

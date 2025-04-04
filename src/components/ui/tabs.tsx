@@ -1,183 +1,53 @@
+import * as React from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-import React, { useState } from "react";
+import { cn } from "@/lib/utils"
 
-interface TabsProps {
-  defaultIndex?: number;
-  index?: number;
-  onChange?: (index: number) => void;
-  value?: string;
-  onValueChange?: (value: string) => void;
-  children: React.ReactNode;
-  className?: string;
-}
+const Tabs = TabsPrimitive.Root
 
-export const Tabs = ({
-  defaultIndex = 0,
-  index,
-  onChange,
-  value,
-  onValueChange,
-  children,
-  className = ""
-}: TabsProps) => {
-  const [activeIndex, setActiveIndex] = useState(defaultIndex);
-  const [activeValue, setActiveValue] = useState<string | undefined>(value);
-  
-  const handleTabChange = (idx: number) => {
-    if (onChange) {
-      onChange(idx);
-    } else if (index === undefined) {
-      setActiveIndex(idx);
-    }
-  };
-  
-  const handleValueChange = (val: string) => {
-    if (onValueChange) {
-      onValueChange(val);
-    } else {
-      setActiveValue(val);
-    }
-  };
-  
-  const currentIndex = index !== undefined ? index : activeIndex;
-  const currentValue = value !== undefined ? value : activeValue;
-  
-  const tabsList = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === TabsList
-  );
-  
-  const tabsContent = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === TabsContent
-  );
-  
-  return (
-    <div className={`tabs ${className}`}>
-      {React.Children.map(tabsList, (child) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child as React.ReactElement<any>, {
-            activeIndex: currentIndex,
-            setActiveIndex: handleTabChange,
-            value: currentValue,
-            onValueChange: handleValueChange
-          });
-        }
-        return child;
-      })}
-      
-      {React.Children.map(tabsContent, (child, index) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child as React.ReactElement<any>, {
-            index,
-            activeIndex: currentIndex,
-            value: (child.props as any).value,
-            selectedValue: currentValue,
-          });
-        }
-        return child;
-      })}
-    </div>
-  );
-};
+const TabsList = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.List>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.List
+    ref={ref}
+    className={cn(
+      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+))
+TabsList.displayName = TabsPrimitive.List.displayName
 
-interface TabsListProps {
-  children: React.ReactNode;
-  activeIndex?: number;
-  setActiveIndex?: (index: number) => void;
-  value?: string;
-  onValueChange?: (value: string) => void;
-  className?: string;
-}
+const TabsTrigger = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Trigger
+    ref={ref}
+    className={cn(
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      className
+    )}
+    {...props}
+  />
+))
+TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
-export const TabsList = ({ 
-  children, 
-  activeIndex = 0, 
-  setActiveIndex,
-  value,
-  onValueChange, 
-  className = ""
-}: TabsListProps) => {
-  return (
-    <div 
-      className={`tabs-list flex bg-muted p-1 rounded-md border gap-1 ${className}`}
-    >
-      {React.Children.map(children, (child, index) => {
-        if (React.isValidElement(child)) {
-          const childValue = (child.props as any).value;
-          const isActive = value !== undefined 
-            ? childValue === value 
-            : index === activeIndex;
-          
-          return React.cloneElement(child as React.ReactElement<any>, {
-            isActive,
-            onSelect: () => {
-              if (value !== undefined && onValueChange) {
-                onValueChange(childValue);
-              } else if (setActiveIndex) {
-                setActiveIndex(index);
-              }
-            },
-          });
-        }
-        return child;
-      })}
-    </div>
-  );
-};
+const TabsContent = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
+>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Content
+    ref={ref}
+    className={cn(
+      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      className
+    )}
+    {...props}
+  />
+))
+TabsContent.displayName = TabsPrimitive.Content.displayName
 
-interface TabsTriggerProps {
-  children: React.ReactNode;
-  value: string;
-  isActive?: boolean;
-  onSelect?: () => void;
-  className?: string;
-}
-
-export const TabsTrigger = ({ 
-  children, 
-  value,
-  isActive = false, 
-  onSelect,
-  className = ""
-}: TabsTriggerProps) => {
-  return (
-    <button
-      className={`tabs-trigger px-3 py-1.5 rounded-sm cursor-pointer flex-1 text-center
-        ${isActive ? 'bg-white text-gray-800 font-medium shadow-sm' : 'bg-transparent text-gray-600 font-normal'}
-        ${className}`}
-      onClick={onSelect}
-      type="button"
-    >
-      {children}
-    </button>
-  );
-};
-
-interface TabsContentProps {
-  children: React.ReactNode;
-  value?: string;
-  selectedValue?: string;
-  index?: number;
-  activeIndex?: number;
-  className?: string;
-}
-
-export const TabsContent = ({ 
-  children, 
-  value,
-  selectedValue,
-  index = 0, 
-  activeIndex = 0,
-  className = ""
-}: TabsContentProps) => {
-  const isVisible = value !== undefined && selectedValue !== undefined
-    ? value === selectedValue
-    : index === activeIndex;
-    
-  if (!isVisible) return null;
-  
-  return (
-    <div className={`tabs-content mt-2 ${className}`}>
-      {children}
-    </div>
-  );
-};
+export { Tabs, TabsList, TabsTrigger, TabsContent }
