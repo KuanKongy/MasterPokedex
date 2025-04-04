@@ -6,6 +6,7 @@ import { Badge } from './ui/badge';
 import { MapPin, Map } from 'lucide-react';
 import { useQueries } from '@tanstack/react-query';
 import { fetchPokemonDetails } from '../api/pokemonApi';
+import { TypeBadge } from './ui/type-badge';
 
 interface LocationDetailsProps {
   location: Location;
@@ -80,32 +81,39 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
             </div>
           </div>
           
-          {/* Pokemon encounters section - moved below and made larger */}
+          {/* Pokemon encounters section - below image with larger sprites */}
           <div>
             <h3 className="font-semibold text-lg mb-3">Pokémon Encounters:</h3>
             {isLoading ? (
               <div className="text-center p-4">Loading Pokémon data...</div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {pokemonQueries.map((query, index) => {
                   if (query.isLoading || !query.data) return null;
                   
                   const pokemon = query.data;
+                  const types = pokemon.types.map(typeInfo => typeInfo.type.name);
+                  
                   return (
-                    <div key={index} className="flex flex-col items-center p-3 border rounded-md bg-card hover:shadow-md transition-shadow">
-                      <div className="mb-2">
+                    <div key={index} className="flex flex-col items-center p-4 border rounded-md bg-card hover:shadow-md transition-shadow">
+                      <div className="mb-3">
                         <img 
                           src={pokemon.sprites.front_default} 
                           alt={pokemon.name}
-                          className="w-20 h-20" // Larger sprite
+                          className="w-28 h-28" // Much larger sprite
                         />
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-medium">
+                        <div className="text-base font-medium mb-1">
                           {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-sm text-muted-foreground mb-2">
                           #{pokemon.id.toString().padStart(3, '0')}
+                        </div>
+                        <div className="flex gap-1 justify-center flex-wrap">
+                          {types.map((type, i) => (
+                            <TypeBadge key={i} type={type as any} />
+                          ))}
                         </div>
                       </div>
                     </div>

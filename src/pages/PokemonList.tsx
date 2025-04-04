@@ -1,14 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchPokemonList } from '../api/pokemonApi';
 import { addPokemonToTrainerCollection } from '../api/trainerApi';
 import PokemonCard from '../components/PokemonCard';
-import SearchBar from '../components/SearchBar';
 import TypeFilter from '../components/TypeFilter';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, SortDesc } from 'lucide-react';
+import { Plus, SortDesc, Search } from 'lucide-react';
 import { Pokemon } from '../types/pokemon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -82,6 +83,12 @@ const PokemonList: React.FC = () => {
   const handleAddToCollection = (pokemonId: number) => {
     addPokemonMutation.mutate(pokemonId);
   };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // The search is already reactive with the useEffect, so we don't need to do anything here
+    // This just prevents form submission
+  };
   
   if (error) {
     return (
@@ -103,32 +110,43 @@ const PokemonList: React.FC = () => {
       </p>
       
       <div className="flex flex-col md:flex-row gap-4 mb-6">
+        {/* Updated search layout with inline form */}
         <div className="flex-1">
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <form onSubmit={handleSearch} className="flex w-full">
+            <div className="relative flex-grow">
+              <Input
+                placeholder="Search Pokémon by name or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="rounded-r-none"
+              />
+            </div>
+            <Button type="submit" className="rounded-l-none">
+              <Search className="h-4 w-4" />
+            </Button>
+          </form>
         </div>
         
-        <div className="flex gap-2">
-          <div className="w-48">
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-              <SelectTrigger className="w-full">
-                <div className="flex items-center gap-2">
-                  <SortDesc className="h-4 w-4" />
-                  <SelectValue placeholder="Sort by" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="id">Number</SelectItem>
-                <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="total">Total Stats</SelectItem>
-                <SelectItem value="hp">HP</SelectItem>
-                <SelectItem value="attack">Attack</SelectItem>
-                <SelectItem value="defense">Defense</SelectItem>
-                <SelectItem value="special-attack">Sp. Attack</SelectItem>
-                <SelectItem value="special-defense">Sp. Defense</SelectItem>
-                <SelectItem value="speed">Speed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="w-full md:w-48 flex-shrink-0">
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+            <SelectTrigger className="w-full">
+              <div className="flex items-center gap-2">
+                <SortDesc className="h-4 w-4" />
+                <SelectValue placeholder="Sort by" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="id">Number</SelectItem>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="total">Total Stats</SelectItem>
+              <SelectItem value="hp">HP</SelectItem>
+              <SelectItem value="attack">Attack</SelectItem>
+              <SelectItem value="defense">Defense</SelectItem>
+              <SelectItem value="special-attack">Sp. Attack</SelectItem>
+              <SelectItem value="special-defense">Sp. Defense</SelectItem>
+              <SelectItem value="speed">Speed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       

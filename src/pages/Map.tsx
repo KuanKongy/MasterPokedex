@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle } from 'lucide-react';
+import { TypeBadge } from '@/components/ui/type-badge';
 
 const Map = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
@@ -97,18 +98,18 @@ const Map = () => {
                                   <div className="text-xs font-medium mb-1">Pokémon Encounters:</div>
                                   <div className="flex flex-wrap gap-2">
                                     {location.pokemonEncounters.map(encounter => (
-                                      <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md text-xs">
+                                      <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-3 py-2 rounded-md">
                                         <img 
                                           src={encounter.sprite || "/placeholder.svg"} 
                                           alt={encounter.name} 
-                                          className="w-4 h-4" 
+                                          className="w-8 h-8" // Increased size from 4x4 to 8x8
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;
                                             target.src = "/placeholder.svg";
                                           }}
                                         />
-                                        <span>{encounter.name}</span>
+                                        <span className="text-sm">{encounter.name}</span>
                                       </div>
                                     ))}
                                   </div>
