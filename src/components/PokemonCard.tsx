@@ -49,7 +49,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
           
           <h3 className="font-bold text-lg mb-2">{capitalize(name)}</h3>
           
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap mt-1">
             {types.map(({ type }) => (
               <Badge 
                 key={type.name} 

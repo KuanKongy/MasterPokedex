@@ -13,10 +13,13 @@ import CollectionList from './CollectionList';
 import ItemInventory from './ItemInventory';
 import PokemonCollections from './PokemonCollections';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import UpdateTrainerForm from './UpdateTrainerForm';
 
 const TrainerProfile: React.FC = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -82,8 +85,20 @@ const TrainerProfile: React.FC = () => {
     <div className="space-y-6">
       <Card className="shadow-md">
         <CardHeader className="pb-2">
-          <CardTitle className="text-2xl">Trainer Profile</CardTitle>
-          <CardDescription>View and manage your Pokémon journey</CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-2xl">Trainer Profile</CardTitle>
+              <CardDescription>View and manage your Pokémon journey</CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setIsEditFormOpen(true)}
+              className="flex gap-1"
+            >
+              <Edit className="h-4 w-4" /> Edit Profile
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row items-start gap-6">
@@ -173,6 +188,18 @@ const TrainerProfile: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={isEditFormOpen} onOpenChange={setIsEditFormOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Your Profile</DialogTitle>
+          </DialogHeader>
+          <UpdateTrainerForm 
+            trainer={trainer}
+            onClose={() => setIsEditFormOpen(false)} 
+          />
+        </DialogContent>
+      </Dialog>
 
       <Tabs defaultValue="collection" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">

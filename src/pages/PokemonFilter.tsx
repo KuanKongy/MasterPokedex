@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PlusCircle, MinusCircle, Search, Filter } from 'lucide-react';
-import PokemonCard from '../components/PokemonCard';
 import { Pokemon } from '../types/pokemon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -17,6 +16,16 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { capitalize } from '../utils/helpers';
 
 type Condition = {
   id: string;
@@ -44,7 +53,9 @@ const PokemonFilter: React.FC = () => {
     { name: 'height', selected: false, display: 'Height' },
     { name: 'weight', selected: false, display: 'Weight' },
     { name: 'abilities', selected: false, display: 'Abilities' },
-    { name: 'stats', selected: false, display: 'Stats' }
+    { name: 'stats', selected: false, display: 'Stats' },
+    { name: 'base_experience', selected: false, display: 'Base Experience' },
+    { name: 'sprites', selected: false, display: 'Image' }
   ]);
   
   const [filteredPokemon, setFilteredPokemon] = useState<Pokemon[]>([]);
@@ -108,11 +119,17 @@ const PokemonFilter: React.FC = () => {
             case 'contains':
               filterFn = (pokemon) => pokemon.name.toLowerCase().includes(condition.value.toLowerCase());
               break;
+            case 'starts-with':
+              filterFn = (pokemon) => pokemon.name.toLowerCase().startsWith(condition.value.toLowerCase());
+              break;
+            case 'ends-with':
+              filterFn = (pokemon) => pokemon.name.toLowerCase().endsWith(condition.value.toLowerCase());
+              break;
             case 'equals':
               filterFn = (pokemon) => pokemon.name.toLowerCase() === condition.value.toLowerCase();
               break;
-            case 'starts-with':
-              filterFn = (pokemon) => pokemon.name.toLowerCase().startsWith(condition.value.toLowerCase());
+            case 'not-equals':
+              filterFn = (pokemon) => pokemon.name.toLowerCase() !== condition.value.toLowerCase();
               break;
             default:
               filterFn = () => true;
@@ -124,11 +141,20 @@ const PokemonFilter: React.FC = () => {
             case 'equals':
               filterFn = (pokemon) => pokemon.id === parseInt(condition.value);
               break;
+            case 'not-equals':
+              filterFn = (pokemon) => pokemon.id !== parseInt(condition.value);
+              break;
             case 'less-than':
               filterFn = (pokemon) => pokemon.id < parseInt(condition.value);
               break;
+            case 'less-than-equals':
+              filterFn = (pokemon) => pokemon.id <= parseInt(condition.value);
+              break;
             case 'greater-than':
               filterFn = (pokemon) => pokemon.id > parseInt(condition.value);
+              break;
+            case 'greater-than-equals':
+              filterFn = (pokemon) => pokemon.id >= parseInt(condition.value);
               break;
             default:
               filterFn = () => true;
@@ -136,9 +162,59 @@ const PokemonFilter: React.FC = () => {
           break;
           
         case 'type':
-          filterFn = (pokemon) => pokemon.types.some(t => 
-            t.type.name.toLowerCase().includes(condition.value.toLowerCase())
-          );
+          switch (condition.operator) {
+            case 'contains':
+              filterFn = (pokemon) => pokemon.types.some(t => 
+                t.type.name.toLowerCase().includes(condition.value.toLowerCase())
+              );
+              break;
+            case 'equals':
+              filterFn = (pokemon) => pokemon.types.some(t => 
+                t.type.name.toLowerCase() === condition.value.toLowerCase()
+              );
+              break;
+            default:
+              filterFn = () => true;
+          }
+          break;
+          
+        case 'height':
+        case 'weight':
+        case 'base_experience':
+          switch (condition.operator) {
+            case 'equals':
+              filterFn = (pokemon) => pokemon[condition.field] === parseInt(condition.value);
+              break;
+            case 'not-equals':
+              filterFn = (pokemon) => pokemon[condition.field] !== parseInt(condition.value);
+              break;
+            case 'less-than':
+              filterFn = (pokemon) => pokemon[condition.field] < parseInt(condition.value);
+              break;
+            case 'less-than-equals':
+              filterFn = (pokemon) => pokemon[condition.field] <= parseInt(condition.value);
+              break;
+            case 'greater-than':
+              filterFn = (pokemon) => pokemon[condition.field] > parseInt(condition.value);
+              break;
+            case 'greater-than-equals':
+              filterFn = (pokemon) => pokemon[condition.field] >= parseInt(condition.value);
+              break;
+            default:
+              filterFn = () => true;
+          }
+          break;
+
+        case 'abilities':
+          switch (condition.operator) {
+            case 'contains':
+              filterFn = (pokemon) => pokemon.abilities.some(a => 
+                a.ability.name.toLowerCase().includes(condition.value.toLowerCase())
+              );
+              break;
+            default:
+              filterFn = () => true;
+          }
           break;
           
         default:
@@ -171,23 +247,83 @@ const PokemonFilter: React.FC = () => {
   const getOperatorOptions = (field: string) => {
     switch (field) {
       case 'name':
+      case 'type':
+      case 'abilities':
         return [
           { value: 'contains', label: 'Contains' },
           { value: 'equals', label: 'Equals' },
-          { value: 'starts-with', label: 'Starts With' }
+          { value: 'starts-with', label: 'Starts With' },
+          { value: 'ends-with', label: 'Ends With' },
+          { value: 'not-equals', label: 'Not Equals' },
         ];
       case 'id':
+      case 'height':
+      case 'weight':
+      case 'base_experience':
         return [
-          { value: 'equals', label: 'Equals' },
-          { value: 'less-than', label: 'Less Than' },
-          { value: 'greater-than', label: 'Greater Than' }
-        ];
-      case 'type':
-        return [
-          { value: 'contains', label: 'Contains' }
+          { value: 'equals', label: 'Equals (=)' },
+          { value: 'not-equals', label: 'Not Equals (≠)' },
+          { value: 'less-than', label: 'Less Than (<)' },
+          { value: 'less-than-equals', label: 'Less Than or Equal (≤)' },
+          { value: 'greater-than', label: 'Greater Than (>)' },
+          { value: 'greater-than-equals', label: 'Greater Than or Equal (≥)' }
         ];
       default:
         return [];
+    }
+  };
+
+  // Format the value based on the field type
+  const formatCellValue = (pokemon: Pokemon, field: string) => {
+    switch (field) {
+      case 'id':
+        return `#${pokemon.id.toString().padStart(3, '0')}`;
+      case 'name':
+        return capitalize(pokemon.name);
+      case 'types':
+        return (
+          <div className="flex gap-1 flex-wrap">
+            {pokemon.types.map(({ type }) => (
+              <Badge 
+                key={type.name} 
+                className={`bg-poketype-${type.name} text-white`}
+              >
+                {capitalize(type.name)}
+              </Badge>
+            ))}
+          </div>
+        );
+      case 'height':
+        return `${(pokemon.height / 10).toFixed(1)}m`;
+      case 'weight':
+        return `${(pokemon.weight / 10).toFixed(1)}kg`;
+      case 'abilities':
+        return pokemon.abilities.map(a => capitalize(a.ability.name)).join(', ');
+      case 'stats':
+        return (
+          <div className="text-xs">
+            {pokemon.stats.map(stat => (
+              <div key={stat.stat.name} className="flex justify-between">
+                <span>{capitalize(stat.stat.name.replace('-', ' '))}:</span>
+                <span className="font-medium">{stat.base_stat}</span>
+              </div>
+            ))}
+          </div>
+        );
+      case 'base_experience':
+        return pokemon.base_experience || 'N/A';
+      case 'sprites':
+        return (
+          <div className="flex justify-center">
+            <img 
+              src={pokemon.sprites.front_default} 
+              alt={pokemon.name} 
+              className="h-12 w-12"
+            />
+          </div>
+        );
+      default:
+        return 'N/A';
     }
   };
   
@@ -241,6 +377,10 @@ const PokemonFilter: React.FC = () => {
                         <SelectItem value="name">Name</SelectItem>
                         <SelectItem value="id">ID</SelectItem>
                         <SelectItem value="type">Type</SelectItem>
+                        <SelectItem value="height">Height</SelectItem>
+                        <SelectItem value="weight">Weight</SelectItem>
+                        <SelectItem value="abilities">Abilities</SelectItem>
+                        <SelectItem value="base_experience">Base Experience</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -341,14 +481,29 @@ const PokemonFilter: React.FC = () => {
             ) : filteredPokemon.length > 0 ? (
               <div>
                 <ScrollArea className="h-[600px]">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                    {filteredPokemon.map(pokemon => (
-                      <PokemonCard 
-                        key={pokemon.id} 
-                        pokemon={pokemon} 
-                      />
-                    ))}
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {projectionFields.filter(field => field.selected).map(field => (
+                          <TableHead key={field.name}>{field.display}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredPokemon.map(pokemon => (
+                        <TableRow key={pokemon.id}>
+                          {projectionFields
+                            .filter(field => field.selected)
+                            .map(field => (
+                              <TableCell key={`${pokemon.id}-${field.name}`}>
+                                {formatCellValue(pokemon, field.name)}
+                              </TableCell>
+                            ))
+                          }
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </ScrollArea>
               </div>
             ) : (

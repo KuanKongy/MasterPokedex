@@ -1,11 +1,12 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTrainerById, deleteTrainer } from '../api/otherTrainersApi';
+import { fetchTrainerById, deleteTrainer, updateTrainer } from '../api/otherTrainersApi';
 import { fetchPokemonList } from '../api/pokemonApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar } from '@/components/ui/avatar';
-import { User, Medal, Calendar, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { User, Medal, Calendar, Edit, Trash2, AlertTriangle, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PokemonCard from './PokemonCard';
 import { Button } from './ui/button';
@@ -13,6 +14,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import UpdateTrainerForm from './UpdateTrainerForm';
+import { addPokemonToTrainerCollection, addItem } from '../api/trainerApi';
+import { Pokemon } from '../types/pokemon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Input } from './ui/input';
+import { TrainerItem } from '../types/trainer';
 
 interface OtherTrainerProfileProps {
   trainerId: string;
@@ -21,6 +27,17 @@ interface OtherTrainerProfileProps {
 const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isAddPokemonDialogOpen, setIsAddPokemonDialogOpen] = useState(false);
+  const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
+  const [selectedPokemonId, setSelectedPokemonId] = useState<string>('');
+  const [newItem, setNewItem] = useState<Partial<TrainerItem>>({
+    name: '',
+    description: '',
+    category: 'pokeball',
+    sprite: '',
+    quantity: 1
+  });
+  
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -54,6 +71,90 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
     }
   });
 
+  const addPokemonMutation = useMutation({
+    mutationFn: async () => {
+      const pokemonId = parseInt(selectedPokemonId);
+      if (!trainer || isNaN(pokemonId)) return;
+      
+      // Add Pokemon to trainer's collection
+      return updateTrainer(trainerId, {
+        collectedPokemon: [...(trainer.collectedPokemon || []), pokemonId],
+        pokemonCaught: (trainer.pokemonCaught || 0) + 1
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerProfile', trainerId] });
+      toast({
+        title: "Pokémon added",
+        description: "Pokémon has been added to the trainer's collection."
+      });
+      setIsAddPokemonDialogOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add Pokémon. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const addItemMutation = useMutation({
+    mutationFn: async () => {
+      if (!trainer) return;
+      
+      // Create new item with the next available ID
+      const highestItemId = trainer.items.reduce(
+        (max, item) => Math.max(max, item.id), 0
+      );
+      
+      const newItemWithId = {
+        ...newItem,
+        id: highestItemId + 1
+      } as TrainerItem;
+      
+      // Add item to trainer's inventory
+      return updateTrainer(trainerId, {
+        items: [...trainer.items, newItemWithId]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainerProfile', trainerId] });
+      toast({
+        title: "Item added",
+        description: "Item has been added to the trainer's inventory."
+      });
+      setIsAddItemDialogOpen(false);
+      // Reset form
+      setNewItem({
+        name: '',
+        description: '',
+        category: 'pokeball',
+        sprite: '',
+        quantity: 1
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add item. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAddPokemon = () => {
+    if (selectedPokemonId) {
+      addPokemonMutation.mutate();
+    }
+  };
+
+  const handleAddItem = () => {
+    if (newItem.name && newItem.description) {
+      addItemMutation.mutate();
+    }
+  };
+
   if (trainerLoading || pokemonLoading) {
     return <div className="flex justify-center p-8">Loading trainer data...</div>;
   }
@@ -64,6 +165,11 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
 
   const collectedPokemonDetails = allPokemon?.filter(
     (pokemon) => trainer.collectedPokemon.includes(pokemon.id)
+  ) || [];
+
+  // Pokemon not in this trainer's collection
+  const uncollectedPokemon = allPokemon?.filter(
+    (pokemon) => !trainer.collectedPokemon.includes(pokemon.id)
   ) || [];
 
   return (
@@ -192,9 +298,19 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
         
         <TabsContent value="collection">
           <Card>
-            <CardHeader>
-              <CardTitle>Pokémon Collection</CardTitle>
-              <CardDescription>Pokémon that {trainer.name} has caught</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Pokémon Collection</CardTitle>
+                <CardDescription>Pokémon that {trainer.name} has caught</CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsAddPokemonDialogOpen(true)}
+                className="flex gap-1"
+              >
+                <Plus className="h-4 w-4" /> Add Pokémon
+              </Button>
             </CardHeader>
             <CardContent>
               {collectedPokemonDetails.length > 0 ? (
@@ -208,13 +324,58 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
               )}
             </CardContent>
           </Card>
+
+          <Dialog open={isAddPokemonDialogOpen} onOpenChange={setIsAddPokemonDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Pokémon to Collection</DialogTitle>
+                <DialogDescription>
+                  Select a Pokémon to add to {trainer.name}'s collection
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="grid gap-2">
+                  <div className="grid gap-1">
+                    <Select value={selectedPokemonId} onValueChange={setSelectedPokemonId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a Pokémon" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {uncollectedPokemon.map(pokemon => (
+                          <SelectItem key={pokemon.id} value={pokemon.id.toString()}>
+                            #{pokemon.id.toString().padStart(3, '0')} - {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddPokemonDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleAddPokemon} disabled={!selectedPokemonId || addPokemonMutation.isPending}>
+                  {addPokemonMutation.isPending ? "Adding..." : "Add Pokémon"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
         
         <TabsContent value="items">
           <Card>
-            <CardHeader>
-              <CardTitle>Item Inventory</CardTitle>
-              <CardDescription>Items that {trainer.name} has collected</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Item Inventory</CardTitle>
+                <CardDescription>Items that {trainer.name} has collected</CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsAddItemDialogOpen(true)}
+                className="flex gap-1"
+              >
+                <Plus className="h-4 w-4" /> Add Item
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -245,6 +406,83 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
               </div>
             </CardContent>
           </Card>
+
+          <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Item to Inventory</DialogTitle>
+                <DialogDescription>
+                  Add a new item to {trainer.name}'s inventory
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">Name</label>
+                  <Input 
+                    placeholder="Item name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">Description</label>
+                  <Input 
+                    placeholder="Item description"
+                    value={newItem.description}
+                    onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">Category</label>
+                    <Select 
+                      value={newItem.category} 
+                      onValueChange={(value: any) => setNewItem({...newItem, category: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pokeball">Poké Ball</SelectItem>
+                        <SelectItem value="medicine">Medicine</SelectItem>
+                        <SelectItem value="berry">Berry</SelectItem>
+                        <SelectItem value="battle">Battle Item</SelectItem>
+                        <SelectItem value="evolution">Evolution Item</SelectItem>
+                        <SelectItem value="machine">TM/HM</SelectItem>
+                        <SelectItem value="key">Key Item</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">Quantity</label>
+                    <Input 
+                      type="number"
+                      min={1}
+                      value={newItem.quantity}
+                      onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 1})}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">Sprite URL</label>
+                  <Input 
+                    placeholder="https://example.com/item.png"
+                    value={newItem.sprite}
+                    onChange={(e) => setNewItem({...newItem, sprite: e.target.value})}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddItemDialogOpen(false)}>Cancel</Button>
+                <Button 
+                  onClick={handleAddItem} 
+                  disabled={!newItem.name || !newItem.description || addItemMutation.isPending}
+                >
+                  {addItemMutation.isPending ? "Adding..." : "Add Item"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
     </div>

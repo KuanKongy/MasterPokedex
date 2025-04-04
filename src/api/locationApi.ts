@@ -1,216 +1,115 @@
 
-import { Location, Region } from "../types/location";
+import { Location } from "../types/location";
 
-// Mock data for locations
-const MOCK_LOCATIONS: Location[] = [
-  {
-    id: 1,
-    name: "Viridian Forest",
-    region: "Kanto",
-    description: "A forest full of bug Pokémon that lies between Viridian City and Pewter City.",
-    coordinates: [35.6895, 139.6917],
-    weather: ["sunny", "rainy"],
-    pokemonEncounters: [
-      {
-        pokemonId: 10, // Caterpie
-        name: "Caterpie",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png",
-        rarity: "common",
-        encounterRate: 40,
-        conditions: ["morning", "day"]
+// Mock data - In a real app, this would come from a backend
+const MOCK_LOCATIONS: Record<string, Location[]> = {
+  kanto: [
+    {
+      id: "pallet-town",
+      name: "Pallet Town",
+      image: "https://archives.bulbagarden.net/media/upload/thumb/7/7d/PE_Kanto_Map.png/600px-PE_Kanto_Map.png",
+      description: "A small, quiet town where the protagonist begins their journey.",
+      region: "kanto",
+      type: "town",
+      trainers: ["Professor Oak", "Blue"],
+      pokemon: [16, 19, 21], // Pidgey, Rattata, Spearow
+      coordinates: {
+        x: 16,
+        y: 72
       },
-      {
-        pokemonId: 13, // Weedle
-        name: "Weedle",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png",
-        rarity: "common",
-        encounterRate: 40,
-        conditions: ["morning", "day"]
+      neighboringLocations: ["viridian-city", "cinnabar-island"],
+    },
+    {
+      id: "viridian-city",
+      name: "Viridian City",
+      image: "/images/locations/viridian-city.jpg",
+      description: "The first city encountered on your journey. Contains the first Gym.",
+      region: "kanto",
+      type: "city",
+      trainers: ["Giovanni"],
+      pokemon: [16, 19, 21, 23], // Pidgey, Rattata, Spearow, Ekans
+      coordinates: {
+        x: 16,
+        y: 54
       },
-      {
-        pokemonId: 25, // Pikachu
-        name: "Pikachu",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
-        rarity: "rare",
-        encounterRate: 5
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: "Mt. Moon",
-    region: "Kanto",
-    description: "A mountain that stands between Pewter City and Cerulean City.",
-    coordinates: [36.2048, 138.2529],
-    weather: ["clear", "foggy"],
-    pokemonEncounters: [
-      {
-        pokemonId: 41, // Zubat
-        name: "Zubat",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/41.png",
-        rarity: "common",
-        encounterRate: 60
+      neighboringLocations: ["pallet-town", "pewter-city", "viridian-forest"],
+    },
+    {
+      id: "pewter-city",
+      name: "Pewter City",
+      image: "/images/locations/pewter-city.jpg",
+      description: "A city located between Viridian Forest and Mt. Moon. Home to the Rock-type Gym Leader Brock.",
+      region: "kanto",
+      type: "city",
+      trainers: ["Brock"],
+      pokemon: [74, 95], // Geodude, Onix
+      coordinates: {
+        x: 16,
+        y: 37
       },
-      {
-        pokemonId: 74, // Geodude
-        name: "Geodude",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/74.png",
-        rarity: "common",
-        encounterRate: 30
+      neighboringLocations: ["viridian-city", "mt-moon", "cerulean-city"],
+    },
+  ],
+  johto: [
+    {
+      id: "new-bark-town",
+      name: "New Bark Town",
+      image: "/images/locations/new-bark-town.jpg",
+      description: "A small town where winds of a new beginning blow.",
+      region: "johto",
+      type: "town",
+      trainers: ["Professor Elm"],
+      pokemon: [152, 155, 158], // Chikorita, Cyndaquil, Totodile
+      coordinates: {
+        x: 88,
+        y: 52
       },
-      {
-        pokemonId: 35, // Clefairy
-        name: "Clefairy",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/35.png",
-        rarity: "rare",
-        encounterRate: 10,
-        conditions: ["night", "full moon"]
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: "Cerulean Cave",
-    region: "Kanto",
-    description: "A mysterious cave with powerful Pokémon, home to Mewtwo.",
-    coordinates: [36.5, 138.5],
-    weather: ["foggy"],
-    pokemonEncounters: [
-      {
-        pokemonId: 42, // Golbat
-        name: "Golbat",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/42.png",
-        rarity: "common",
-        encounterRate: 40
+      neighboringLocations: ["cherrygrove-city"],
+    },
+    // More locations can be added
+  ],
+  hoenn: [
+    {
+      id: "littleroot-town",
+      name: "Littleroot Town",
+      image: "/images/locations/littleroot-town.jpg",
+      description: "A small town with the scent of wild flowers.",
+      region: "hoenn",
+      type: "town",
+      trainers: ["Professor Birch"],
+      pokemon: [252, 255, 258], // Treecko, Torchic, Mudkip
+      coordinates: {
+        x: 46,
+        y: 83
       },
-      {
-        pokemonId: 76, // Golem
-        name: "Golem",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/76.png",
-        rarity: "rare",
-        encounterRate: 10
-      },
-      {
-        pokemonId: 150, // Mewtwo
-        name: "Mewtwo",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png",
-        rarity: "legendary",
-        encounterRate: 0.5,
-        conditions: ["one-time", "requires-badges"]
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: "Safari Zone",
-    region: "Kanto",
-    description: "A special area where rare Pokémon can be caught using Safari Balls.",
-    coordinates: [35.4, 139.5],
-    weather: ["sunny", "rainy"],
-    pokemonEncounters: [
-      {
-        pokemonId: 111, // Rhyhorn
-        name: "Rhyhorn",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/111.png",
-        rarity: "uncommon",
-        encounterRate: 20
-      },
-      {
-        pokemonId: 123, // Scyther
-        name: "Scyther",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/123.png",
-        rarity: "rare",
-        encounterRate: 5
-      },
-      {
-        pokemonId: 128, // Tauros
-        name: "Tauros",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/128.png",
-        rarity: "rare",
-        encounterRate: 5
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: "Seafoam Islands",
-    region: "Kanto",
-    description: "A pair of islands between Fuchsia City and Cinnabar Island, home to Articuno.",
-    coordinates: [34.6, 140.1],
-    weather: ["snowy", "clear"],
-    pokemonEncounters: [
-      {
-        pokemonId: 86, // Seel
-        name: "Seel",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/86.png",
-        rarity: "uncommon",
-        encounterRate: 30
-      },
-      {
-        pokemonId: 87, // Dewgong
-        name: "Dewgong",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/87.png",
-        rarity: "rare",
-        encounterRate: 10
-      },
-      {
-        pokemonId: 144, // Articuno
-        name: "Articuno",
-        sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/144.png",
-        rarity: "legendary",
-        encounterRate: 0.5,
-        conditions: ["one-time"]
-      }
-    ]
-  }
-];
+      neighboringLocations: ["oldale-town"],
+    },
+    // More locations can be added
+  ]
+};
 
-// Mock regions data
-const MOCK_REGIONS: Region[] = [
-  {
-    id: 1,
-    name: "Kanto",
-    description: "The first region explored in the Pokémon series, based on the real Kantō region of Japan.",
-    mainImage: "/images/regions/kanto.jpg",
-    locations: MOCK_LOCATIONS.filter(loc => loc.region === "Kanto")
-  }
-];
-
-// Fetch all locations
-export const fetchLocations = async (): Promise<Location[]> => {
+// Fetch locations by region
+export const fetchLocationsByRegion = async (region: string): Promise<Location[]> => {
   // Simulate API call
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(MOCK_LOCATIONS);
-    }, 800);
+      const locations = MOCK_LOCATIONS[region];
+      if (locations) {
+        resolve(locations);
+      } else {
+        reject(new Error(`No locations found for region: ${region}`));
+      }
+    }, 500);
   });
 };
 
-// Fetch a specific location by ID
-export const fetchLocationById = async (locationId: number): Promise<Location | undefined> => {
+// Fetch a specific location by region and id
+export const fetchLocationDetail = async (region: string, locationId: string): Promise<Location | undefined> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const location = MOCK_LOCATIONS.find(loc => loc.id === locationId);
+      const locations = MOCK_LOCATIONS[region];
+      const location = locations?.find(loc => loc.id === locationId);
       resolve(location);
-    }, 400);
-  });
-};
-
-// Fetch all regions
-export const fetchRegions = async (): Promise<Region[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_REGIONS);
-    }, 600);
-  });
-};
-
-// Fetch a specific region by ID
-export const fetchRegionById = async (regionId: number): Promise<Region | undefined> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const region = MOCK_REGIONS.find(reg => reg.id === regionId);
-      resolve(region);
-    }, 400);
+    }, 300);
   });
 };

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonList } from '../api/pokemonApi';
 import SearchBar from './SearchBar';
@@ -24,6 +24,7 @@ const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const { data: pokemon, isLoading } = useQuery({
@@ -38,15 +39,28 @@ const Header: React.FC = () => {
     queryFn: fetchTrainerProfile,
   });
 
+  const handleSearch = (pokemonName: string) => {
+    const foundPokemon = pokemon?.find(p => 
+      p.name.toLowerCase() === pokemonName.toLowerCase() ||
+      p.id.toString() === pokemonName
+    );
+    
+    if (foundPokemon) {
+      navigate(`/pokemon/${foundPokemon.id}`);
+      setIsSearchOpen(false);
+      setSearchTerm('');
+    }
+  };
+
   return (
-    <header className="bg-white dark:bg-gray-900 border-b dark:border-gray-800">
+    <header className="bg-pokebrand-red dark:bg-pokebrand-red border-b dark:border-gray-800">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center gap-2">
-            <div className="bg-pokebrand-red rounded-full w-8 h-8 flex items-center justify-center">
-              <div className="bg-white rounded-full w-4 h-4"></div>
+            <div className="bg-white rounded-full w-8 h-8 flex items-center justify-center">
+              <div className="bg-pokebrand-red rounded-full w-4 h-4 border-2 border-black"></div>
             </div>
-            <span className="text-xl font-bold">Pokédex</span>
+            <span className="text-xl font-bold text-white">Pokédex</span>
           </Link>
         </div>
 
@@ -57,8 +71,8 @@ const Header: React.FC = () => {
               to={item.href}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
                 location.pathname === item.href
-                  ? 'bg-pokebrand-red/10 text-pokebrand-red'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                  ? 'bg-white/20 text-white'
+                  : 'text-white/90 hover:bg-white/10'
               }`}
             >
               <item.icon className="h-4 w-4" />
@@ -72,23 +86,25 @@ const Header: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setIsSearchOpen(true)}
-            className="text-sm"
+            className="text-sm bg-white/10 border-white/20 text-white hover:bg-white/20"
           >
             <span>Search</span>
           </Button>
 
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={trainer?.avatar || "/placeholder.svg"}
-              alt={trainer?.name || "User"}
-            />
-            <AvatarFallback>{trainer?.name?.charAt(0) || "U"}</AvatarFallback>
-          </Avatar>
+          <Link to="/trainer">
+            <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-white/50">
+              <AvatarImage
+                src={trainer?.avatar || "/placeholder.svg"}
+                alt={trainer?.name || "User"}
+              />
+              <AvatarFallback>{trainer?.name?.charAt(0) || "U"}</AvatarFallback>
+            </Avatar>
+          </Link>
         </div>
       </div>
 
       {/* Mobile navigation */}
-      <div className="sm:hidden border-t">
+      <div className="sm:hidden border-t border-white/20">
         <div className="flex justify-around">
           {navigation.map((item) => (
             <Link
@@ -96,8 +112,8 @@ const Header: React.FC = () => {
               to={item.href}
               className={`flex flex-1 flex-col items-center py-2 px-1 text-xs ${
                 location.pathname === item.href
-                  ? 'text-pokebrand-red bg-pokebrand-red/10'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'text-white bg-white/20'
+                  : 'text-white/80 hover:text-white'
               }`}
             >
               <item.icon className="h-4 w-4 mb-1" />
@@ -108,8 +124,13 @@ const Header: React.FC = () => {
       </div>
 
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <DialogContent className={isMobile ? "max-w-full p-0 h-full" : ""}>
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <DialogContent className={isMobile ? "max-w-full p-4 h-full" : ""}>
+          <SearchBar 
+            searchTerm={searchTerm} 
+            setSearchTerm={setSearchTerm} 
+            onSearch={handleSearch}
+            pokemonData={pokemon || []}
+          />
         </DialogContent>
       </Dialog>
     </header>
