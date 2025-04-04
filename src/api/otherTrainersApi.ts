@@ -1,5 +1,5 @@
 
-import { Trainer } from "../types/trainer";
+import { Trainer, TrainerItem } from "../types/trainer";
 
 // Mock data for other trainers
 export const MOCK_OTHER_TRAINERS: Trainer[] = [
@@ -84,6 +84,9 @@ export const MOCK_OTHER_TRAINERS: Trainer[] = [
   }
 ];
 
+// Valid regions
+export const VALID_REGIONS = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Paldea"];
+
 // Fetch all other trainers
 export const fetchOtherTrainers = async (): Promise<Trainer[]> => {
   return new Promise((resolve) => {
@@ -99,6 +102,81 @@ export const fetchTrainerById = async (trainerId: string): Promise<Trainer | und
     setTimeout(() => {
       const trainer = MOCK_OTHER_TRAINERS.find(t => t.id === trainerId);
       resolve(trainer);
+    }, 300);
+  });
+};
+
+// Insert a new trainer
+type InsertTrainerInput = Omit<Trainer, 'id' | 'joinDate'> & {
+  collectedPokemon: number[];
+  items: TrainerItem[];
+};
+
+export const insertTrainer = async (trainerData: InsertTrainerInput): Promise<Trainer> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Validate region
+      if (!VALID_REGIONS.includes(trainerData.region)) {
+        reject(new Error(`Invalid region: ${trainerData.region}. Must be one of: ${VALID_REGIONS.join(', ')}`));
+        return;
+      }
+
+      const newId = `trainer-${Math.floor(1000 + Math.random() * 9000)}`;
+      const joinDate = new Date().toISOString();
+      
+      const newTrainer: Trainer = {
+        id: newId,
+        joinDate,
+        ...trainerData
+      };
+      
+      MOCK_OTHER_TRAINERS.push(newTrainer);
+      resolve(newTrainer);
+    }, 500);
+  });
+};
+
+// Delete trainer by ID
+export const deleteTrainer = async (trainerId: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const trainerIndex = MOCK_OTHER_TRAINERS.findIndex(t => t.id === trainerId);
+      
+      if (trainerIndex === -1) {
+        reject(new Error("Trainer not found"));
+        return;
+      }
+      
+      MOCK_OTHER_TRAINERS.splice(trainerIndex, 1);
+      resolve();
+    }, 300);
+  });
+};
+
+// Update trainer
+export const updateTrainer = async (trainerId: string, updates: Partial<Omit<Trainer, 'id'>>): Promise<Trainer> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const trainerIndex = MOCK_OTHER_TRAINERS.findIndex(t => t.id === trainerId);
+      
+      if (trainerIndex === -1) {
+        reject(new Error("Trainer not found"));
+        return;
+      }
+      
+      // Validate region if updating it
+      if (updates.region && !VALID_REGIONS.includes(updates.region)) {
+        reject(new Error(`Invalid region: ${updates.region}. Must be one of: ${VALID_REGIONS.join(', ')}`));
+        return;
+      }
+      
+      // Update trainer
+      MOCK_OTHER_TRAINERS[trainerIndex] = {
+        ...MOCK_OTHER_TRAINERS[trainerIndex],
+        ...updates
+      };
+      
+      resolve(MOCK_OTHER_TRAINERS[trainerIndex]);
     }, 300);
   });
 };

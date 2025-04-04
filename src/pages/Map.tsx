@@ -5,9 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchRegions } from '../api/regionApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle } from 'lucide-react';
 
 const Map = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
+  const { toast } = useToast();
   
   const { data: regions, isLoading } = useQuery({
     queryKey: ['regions'],
@@ -58,7 +61,29 @@ const Map = () => {
                           src={region.mainImage} 
                           alt={`Map of ${region.name}`}
                           className="rounded-md shadow-md w-full"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            
+                            // Use placeholder for missing image
+                            target.src = "/placeholder.svg";
+                            
+                            // Show toast notification
+                            if (region.name === "Kanto") {
+                              toast({
+                                title: "Map image not found",
+                                description: `The map image for ${region.name} region is unavailable.`,
+                                variant: "destructive"
+                              });
+                            }
+                          }}
                         />
+                        {region.name === "Kanto" && (
+                          <div className="mt-2 px-3 py-2 bg-orange-100 text-orange-800 rounded-md flex items-center gap-2 text-sm">
+                            <AlertTriangle className="h-4 w-4" />
+                            Map image unavailable. Our Pokédex systems are being updated.
+                          </div>
+                        )}
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Notable Locations</h3>
@@ -73,7 +98,16 @@ const Map = () => {
                                   <div className="flex flex-wrap gap-2">
                                     {location.pokemonEncounters.map(encounter => (
                                       <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-md text-xs">
-                                        <img src={encounter.sprite} alt={encounter.name} className="w-4 h-4" />
+                                        <img 
+                                          src={encounter.sprite || "/placeholder.svg"} 
+                                          alt={encounter.name} 
+                                          className="w-4 h-4" 
+                                          onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.onerror = null;
+                                            target.src = "/placeholder.svg";
+                                          }}
+                                        />
                                         <span>{encounter.name}</span>
                                       </div>
                                     ))}

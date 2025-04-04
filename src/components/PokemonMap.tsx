@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLocations } from '../api/locationApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { MapPin, Compass } from 'lucide-react';
+import { MapPin, Compass, AlertTriangle } from 'lucide-react';
 import LocationDetails from './LocationDetails';
 import { Location } from '../types/location';
+import { useToast } from '@/hooks/use-toast';
 
 interface PokemonMapProps {
   regionId?: number;
@@ -13,6 +14,7 @@ interface PokemonMapProps {
 
 const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const { toast } = useToast();
   
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
@@ -36,13 +38,29 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
   useEffect(() => {
     setSelectedLocation(null);
   }, [regionId]);
+
+  // Display error toast if map data fails to load
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading map data",
+        description: "Unable to load location information. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
   
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><p>Loading map data...</p></div>;
   }
   
   if (error) {
-    return <div className="text-red-500 p-4">Error loading map data</div>;
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-center gap-3">
+        <AlertTriangle className="h-5 w-5" />
+        <p>Error loading map data. Please try again later.</p>
+      </div>
+    );
   }
   
   // Get current region name

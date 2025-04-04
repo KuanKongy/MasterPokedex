@@ -88,7 +88,15 @@ const TrainerProfile: React.FC = () => {
         <CardContent>
           <div className="flex flex-col md:flex-row items-start gap-6">
             <Avatar className="w-24 h-24 border-2 border-pokebrand-red">
-              <img src="/placeholder.svg" alt={trainer.name} />
+              <img 
+                src={trainer.avatar || "/placeholder.svg"} 
+                alt={trainer.name}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = "/placeholder.svg";
+                }}
+              />
             </Avatar>
 
             <div className="space-y-4 flex-1">

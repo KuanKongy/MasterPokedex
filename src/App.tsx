@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Map from "./pages/Map";
 import Trainer from "./pages/Trainer";
 import Items from "./pages/Items";
+import PokemonFilter from "./pages/PokemonFilter";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -37,6 +38,7 @@ const App = () => {
               <Route path="/map" element={<Map />} />
               <Route path="/trainer" element={<Trainer />} />
               <Route path="/items" element={<Items />} />
+              <Route path="/pokemon-filter" element={<PokemonFilter />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
