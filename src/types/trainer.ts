@@ -11,7 +11,11 @@ export interface Trainer {
   collectedPokemon: number[];
   items: TrainerItem[];
   collections?: PokemonCollection[];
+  bio?: string; // Added bio property
 }
+
+// Adding TrainerProfile type as an alias of Trainer for backwards compatibility
+export type TrainerProfile = Trainer;
 
 export interface TrainerItem {
   id: number;

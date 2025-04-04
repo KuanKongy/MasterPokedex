@@ -117,6 +117,19 @@ export const fetchTrainerProfile = async (): Promise<Trainer> => {
   });
 };
 
+// Update trainer profile
+export const updateTrainerProfile = async (profileData: Partial<Trainer>): Promise<Trainer> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      MOCK_TRAINER = {
+        ...MOCK_TRAINER,
+        ...profileData
+      };
+      resolve(MOCK_TRAINER);
+    }, 300);
+  });
+};
+
 // Add Pokémon to personal collection
 export const addPokemonToTrainerCollection = async (pokemonId: number): Promise<Trainer> => {
   // In a real app, this would make an API call to update the backend

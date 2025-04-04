@@ -22,6 +22,7 @@ const navigation = [
 
 const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
   const isMobile = useIsMobile();
 
@@ -108,7 +109,7 @@ const Header: React.FC = () => {
 
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <DialogContent className={isMobile ? "max-w-full p-0 h-full" : ""}>
-          <SearchBar />
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </DialogContent>
       </Dialog>
     </header>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { updateTrainerProfile } from '../api/trainerApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { TrainerProfile } from '../types/trainer';
+import { Trainer } from '../types/trainer';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -36,10 +37,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface UpdateTrainerFormProps {
-  trainer: TrainerProfile;
+  trainer: Trainer;
+  onClose?: () => void; // Make onClose optional
 }
 
-const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer }) => {
+const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer, onClose }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,7 @@ const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: trainer.name,
-      bio: trainer.bio,
+      bio: trainer.bio || "", // Handle undefined bio
       avatar: trainer.avatar,
       badges: trainer.badges,
       pokemonCaught: trainer.pokemonCaught,
@@ -59,11 +61,13 @@ const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer }) => {
     mutationFn: updateTrainerProfile,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['trainerProfile', trainer.id] });
       toast({
         title: 'Profile updated',
         description: 'Your trainer profile has been updated successfully.',
       });
       setIsSubmitting(false);
+      if (onClose) onClose(); // Call onClose if provided
     },
     onError: (error) => {
       toast({

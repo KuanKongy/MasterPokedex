@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerById, deleteTrainer } from '../api/otherTrainersApi';
@@ -63,7 +62,6 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
     return <div className="text-red-500 p-4">Trainer not found</div>;
   }
 
-  // Get collected Pokemon details
   const collectedPokemonDetails = allPokemon?.filter(
     (pokemon) => trainer.collectedPokemon.includes(pokemon.id)
   ) || [];
@@ -91,7 +89,10 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
                       Update trainer information. Select which fields to modify.
                     </DialogDescription>
                   </DialogHeader>
-                  <UpdateTrainerForm trainer={trainer} onClose={() => setIsEditDialogOpen(false)} />
+                  <UpdateTrainerForm 
+                    trainer={trainer} 
+                    onClose={() => setIsEditDialogOpen(false)} 
+                  />
                 </DialogContent>
               </Dialog>
               
@@ -131,7 +132,6 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
         <CardContent>
           <div className="flex flex-col md:flex-row items-start gap-6">
             <Avatar className="w-24 h-24 border-2 border-pokebrand-red">
-              {/* Use placeholder if image is unavailable */}
               <img 
                 src={trainer.avatar || "/placeholder.svg"} 
                 alt={trainer.name}
