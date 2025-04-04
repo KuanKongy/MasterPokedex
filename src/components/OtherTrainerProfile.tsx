@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchTrainerById, deleteTrainer, updateTrainer } from '../api/otherTrainersApi';
@@ -14,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import UpdateTrainerForm from './UpdateTrainerForm';
-import { addPokemonToTrainerCollection, addItem } from '../api/trainerApi';
 import { Pokemon } from '../types/pokemon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
@@ -198,6 +196,8 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ trainerId }) 
                   <UpdateTrainerForm 
                     trainer={trainer} 
                     onClose={() => setIsEditDialogOpen(false)} 
+                    isOtherTrainer={true}
+                    trainerId={trainerId}
                   />
                 </DialogContent>
               </Dialog>

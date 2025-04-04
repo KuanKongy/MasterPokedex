@@ -1,191 +1,179 @@
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { updateTrainerProfile } from '../api/trainerApi';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { updateTrainer } from '../api/otherTrainersApi';
 import { Trainer } from '../types/trainer';
-
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
-  bio: z.string().max(160, {
-    message: 'Bio must not be longer than 160 characters.',
-  }),
-  avatar: z.string().url({
-    message: 'Please enter a valid URL.',
-  }),
-  badges: z.number().int().min(0).max(8),
-  pokemonCaught: z.number().int().min(0),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { VALID_REGIONS } from '../api/otherTrainersApi';
+import { useToast } from '@/hooks/use-toast';
 
 interface UpdateTrainerFormProps {
   trainer: Trainer;
-  onClose?: () => void; // Make onClose optional
+  onClose: () => void;
+  isOtherTrainer?: boolean;
+  trainerId?: string;
 }
 
-const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer, onClose }) => {
+const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ 
+  trainer, 
+  onClose, 
+  isOtherTrainer = false,
+  trainerId 
+}) => {
+  const [name, setName] = useState(trainer.name);
+  const [avatar, setAvatar] = useState(trainer.avatar || '');
+  const [favoriteType, setFavoriteType] = useState(trainer.favoriteType);
+  const [region, setRegion] = useState(trainer.region);
+  const [badges, setBadges] = useState(trainer.badges);
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: trainer.name,
-      bio: trainer.bio || "", // Handle undefined bio
-      avatar: trainer.avatar,
-      badges: trainer.badges,
-      pokemonCaught: trainer.pokemonCaught,
+  
+  const updateMutation = useMutation({
+    mutationFn: async (updatedTrainer: Partial<Trainer>) => {
+      if (isOtherTrainer && trainerId) {
+        // Update other trainer
+        return updateTrainer(trainerId, updatedTrainer);
+      } else {
+        // Update main user's trainer
+        return updateTrainerProfile(updatedTrainer);
+      }
     },
-  });
-
-  const updateTrainerMutation = useMutation({
-    mutationFn: updateTrainerProfile,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
-      queryClient.invalidateQueries({ queryKey: ['trainerProfile', trainer.id] });
+      if (isOtherTrainer && trainerId) {
+        // Invalidate other trainer's cache
+        queryClient.invalidateQueries({ queryKey: ['trainerProfile', trainerId] });
+        queryClient.invalidateQueries({ queryKey: ['otherTrainers'] });
+      } else {
+        // Invalidate main trainer's cache
+        queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
+      }
+      
       toast({
-        title: 'Profile updated',
-        description: 'Your trainer profile has been updated successfully.',
+        title: "Profile updated",
+        description: "Trainer profile has been successfully updated."
       });
-      setIsSubmitting(false);
-      if (onClose) onClose(); // Call onClose if provided
+      
+      onClose();
     },
-    onError: (error) => {
+    onError: () => {
       toast({
-        title: 'Error',
-        description: 'Failed to update profile. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to update trainer profile. Please try again.",
+        variant: "destructive",
       });
-      setIsSubmitting(false);
-    },
+    }
   });
 
-  function onSubmit(values: FormValues) {
-    setIsSubmitting(true);
-    updateTrainerMutation.mutate(values);
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Only include fields that have changed
+    const updates: Partial<Trainer> = {};
+    if (name !== trainer.name) updates.name = name;
+    if (avatar !== trainer.avatar) updates.avatar = avatar;
+    if (favoriteType !== trainer.favoriteType) updates.favoriteType = favoriteType;
+    if (region !== trainer.region) updates.region = region;
+    if (badges !== trainer.badges) updates.badges = badges;
+    
+    if (Object.keys(updates).length > 0) {
+      updateMutation.mutate(updates);
+    } else {
+      onClose();
+    }
+  };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your trainer name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-4 py-2">
+      <div className="space-y-2">
+        <label htmlFor="name" className="block text-sm font-medium">
+          Name
+        </label>
+        <Input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Trainer name"
         />
-
-        <FormField
-          control={form.control}
-          name="bio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Tell us about yourself"
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="avatar" className="block text-sm font-medium">
+          Avatar URL
+        </label>
+        <Input
+          id="avatar"
+          value={avatar}
+          onChange={(e) => setAvatar(e.target.value)}
+          placeholder="https://example.com/avatar.png"
         />
-
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avatar URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/avatar.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="badges"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Badges</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={8}
-                    {...field}
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="pokemonCaught"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pokémon Caught</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    {...field}
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label htmlFor="type" className="block text-sm font-medium">
+            Favorite Type
+          </label>
+          <Select value={favoriteType} onValueChange={setFavoriteType}>
+            <SelectTrigger id="type">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", 
+                "flying", "psychic", "bug", "rock", "ghost", "dark", "dragon", "steel", "fairy"].map(type => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            'Save Changes'
-          )}
+        
+        <div className="space-y-2">
+          <label htmlFor="region" className="block text-sm font-medium">
+            Region
+          </label>
+          <Select value={region} onValueChange={setRegion}>
+            <SelectTrigger id="region">
+              <SelectValue placeholder="Select region" />
+            </SelectTrigger>
+            <SelectContent>
+              {VALID_REGIONS.map(region => (
+                <SelectItem key={region} value={region}>
+                  {region}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <label htmlFor="badges" className="block text-sm font-medium">
+          Badges
+        </label>
+        <Input
+          id="badges"
+          type="number"
+          min={0}
+          max={8}
+          value={badges}
+          onChange={(e) => setBadges(parseInt(e.target.value) || 0)}
+        />
+      </div>
+      
+      <div className="flex justify-end gap-2 pt-2">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
         </Button>
-      </form>
-    </Form>
+        <Button type="submit" disabled={updateMutation.isPending}>
+          {updateMutation.isPending ? "Saving..." : "Save Changes"}
+        </Button>
+      </div>
+    </form>
   );
 };
 

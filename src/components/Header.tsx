@@ -6,11 +6,12 @@ import { fetchPokemonList } from '../api/pokemonApi';
 import SearchBar from './SearchBar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, ShoppingBag, Home, Filter } from 'lucide-react';
+import { MapPin, User, ShoppingBag, Home, Filter, Search } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { fetchTrainerProfile } from '../api/trainerApi';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Input } from './ui/input';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -52,6 +53,13 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleSubmitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm) {
+      handleSearch(searchTerm);
+    }
+  };
+
   return (
     <header className="bg-pokebrand-red dark:bg-pokebrand-red border-b dark:border-gray-800">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
@@ -62,6 +70,23 @@ const Header: React.FC = () => {
             </div>
             <span className="text-xl font-bold text-white">Pokédex</span>
           </Link>
+        </div>
+
+        {/* New compact search bar for desktop */}
+        <div className="hidden md:flex items-center space-x-2 max-w-md">
+          <form onSubmit={handleSubmitSearch} className="flex w-full">
+            <div className="relative flex-grow">
+              <Input
+                placeholder="Search Pokémon..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="rounded-r-none bg-white/10 border-white/20 text-white placeholder:text-white/70"
+              />
+            </div>
+            <Button type="submit" className="rounded-l-none">
+              <Search className="h-4 w-4" />
+            </Button>
+          </form>
         </div>
 
         <div className="hidden sm:flex items-center space-x-1">
@@ -82,11 +107,12 @@ const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Mobile search button */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsSearchOpen(true)}
-            className="text-sm bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="md:hidden text-sm bg-white/10 border-white/20 text-white hover:bg-white/20"
           >
             <span>Search</span>
           </Button>
