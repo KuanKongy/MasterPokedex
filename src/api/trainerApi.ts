@@ -1,4 +1,3 @@
-
 import { Trainer, TrainerItem, TrainerCollection, PokemonCollection } from "../types/trainer";
 
 // Mock data - In a real app, this would come from a backend
@@ -293,30 +292,24 @@ export const addPokemonToCollection = async (collectionId: string, pokemonId: nu
 };
 
 // Remove Pokémon from custom collection
-export const removePokemonFromCollection = async (collectionId: string, pokemonId: number): Promise<PokemonCollection[]> => {
+export const removePokemonFromCollection = async (pokemonId: number): Promise<PokemonCollection[]> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (!MOCK_TRAINER.collections) {
         reject(new Error("Collections not found"));
         return;
       }
-      
-      const collectionIndex = MOCK_TRAINER.collections.findIndex(c => c.id === collectionId);
-      if (collectionIndex === -1) {
-        reject(new Error("Collection not found"));
-        return;
-      }
-      
-      // Remove Pokémon from collection
-      const updatedCollections = [...MOCK_TRAINER.collections];
-      updatedCollections[collectionIndex] = {
-        ...updatedCollections[collectionIndex],
-        pokemon: updatedCollections[collectionIndex].pokemon.filter(id => id !== pokemonId)
-      };
+
+      // Update all collections that might contain this Pokémon
+      const updatedCollections = MOCK_TRAINER.collections.map(collection => ({
+        ...collection,
+        pokemon: collection.pokemon.filter(id => id !== pokemonId)
+      }));
       
       MOCK_TRAINER = {
         ...MOCK_TRAINER,
-        collections: updatedCollections
+        collections: updatedCollections,
+        collectedPokemon: MOCK_TRAINER.collectedPokemon.filter(id => id !== pokemonId)
       };
       
       resolve(MOCK_TRAINER.collections);

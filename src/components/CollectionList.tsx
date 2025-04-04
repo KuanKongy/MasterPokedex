@@ -20,7 +20,7 @@ const CollectionList: React.FC<CollectionListProps> = ({ collection }) => {
   const { toast } = useToast();
 
   const removePokemonMutation = useMutation({
-    mutationFn: removePokemonFromCollection,
+    mutationFn: (pokemonId: number) => removePokemonFromCollection(pokemonId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainerProfile'] });
       queryClient.invalidateQueries({ queryKey: ['pokemonList'] });
