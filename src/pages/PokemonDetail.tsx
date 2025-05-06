@@ -22,6 +22,7 @@ import {
 } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 import { EvolutionChainLink } from '../types/pokemon';
+import { TypeBadge } from '@/components/ui/type-badge';
 
 const PokemonDetail: React.FC = () => {
   const { id: pokemonId } = useParams<{ id: string }>();
@@ -128,7 +129,7 @@ const PokemonDetail: React.FC = () => {
         </Link>
         
         <div className="flex gap-2">
-          {prevPokemonId > 0 && (
+          {prevPokemonId > 0 && prevPokemonId < 152 && (
             <Link to={`/pokemon/${prevPokemonId}`}>
               <Button variant="outline">
                 <ChevronLeft className="mr-2 h-4 w-4" />
@@ -137,12 +138,14 @@ const PokemonDetail: React.FC = () => {
             </Link>
           )}
           
-          <Link to={`/pokemon/${nextPokemonId}`}>
+          {nextPokemonId < 152 && (
+            <Link to={`/pokemon/${nextPokemonId}`}>
             <Button variant="outline">
               #{nextPokemonId.toString().padStart(3, '0')}
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
+          )}
         </div>
       </div>
       
@@ -204,12 +207,7 @@ const PokemonDetail: React.FC = () => {
               <h3 className="font-semibold mb-2">Types</h3>
               <div className="flex gap-2 flex-wrap">
                 {pokemon.types.map(({ type }) => (
-                  <Badge 
-                    key={type.name} 
-                    className={`bg-poketype-${type.name} text-white px-3 py-1`}
-                  >
-                    {capitalize(type.name)}
-                  </Badge>
+                  <TypeBadge key={type.name} type={type.name as any} />
                 ))}
               </div>
             </div>

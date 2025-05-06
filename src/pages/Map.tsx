@@ -79,12 +79,7 @@ const Map = () => {
                             }
                           }}
                         />
-                        {region.name === "Kanto" && (
-                          <div className="mt-2 px-3 py-2 bg-orange-100 text-orange-800 rounded-md flex items-center gap-2 text-sm">
-                            <AlertTriangle className="h-4 w-4" />
-                            Map image unavailable. Our Pokédex systems are being updated.
-                          </div>
-                        )}
+                       
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Notable Locations</h3>
@@ -102,7 +97,7 @@ const Map = () => {
                                         <img 
                                           src={encounter.sprite || "/placeholder.svg"} 
                                           alt={encounter.name} 
-                                          className="w-8 h-8" // Increased size from 4x4 to 8x8
+                                          className="w-16 h-16" // Increased size from 4x4 to 8x8
                                           onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;
@@ -134,3 +129,10 @@ const Map = () => {
 };
 
 export default Map;
+
+// {region.name === "Kanto" && (
+//   <div className="mt-2 px-3 py-2 bg-orange-100 text-orange-800 rounded-md flex items-center gap-2 text-sm">
+//     <AlertTriangle className="h-4 w-4" />
+//     Map image unavailable. Our Pokédex systems are being updated.
+//   </div>
+// )}

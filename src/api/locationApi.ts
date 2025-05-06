@@ -7,9 +7,9 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
     {
       id: "pallet-town",
       name: "Pallet Town",
-      image: "https://archives.bulbagarden.net/media/upload/thumb/7/7d/PE_Kanto_Map.png/600px-PE_Kanto_Map.png",
+      image: "https://archives.bulbagarden.net/media/upload/4/45/Pallet_Town_PE.png",
       description: "A small, quiet town where the protagonist begins their journey.",
-      region: "kanto",
+      region: "Kanto",
       type: "town",
       trainers: ["Professor Oak", "Blue"],
       pokemon: [16, 19, 21], // Pidgey, Rattata, Spearow
@@ -22,12 +22,12 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
     {
       id: "viridian-city",
       name: "Viridian City",
-      image: "/images/locations/viridian-city.jpg",
+      image: "https://archives.bulbagarden.net/media/upload/f/fc/Viridian_City_PE.png",
       description: "The first city encountered on your journey. Contains the first Gym.",
-      region: "kanto",
+      region: "Kanto",
       type: "city",
       trainers: ["Giovanni"],
-      pokemon: [16, 19, 21, 23], // Pidgey, Rattata, Spearow, Ekans
+      pokemon: [10, 13, 25, 23], // Pidgey, Rattata, Spearow, Ekans
       coordinates: {
         x: 16,
         y: 54
@@ -37,9 +37,9 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
     {
       id: "pewter-city",
       name: "Pewter City",
-      image: "/images/locations/pewter-city.jpg",
+      image: "https://archives.bulbagarden.net/media/upload/1/11/Pewter_City_PE.png",
       description: "A city located between Viridian Forest and Mt. Moon. Home to the Rock-type Gym Leader Brock.",
-      region: "kanto",
+      region: "Kanto",
       type: "city",
       trainers: ["Brock"],
       pokemon: [74, 95], // Geodude, Onix
@@ -54,9 +54,9 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
     {
       id: "new-bark-town",
       name: "New Bark Town",
-      image: "/images/locations/new-bark-town.jpg",
+      image: "https://archives.bulbagarden.net/media/upload/d/dd/New_Bark_Town_HGSS.png",
       description: "A small town where winds of a new beginning blow.",
-      region: "johto",
+      region: "Johto",
       type: "town",
       trainers: ["Professor Elm"],
       pokemon: [152, 155, 158], // Chikorita, Cyndaquil, Totodile
@@ -72,9 +72,9 @@ const MOCK_LOCATIONS: Record<string, Location[]> = {
     {
       id: "littleroot-town",
       name: "Littleroot Town",
-      image: "/images/locations/littleroot-town.jpg",
+      image: "https://archives.bulbagarden.net/media/upload/a/a3/Littleroot_Town_RS.png",
       description: "A small town with the scent of wild flowers.",
-      region: "hoenn",
+      region: "Hoenn",
       type: "town",
       trainers: ["Professor Birch"],
       pokemon: [252, 255, 258], // Treecko, Torchic, Mudkip

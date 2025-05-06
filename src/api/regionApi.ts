@@ -7,7 +7,7 @@ const MOCK_REGIONS: Region[] = [
     id: 1,
     name: "Kanto",
     description: "The first region introduced in the Pokémon series, home to the original 151 Pokémon.",
-    mainImage: "https://archives.bulbagarden.net/media/upload/thumb/f/f3/LGPE_Kanto_Map.png/300px-LGPE_Kanto_Map.png",
+    mainImage: "https://archives.bulbagarden.net/media/upload/thumb/7/7d/PE_Kanto_Map.png/600px-PE_Kanto_Map.png",
     locations: [
       {
         id: "1",

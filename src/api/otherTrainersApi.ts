@@ -5,8 +5,8 @@ import { Trainer, TrainerItem } from "../types/trainer";
 export const MOCK_OTHER_TRAINERS: Trainer[] = [
   {
     id: "trainer-002",
-    name: "Blue",
-    avatar: "/images/trainer-blue.png",
+    name: "Misty",
+    avatar: "https://archives.bulbagarden.net/media/upload/4/4f/Misty_OS_2.png",
     badges: 8,
     pokemonCaught: 142,
     favoriteType: "water",
@@ -34,8 +34,8 @@ export const MOCK_OTHER_TRAINERS: Trainer[] = [
   },
   {
     id: "trainer-003",
-    name: "Leaf",
-    avatar: "/images/trainer-leaf.png",
+    name: "Brock",
+    avatar: "https://archives.bulbagarden.net/media/upload/0/01/Brock_Vileplume_EToP.png",
     badges: 7,
     pokemonCaught: 120,
     favoriteType: "grass",
@@ -63,8 +63,8 @@ export const MOCK_OTHER_TRAINERS: Trainer[] = [
   },
   {
     id: "trainer-004",
-    name: "Gold",
-    avatar: "/images/trainer-gold.png",
+    name: "Oak",
+    avatar: "https://archives.bulbagarden.net/media/upload/a/ae/Oak_Stadium.png",
     badges: 8,
     pokemonCaught: 135,
     favoriteType: "fire",

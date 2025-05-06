@@ -3,8 +3,8 @@ import { Trainer, TrainerItem, TrainerCollection, PokemonCollection } from "../t
 // Mock data - In a real app, this would come from a backend
 let MOCK_TRAINER: Trainer = {
   id: "trainer-001",
-  name: "Red",
-  avatar: "/images/trainer-red.png",
+  name: "Ash",
+  avatar: "https://archives.bulbagarden.net/media/upload/c/cb/Mezastar_Trainer_Ash.png",
   badges: 8,
   pokemonCaught: 151,
   favoriteType: "electric",

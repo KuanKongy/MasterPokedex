@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { capitalize } from '../utils/helpers';
+import { TypeBadge } from '@/components/ui/type-badge';
 
 type Condition = {
   id: string;
@@ -46,15 +47,15 @@ const PokemonFilter: React.FC = () => {
   ]);
   
   const [projectionFields, setProjectionFields] = useState<ProjectionField[]>([
+    { name: 'sprites', selected: true, display: 'Image' },
     { name: 'id', selected: true, display: 'ID' },
     { name: 'name', selected: true, display: 'Name' },
     { name: 'types', selected: true, display: 'Types' },
-    { name: 'height', selected: false, display: 'Height' },
-    { name: 'weight', selected: false, display: 'Weight' },
-    { name: 'abilities', selected: false, display: 'Abilities' },
-    { name: 'stats', selected: false, display: 'Stats' },
-    { name: 'base_experience', selected: false, display: 'Base Experience' },
-    { name: 'sprites', selected: false, display: 'Image' }
+    { name: 'height', selected: true, display: 'Height' },
+    { name: 'weight', selected: true, display: 'Weight' },
+    { name: 'abilities', selected: true, display: 'Abilities' },
+    { name: 'stats', selected: true, display: 'Stats' },
+    { name: 'base_experience', selected: true, display: 'Base Experience' }
   ]);
   
   const [filteredPokemon, setFilteredPokemon] = useState<Pokemon[]>([]);
@@ -275,12 +276,7 @@ const PokemonFilter: React.FC = () => {
         return (
           <div className="flex gap-1 flex-wrap">
             {pokemon.types.map(({ type }) => (
-              <Badge 
-                key={type.name} 
-                className={`bg-poketype-${type.name} text-white`}
-              >
-                {capitalize(type.name)}
-              </Badge>
+              <TypeBadge key={type.name} type={type.name as any} />
             ))}
           </div>
         );

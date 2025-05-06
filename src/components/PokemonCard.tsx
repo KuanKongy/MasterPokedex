@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { capitalize } from '../utils/helpers';
 import { cn } from '@/lib/utils';
+import { TypeBadge } from './ui/type-badge';
 
 interface PokemonCardProps {
   pokemon: Pokemon;
@@ -51,12 +52,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
           
           <div className="flex gap-2 flex-wrap mt-1">
             {types.map(({ type }) => (
-              <Badge 
-                key={type.name} 
-                className={`bg-poketype-${type.name} text-white`}
-              >
-                {capitalize(type.name)}
-              </Badge>
+              <TypeBadge key={type.name} type={type.name as any} />
             ))}
           </div>
         </CardContent>
