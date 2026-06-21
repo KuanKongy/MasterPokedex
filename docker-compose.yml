@@ -1,0 +1,30 @@
+# Local Postgres for schema work, migrations and tests.
+#
+#   docker compose up -d
+#   cp .env.example .env   # DIRECT_DATABASE_URL is already pointed here
+#   bun run db:migrate && bun run --filter '@masterpokedex/db' verify
+#
+# This is plain Postgres, not Supabase. Migration 0001 installs a small shim for
+# `auth.users` / `auth.uid()` so the RLS policies load and can be tested here.
+# When you need real Auth locally (OAuth redirects, anonymous sign-in, JWT
+# issuance), run `supabase start` instead and point DIRECT_DATABASE_URL at it.
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: masterpokedex-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '55432:5432'
+    volumes:
+      - masterpokedex-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  masterpokedex-pgdata:

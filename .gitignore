@@ -11,6 +11,18 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
+
+# Secrets — .env.example is the committed template
+.env
+.env.*
+!.env.example
+
+# Local caches
+.turbo
+.cache
+/tmp
+packages/db/.cache
 
 # Editor directories and files
 .vscode/*
