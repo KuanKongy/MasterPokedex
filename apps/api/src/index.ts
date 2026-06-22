@@ -7,9 +7,16 @@ import { createDb } from '@masterpokedex/db';
 import { env } from './env';
 import { errorHandler } from './lib/errors';
 import type { AppBindings } from './types';
+import { optionalAuth, requireAuth } from './lib/auth';
+import { bagRoutes } from './routes/bag';
+import { favoritesRoutes } from './routes/favorites';
+import { friendsRoutes } from './routes/friends';
+import { meRoutes } from './routes/me';
 import { pokemonRoutes } from './routes/pokemon';
 import { referenceRoutes } from './routes/reference';
 import { statsRoutes } from './routes/stats';
+import { caughtRoutes, teamsRoutes } from './routes/teams';
+import { trainersRoutes } from './routes/trainers';
 import { worldRoutes } from './routes/world';
 
 export type { AppBindings };
@@ -58,10 +65,31 @@ const app = new Hono<AppBindings>()
     await next();
     if (c.res.ok) c.res.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
   })
+  /**
+   * Everything under /v1/me requires a verified Supabase JWT; the trainer
+   * directory verifies one when offered (it shapes friendshipStatus and what
+   * a private profile shows) but stays public without it. Personal responses
+   * must never land in a shared cache.
+   */
+  .use('/v1/me', requireAuth)
+  .use('/v1/me/*', requireAuth)
+  .use('/v1/me/*', async (c, next) => {
+    await next();
+    c.res.headers.set('Cache-Control', 'private, no-store');
+  })
+  .use('/v1/trainers', optionalAuth)
+  .use('/v1/trainers/*', optionalAuth)
   .route('/v1/pokemon', pokemonRoutes)
   .route('/v1', referenceRoutes)
   .route('/v1', worldRoutes)
-  .route('/v1/stats', statsRoutes);
+  .route('/v1/stats', statsRoutes)
+  .route('/v1/me', meRoutes)
+  .route('/v1/me/teams', teamsRoutes)
+  .route('/v1/me/pokemon', caughtRoutes)
+  .route('/v1/me/items', bagRoutes)
+  .route('/v1/me/friends', friendsRoutes)
+  .route('/v1/me/favorites', favoritesRoutes)
+  .route('/v1/trainers', trainersRoutes);
 
 app.onError(errorHandler);
 app.notFound((c) => c.json({ error: { code: 'not_found', message: 'No such endpoint' } }, 404));

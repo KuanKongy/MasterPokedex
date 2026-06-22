@@ -117,4 +117,100 @@ export const statsRoutes = new Hono<AppBindings>()
       LIMIT 100
     `);
     return c.json({ items: rows as unknown as unknown[] });
+  })
+
+  /** Trainer count per region. (was `GET /trainercount-byregion`) */
+  .get('/trainers-by-region', async (c) => {
+    const rows = await c.var.db.execute(sql`
+      SELECT
+        r.id,
+        r.display_name AS region,
+        count(tr.id)::int AS "trainerCount"
+      FROM dex.regions r
+      LEFT JOIN public.trainers tr ON tr.region_id = r.id AND tr.is_public
+      GROUP BY r.id, r.display_name
+      ORDER BY count(tr.id) DESC, r.id
+    `);
+    return c.json({ items: rows as unknown as unknown[] });
+  })
+
+  /**
+   * Trainers owning a Pokémon of every growth rate.
+   * (was `GET /trainer-byalllevelgroup` — division via MINUS, now EXCEPT)
+   */
+  .get('/all-growth-rates', async (c) => {
+    const rows = await c.var.db.execute(sql`
+      SELECT
+        tr.id,
+        tr.username,
+        tr.display_name AS "displayName",
+        tr.avatar_url   AS "avatarUrl",
+        (SELECT count(*) FROM public.caught_pokemon cp WHERE cp.trainer_id = tr.id)::int AS "caughtCount"
+      FROM public.trainers tr
+      WHERE tr.is_public
+        AND NOT EXISTS (
+          SELECT gr.id FROM dex.growth_rates gr
+          EXCEPT
+          SELECT s.growth_rate_id
+          FROM public.caught_pokemon cp
+          JOIN dex.pokemon p ON p.id = cp.pokemon_id
+          JOIN dex.species s ON s.id = p.species_id
+          WHERE cp.trainer_id = tr.id
+        )
+      ORDER BY tr.username
+    `);
+    return c.json({ items: rows as unknown as unknown[] });
+  })
+
+  /**
+   * Trainers with a team in every category — party, box and showcase.
+   * (was `GET /trainer-byallcollectioncategory`)
+   */
+  .get('/all-team-categories', async (c) => {
+    const rows = await c.var.db.execute(sql`
+      SELECT
+        tr.id,
+        tr.username,
+        tr.display_name AS "displayName",
+        tr.avatar_url   AS "avatarUrl",
+        (SELECT count(*) FROM public.teams tm WHERE tm.trainer_id = tr.id)::int AS "teamCount"
+      FROM public.trainers tr
+      WHERE tr.is_public
+        AND NOT EXISTS (
+          SELECT tc.slug FROM public.team_categories tc
+          EXCEPT
+          SELECT tm.category FROM public.teams tm WHERE tm.trainer_id = tr.id
+        )
+      ORDER BY tr.username
+    `);
+    return c.json({ items: rows as unknown as unknown[] });
+  })
+
+  /**
+   * Trainers holding an item from every bag pocket.
+   * (was `GET /trainer-byallitemcategory`, over the far coarser Oracle
+   * `item_category`; pockets are the closest modern equivalent)
+   */
+  .get('/all-item-pockets', async (c) => {
+    const rows = await c.var.db.execute(sql`
+      SELECT
+        tr.id,
+        tr.username,
+        tr.display_name AS "displayName",
+        tr.avatar_url   AS "avatarUrl",
+        (SELECT count(*) FROM public.trainer_items ti WHERE ti.trainer_id = tr.id)::int AS "itemCount"
+      FROM public.trainers tr
+      WHERE tr.is_public
+        AND NOT EXISTS (
+          SELECT DISTINCT ic.pocket FROM dex.item_categories ic WHERE ic.pocket IS NOT NULL
+          EXCEPT
+          SELECT DISTINCT ic2.pocket
+          FROM public.trainer_items ti
+          JOIN dex.items i ON i.id = ti.item_id
+          JOIN dex.item_categories ic2 ON ic2.id = i.category_id
+          WHERE ti.trainer_id = tr.id
+        )
+      ORDER BY tr.username
+    `);
+    return c.json({ items: rows as unknown as unknown[] });
   });

@@ -58,9 +58,21 @@ export class ApiError extends Error {
   }
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Route params that reach a uuid column must be shaped like one, or Postgres
+ * answers 22P02 and the client sees an opaque 500 instead of a 400.
+ */
+export function assertUuid(value: string, what: string): string {
+  if (!UUID_RE.test(value)) throw ApiError.badRequest(`${what} must be a UUID`);
+  return value;
+}
+
 /** Postgres error codes raised by the constraints and triggers in the schema. */
 const PG_CONSTRAINT_ERRORS: Record<string, { code: ErrorCode; message: string }> = {
   trainers_username_idx: { code: 'username_taken', message: 'That username is already taken' },
+  teams_trainer_name_idx: { code: 'conflict', message: 'You already have a team with that name' },
   friendships_pair_idx: {
     code: 'friend_request_exists',
     message: 'A friendship or request already exists between these trainers',
