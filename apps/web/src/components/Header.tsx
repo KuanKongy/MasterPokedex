@@ -6,10 +6,18 @@ import { fetchPokemonList } from '../api/pokemonApi';
 import SearchBar from './SearchBar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, ShoppingBag, Home, Filter, Search } from 'lucide-react';
+import { MapPin, User, ShoppingBag, Home, Filter, Search, LogIn, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { fetchTrainerProfile } from '../api/trainerApi';
-import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/auth/AuthProvider';
+import { useMe } from '@/hooks/api/trainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Input } from './ui/input';
 
@@ -28,16 +36,14 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  const { session, signOut } = useAuth();
+  const { data: me } = useMe();
+
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemonList'],
     queryFn: fetchPokemonList,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-
-  const { data: trainer } = useQuery({
-    queryKey: ['trainerProfile'],
-    queryFn: fetchTrainerProfile,
   });
 
   const handleSearch = (pokemonName: string) => {
@@ -117,15 +123,52 @@ const Header: React.FC = () => {
             <span>Search</span>
           </Button>
 
-          <Link to="/trainer">
-            <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-white/50">
-              <AvatarImage
-                src={trainer?.avatar || "/placeholder.svg"}
-                alt={trainer?.name || "User"}
-              />
-              <AvatarFallback>{trainer?.name?.charAt(0) || "U"}</AvatarFallback>
-            </Avatar>
-          </Link>
+          {session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button aria-label="Account menu">
+                  <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-white/50">
+                    <AvatarImage
+                      src={me?.avatarUrl || undefined}
+                      alt={me?.displayName || 'Trainer'}
+                    />
+                    <AvatarFallback>
+                      {(me?.displayName || session.user.email || 'T').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="truncate">
+                  {me ? `@${me.username}` : session.user.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/trainer')}>
+                  <User className="mr-2 h-4 w-4" />
+                  My profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/items')}>
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  My bag
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => void signOut()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate('/login')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            >
+              <LogIn className="mr-1 h-4 w-4" />
+              Sign in
+            </Button>
+          )}
         </div>
       </div>
 
