@@ -7,7 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./type": "./src/type.ts"
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
