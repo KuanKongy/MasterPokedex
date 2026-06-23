@@ -1,175 +1,136 @@
-
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTrainerItems, removeItem, useItem } from '../api/trainerApi';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import React, { useMemo } from 'react';
+import type { TrainerItem } from '@masterpokedex/shared';
+import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Trash } from 'lucide-react';
-import { ItemCategory } from '../types/trainer';
+import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAdjustItem, useMyBag } from '@/hooks/api/items';
 import { useToast } from '@/hooks/use-toast';
-import AddItemForm from './AddItemForm';
+import { isApiError } from '@/lib/api';
+import LoadingSpinner from './LoadingSpinner';
 
+/**
+ * The bag, grouped by pocket like the games. Quantities are real (the old
+ * `hasItem` table had none) — steppers adjust by ±1 optimistically and a row
+ * disappears when it hits zero.
+ */
 const ItemInventory: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'all'>('all');
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  const { data: items, isLoading } = useQuery({
-    queryKey: ['trainerItems'],
-    queryFn: fetchTrainerItems,
-  });
+  const { data: items, isLoading } = useMyBag();
+  const adjust = useAdjustItem();
 
-  const useItemMutation = useMutation({
-    mutationFn: useItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerItems'] });
-      toast({
-        title: "Item used",
-        description: "You've successfully used the item.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to use item",
-        variant: "destructive",
-      });
-    },
-  });
+  const pockets = useMemo(() => {
+    const grouped = new Map<string, TrainerItem[]>();
+    for (const item of items ?? []) {
+      const pocket = (item as TrainerItem & { pocket?: string | null }).pocket ?? item.category;
+      const bucket = grouped.get(pocket) ?? [];
+      bucket.push(item);
+      grouped.set(pocket, bucket);
+    }
+    return [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [items]);
 
-  const removeItemMutation = useMutation({
-    mutationFn: removeItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainerItems'] });
-      toast({
-        title: "Item removed",
-        description: "Item has been removed from your inventory.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove item",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUseItem = (itemId: number) => {
-    useItemMutation.mutate(itemId);
+  const change = (item: TrainerItem, delta: number) => {
+    adjust.mutate(
+      { itemId: item.id, delta },
+      {
+        onError: (err) => {
+          toast({
+            title: isApiError(err, 'insufficient_quantity') ? 'None left to use' : 'Could not update',
+            description: isApiError(err) ? err.message : 'Please try again.',
+            variant: 'destructive',
+          });
+        },
+      },
+    );
   };
 
-  const handleRemoveItem = (itemId: number) => {
-    removeItemMutation.mutate(itemId);
+  const discard = (item: TrainerItem) => {
+    adjust.mutate({ itemId: item.id, quantity: 0 }, { onSuccess: () => toast({ title: `${item.displayName} discarded` }) });
   };
-  
-  const categories: { value: ItemCategory | 'all'; label: string }[] = [
-    { value: 'all', label: 'All Items' },
-    { value: 'pokeball', label: 'Poké Balls' },
-    { value: 'medicine', label: 'Medicine' },
-    { value: 'berry', label: 'Berries' },
-    { value: 'battle', label: 'Battle Items' },
-    { value: 'evolution', label: 'Evolution Items' },
-    { value: 'machine', label: 'Machines' },
-    { value: 'key', label: 'Key Items' },
-  ];
-
-  const filteredItems = items
-    ? selectedCategory === 'all'
-      ? items
-      : items.filter(item => item.category === selectedCategory)
-    : [];
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Loading items...</div>;
+    return (
+      <div className="flex justify-center p-8">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!items || items.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          <p className="mb-2 font-medium text-foreground">Your bag is empty</p>
+          <p className="text-sm">Add items from the catalogue tab.</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl">Item Inventory</CardTitle>
-        <AddItemForm />
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex flex-wrap gap-2">
-          {categories.map(category => (
-            <Badge
-              key={category.value}
-              variant={selectedCategory === category.value ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => setSelectedCategory(category.value)}
-            >
-              {category.label}
+    <div className="space-y-6">
+      {pockets.map(([pocket, pocketItems]) => (
+        <div key={pocket}>
+          <h3 className="font-semibold mb-3 capitalize flex items-center gap-2">
+            {pocket.replace(/-/g, ' ')}
+            <Badge variant="secondary" className="text-xs">
+              {pocketItems.length}
             </Badge>
-          ))}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {pocketItems.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 border rounded-md p-3 bg-card">
+                {item.sprite && <img src={item.sprite} alt={item.displayName} className="w-10 h-10 pixelated" />}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{item.displayName}</div>
+                  {item.effect && (
+                    <div className="text-xs text-muted-foreground line-clamp-2">{item.effect}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-7 w-7"
+                    aria-label="Use one"
+                    disabled={adjust.isPending}
+                    onClick={() => change(item, -1)}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="w-8 text-center font-semibold tabular-nums">{item.quantity}</span>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-7 w-7"
+                    aria-label="Add one"
+                    disabled={adjust.isPending}
+                    onClick={() => change(item, 1)}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-destructive hover:text-destructive"
+                    aria-label="Discard all"
+                    disabled={adjust.isPending}
+                    onClick={() => discard(item)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredItems.length > 0 ? (
-              filteredItems.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={item.sprite} 
-                        alt={item.name} 
-                        className="w-8 h-8 object-contain" 
-                      />
-                      <span className="font-medium">{item.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="capitalize">
-                      {item.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleUseItem(item.id)}
-                        disabled={useItemMutation.isPending || item.quantity <= 0}
-                      >
-                        Use
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="icon" 
-                        onClick={() => handleRemoveItem(item.id)}
-                        disabled={removeItemMutation.isPending}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-4">
-                  No items in this category
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+      ))}
+      <p className="text-xs text-muted-foreground">
+        Looking for something new? Browse the <Link to="/items" className="underline">catalogue</Link>.
+      </p>
+    </div>
   );
 };
 

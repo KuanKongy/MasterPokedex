@@ -85,7 +85,13 @@ const PG_CONSTRAINT_ERRORS: Record<string, { code: ErrorCode; message: string }>
 
 function fromDatabaseError(err: unknown): ApiError | null {
   if (typeof err !== 'object' || err === null) return null;
-  const e = err as { code?: string; constraint_name?: string; constraint?: string; message?: string };
+
+  // Drizzle wraps the driver error in DrizzleQueryError; the Postgres error
+  // code and constraint live on the innermost `cause`.
+  let e = err as { code?: string; constraint_name?: string; constraint?: string; message?: string; cause?: unknown };
+  for (let depth = 0; depth < 4 && !e.code && typeof e.cause === 'object' && e.cause !== null; depth += 1) {
+    e = e.cause as typeof e;
+  }
 
   // Raised by the team-capacity trigger via RAISE EXCEPTION ... ERRCODE.
   if (e.code === 'P0001' && e.message?.includes('team_full')) {

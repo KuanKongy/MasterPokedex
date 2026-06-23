@@ -102,7 +102,7 @@ export function usePokemonMoves(id: number | undefined) {
   });
 }
 
-export type TypeSummary = { name: PokemonTypeName; pokemonCount: number };
+export type TypeSummary = { id: number; name: PokemonTypeName; pokemonCount: number };
 
 export function useTypes() {
   return useQuery({

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthProvider";
+import RequireAuth from "./auth/RequireAuth";
 import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import PokemonDetail from "./pages/PokemonDetail";
@@ -39,7 +40,9 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/pokemon/:id" element={<PokemonDetail />} />
                 <Route path="/map" element={<Map />} />
-                <Route path="/trainer" element={<Trainer />} />
+                <Route element={<RequireAuth />}>
+                  <Route path="/trainer" element={<Trainer />} />
+                </Route>
                 <Route path="/items" element={<Items />} />
                 <Route path="/pokemon-filter" element={<PokemonFilter />} />
                 <Route path="/login" element={<Login />} />
