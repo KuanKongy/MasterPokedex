@@ -99,3 +99,9 @@
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  /* Keeps low-res game sprites crisp instead of blurry when scaled up. */
+  .pixelated {
+    image-rendering: pixelated;
+  }
+}

@@ -25,6 +25,7 @@ import { ChevronLeft, ChevronRight, Heart, MapPin } from 'lucide-react';
 import { capitalize, formatHeight, formatWeight, getStatColor, formatStatName } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 import { TypeBadge } from '@/components/ui/type-badge';
+import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { useToast } from '@/hooks/use-toast';
 
 /** Highest id among default forms; prev/next stays inside the real dex. */
@@ -45,6 +46,7 @@ const PokemonDetail: React.FC = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { toast } = useToast();
+  const { spriteStyle } = useSpritePref();
   const [showAllMoves, setShowAllMoves] = useState(false);
 
   const { data: pokemon, isLoading, error } = usePokemon(idOrName);
@@ -163,11 +165,15 @@ const PokemonDetail: React.FC = () => {
           )}
         >
           <CardContent className="flex items-center justify-center p-8">
-            {pokemon.artwork ? (
-              <img src={pokemon.artwork} alt={pokemon.name} className="h-64 w-64 object-contain animate-fade-in" />
-            ) : pokemon.sprite ? (
-              <img src={pokemon.sprite} alt={pokemon.name} className="h-48 w-48 object-contain animate-fade-in pixelated" />
-            ) : null}
+            <img
+              src={pokemonImage(pokemon.id, spriteStyle)}
+              alt={pokemon.name}
+              onError={(e) => spriteFallback(e, pokemon.id)}
+              className={cn(
+                'object-contain animate-fade-in',
+                spriteStyle === 'sprite' ? 'h-48 w-48 pixelated' : 'h-64 w-64',
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -328,13 +334,15 @@ const PokemonDetail: React.FC = () => {
                       )}
                     >
                       <div className="w-24 h-24 flex items-center justify-center">
-                        {(evo.artwork || evo.sprite) && (
-                          <img
-                            src={evo.artwork ?? evo.sprite ?? undefined}
-                            alt={evo.name}
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        )}
+                        <img
+                          src={pokemonImage(evo.id, spriteStyle)}
+                          alt={evo.name}
+                          onError={(e) => spriteFallback(e, evo.id)}
+                          className={cn(
+                            'max-w-full max-h-full object-contain',
+                            spriteStyle === 'sprite' && 'pixelated',
+                          )}
+                        />
                       </div>
                       <p className="text-center mt-2 text-sm font-medium">{capitalize(evo.name)}</p>
                       <p className="text-xs text-center text-muted-foreground">

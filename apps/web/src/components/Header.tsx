@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, ShoppingBag, Home, Filter, Search, LogIn, LogOut } from 'lucide-react';
+import { MapPin, User, ShoppingBag, Home, Filter, Search, LogIn, LogOut, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -139,6 +139,10 @@ const Header: React.FC = () => {
                   <ShoppingBag className="mr-2 h-4 w-4" />
                   My bag
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => void signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -147,15 +151,24 @@ const Header: React.FC = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate('/login')}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-            >
-              <LogIn className="mr-1 h-4 w-4" />
-              Sign in
-            </Button>
+            <>
+              <Link
+                to="/settings"
+                aria-label="Settings"
+                className="text-white/80 hover:text-white p-1.5 rounded-md hover:bg-white/10 transition-colors"
+              >
+                <Settings className="h-5 w-5" />
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate('/login')}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+              >
+                <LogIn className="mr-1 h-4 w-4" />
+                Sign in
+              </Button>
+            </>
           )}
         </div>
       </div>

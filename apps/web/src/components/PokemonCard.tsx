@@ -5,13 +5,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { capitalize } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 import { TypeBadge } from './ui/type-badge';
+import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 
 interface PokemonCardProps {
   pokemon: PokemonSummary;
 }
 
 const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
-  const { id, name, types, sprite, artwork } = pokemon;
+  const { id, name, types } = pokemon;
+  const { spriteStyle } = useSpritePref();
   const primaryType = types[0] ?? 'normal';
 
   return (
@@ -25,13 +27,16 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
             'min-h-[180px]',
           )}
         >
-          {artwork ? (
-            <img src={artwork} alt={name} loading="lazy" className="h-32 w-32 object-contain animate-fade-in" />
-          ) : sprite ? (
-            <img src={sprite} alt={name} loading="lazy" className="h-24 w-24 object-contain animate-fade-in pixelated" />
-          ) : (
-            <div className="h-24 w-24" />
-          )}
+          <img
+            src={pokemonImage(id, spriteStyle)}
+            alt={name}
+            loading="lazy"
+            onError={(e) => spriteFallback(e, id)}
+            className={cn(
+              'object-contain animate-fade-in',
+              spriteStyle === 'sprite' ? 'h-24 w-24 pixelated' : 'h-32 w-32',
+            )}
+          />
         </div>
 
         <CardContent className="p-4">

@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { Pencil, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { TypeBadge } from './ui/type-badge';
+import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   useCreateTeam,
@@ -63,19 +64,20 @@ const CATEGORY_LABELS: Record<TeamCategory, string> = {
 export const MemberCard: React.FC<{ member: CaughtPokemon; actions?: React.ReactNode }> = ({
   member,
   actions,
-}) => (
+}) => {
+  const { spriteStyle } = useSpritePref();
+  return (
   <div className="border rounded-lg p-3 bg-card hover:shadow-md transition-shadow relative">
     {actions && <div className="absolute top-2 right-2 flex gap-1">{actions}</div>}
     <Link to={`/pokemon/${member.pokemonId}`} className="block">
       <div className="flex justify-center mb-2">
-        {(member.pokemon.artwork || member.pokemon.sprite) && (
-          <img
-            src={member.pokemon.artwork ?? member.pokemon.sprite ?? undefined}
-            alt={member.pokemon.name}
-            loading="lazy"
-            className="h-20 w-20 object-contain"
-          />
-        )}
+        <img
+          src={pokemonImage(member.pokemonId, spriteStyle)}
+          alt={member.pokemon.name}
+          loading="lazy"
+          onError={(e) => spriteFallback(e, member.pokemonId)}
+          className={`h-20 w-20 object-contain ${spriteStyle === 'sprite' ? 'pixelated' : ''}`}
+        />
       </div>
       <div className="text-center">
         <div className="font-medium flex items-center justify-center gap-1">
@@ -102,7 +104,8 @@ export const MemberCard: React.FC<{ member: CaughtPokemon; actions?: React.React
       </div>
     </Link>
   </div>
-);
+  );
+};
 
 const EditMemberPopover: React.FC<{ member: CaughtPokemon; teams: Team[] }> = ({ member, teams }) => {
   const { toast } = useToast();

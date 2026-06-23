@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import type { EncounterRarity } from '@masterpokedex/shared';
 import { useLocationDetail } from '@/hooks/api/world';
 import { TypeBadge } from './ui/type-badge';
+import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { capitalize } from '../utils/helpers';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -29,6 +30,7 @@ const RARITY_STYLE: Record<EncounterRarity, string> = {
  */
 const LocationDetails: React.FC<LocationDetailsProps> = ({ locationId, onSelectLocation }) => {
   const { data: location, isLoading, error } = useLocationDetail(locationId);
+  const { spriteStyle } = useSpritePref();
 
   if (isLoading) {
     return (
@@ -129,14 +131,13 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ locationId, onSelectL
                           className="flex flex-col items-center p-4 border rounded-md bg-card hover:shadow-md transition-shadow"
                         >
                           <div className="mb-3">
-                            {encounter.sprite && (
-                              <img
-                                src={encounter.sprite}
-                                alt={encounter.pokemonName}
-                                loading="lazy"
-                                className="w-20 h-20 pixelated"
-                              />
-                            )}
+                            <img
+                              src={pokemonImage(encounter.pokemonId, spriteStyle)}
+                              alt={encounter.pokemonName}
+                              loading="lazy"
+                              onError={(e) => spriteFallback(e, encounter.pokemonId)}
+                              className={`w-20 h-20 object-contain ${spriteStyle === 'sprite' ? 'pixelated' : ''}`}
+                            />
                           </div>
                           <div className="text-center">
                             <div className="text-base font-medium mb-1">
