@@ -19,6 +19,9 @@ import Items from "./pages/Items";
 import PokemonFilter from "./pages/PokemonFilter";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
+import FAQ from "./pages/FAQ";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -52,6 +55,9 @@ const App = () => {
                     <Route path="/pokemon-filter" element={<PokemonFilter />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
                   </Route>
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
