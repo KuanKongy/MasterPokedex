@@ -1,124 +1,167 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Location } from '../types/location';
 import { Badge } from './ui/badge';
 import { MapPin, Map } from 'lucide-react';
-import { useQueries } from '@tanstack/react-query';
-import { fetchPokemonDetails } from '../api/pokemonApi';
+import { Link } from 'react-router-dom';
+import type { EncounterRarity } from '@masterpokedex/shared';
+import { useLocationDetail } from '@/hooks/api/world';
 import { TypeBadge } from './ui/type-badge';
+import { capitalize } from '../utils/helpers';
+import LoadingSpinner from './LoadingSpinner';
 
 interface LocationDetailsProps {
-  location: Location;
+  locationId: number;
+  onSelectLocation: (locationId: number) => void;
 }
 
-const LocationDetails: React.FC<LocationDetailsProps> = ({ location }) => {
-  // Use useQueries instead of map + useQuery to avoid hooks rendering inconsistently
-  const pokemonQueries = useQueries({
-    queries: location.pokemon.map(pokemonId => ({
-      queryKey: ['pokemon', pokemonId],
-      queryFn: () => fetchPokemonDetails(pokemonId),
-      staleTime: 1000 * 60 * 60, // 1 hour
-    }))
-  });
+const RARITY_STYLE: Record<EncounterRarity, string> = {
+  common: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  uncommon: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+  rare: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  'very-rare': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+  legendary: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+};
 
-  // Check if all pokemon data has been loaded
-  const isLoading = pokemonQueries.some(query => query.isLoading);
-  
+/**
+ * One location: curated art and blurb, its neighbours, and the real encounter
+ * tables from the dex — method, levels and rarity per area, not the old
+ * hand-typed five-Pokémon list.
+ */
+const LocationDetails: React.FC<LocationDetailsProps> = ({ locationId, onSelectLocation }) => {
+  const { data: location, isLoading, error } = useLocationDetail(locationId);
+
+  if (isLoading) {
+    return (
+      <Card className="shadow-md flex items-center justify-center min-h-[300px]">
+        <LoadingSpinner />
+      </Card>
+    );
+  }
+
+  if (error || !location) {
+    return (
+      <Card className="shadow-md p-6">
+        <p className="text-red-500">Could not load this location.</p>
+      </Card>
+    );
+  }
+
+  const areasWithEncounters = location.areas.filter((area) => area.encounters.length > 0);
+
   return (
     <Card className="shadow-md">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-2xl">{location.name}</CardTitle>
+            <CardTitle className="text-2xl">{location.displayName}</CardTitle>
             <p className="text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin className="h-4 w-4" /> {location.region.charAt(0).toUpperCase() + location.region.slice(1)}
+              <MapPin className="h-4 w-4" /> {location.regionName}
             </p>
           </div>
-          <Badge variant="outline" className="capitalize">
-            {location.type}
-          </Badge>
+          {location.kind && (
+            <Badge variant="outline" className="capitalize">
+              {location.kind}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {location.image && (
+              <div>
+                <img
+                  src={location.image}
+                  alt={location.displayName}
+                  className="w-full h-auto rounded-md shadow-sm"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = 'placeholder.svg';
+                  }}
+                />
+              </div>
+            )}
             <div>
-              <img 
-                src={location.image} 
-                alt={location.name}
-                className="w-full h-auto rounded-md shadow-sm"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-            </div>
-            <div>
-              <p className="text-sm mb-4">{location.description}</p>
-              
-              {location.trainers && location.trainers.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="font-semibold mb-2">Notable Trainers:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {location.trainers.map((trainer, index) => (
-                      <Badge key={index} variant="secondary">{trainer}</Badge>
+              {location.description && <p className="text-sm mb-4">{location.description}</p>}
+
+              {location.neighbors.length > 0 && (
+                <>
+                  <h3 className="font-semibold mb-2">Neighboring Locations:</h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {location.neighbors.map((neighbor) => (
+                      <Badge
+                        key={neighbor.id}
+                        variant="outline"
+                        className="flex items-center gap-1 cursor-pointer hover:bg-secondary"
+                        onClick={() => onSelectLocation(neighbor.id)}
+                      >
+                        <Map className="h-3 w-3" />
+                        {neighbor.displayName}
+                      </Badge>
                     ))}
                   </div>
-                </div>
+                </>
               )}
-
-              <h3 className="font-semibold mb-2">Neighboring Locations:</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {location.neighboringLocations.map((loc, index) => (
-                  <Badge key={index} variant="outline" className="flex items-center gap-1">
-                    <Map className="h-3 w-3" />
-                    {loc.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </Badge>
-                ))}
-              </div>
             </div>
           </div>
-          
-          {/* Pokemon encounters section - below image with larger sprites */}
+
           <div>
             <h3 className="font-semibold text-lg mb-3">Pokémon Encounters:</h3>
-            {isLoading ? (
-              <div className="text-center p-4">Loading Pokémon data...</div>
+            {areasWithEncounters.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No wild encounters are recorded for this location.
+              </p>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {pokemonQueries.map((query, index) => {
-                  if (query.isLoading || !query.data) return null;
-                  
-                  const pokemon = query.data;
-                  const types = pokemon.types.map(typeInfo => typeInfo.type.name);
-                  
-                  return (
-                    <div key={index} className="flex flex-col items-center p-4 border rounded-md bg-card hover:shadow-md transition-shadow">
-                      <div className="mb-3">
-                        <img 
-                          src={pokemon.sprites.front_default} 
-                          alt={pokemon.name}
-                          className="w-28 h-28" // Much larger sprite
-                        />
-                      </div>
-                      <div className="text-center">
-                        <div className="text-base font-medium mb-1">
-                          {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          #{pokemon.id.toString().padStart(3, '0')}
-                        </div>
-                        <div className="flex gap-1 justify-center flex-wrap">
-                          {types.map((type, i) => (
-                            <TypeBadge key={i} type={type as any} />
-                          ))}
-                        </div>
-                      </div>
+              <div className="space-y-6">
+                {areasWithEncounters.map((area) => (
+                  <div key={area.id}>
+                    {areasWithEncounters.length > 1 && (
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                        {area.displayName}
+                      </h4>
+                    )}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {area.encounters.map((encounter, index) => (
+                        <Link
+                          key={`${encounter.pokemonId}-${encounter.method}-${index}`}
+                          to={`/pokemon/${encounter.pokemonId}`}
+                          className="flex flex-col items-center p-4 border rounded-md bg-card hover:shadow-md transition-shadow"
+                        >
+                          <div className="mb-3">
+                            {encounter.sprite && (
+                              <img
+                                src={encounter.sprite}
+                                alt={encounter.pokemonName}
+                                loading="lazy"
+                                className="w-20 h-20 pixelated"
+                              />
+                            )}
+                          </div>
+                          <div className="text-center">
+                            <div className="text-base font-medium mb-1">
+                              {capitalize(encounter.pokemonName)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-2 capitalize">
+                              {encounter.method.replace(/-/g, ' ')} · Lv. {encounter.minLevel}
+                              {encounter.maxLevel !== encounter.minLevel && `–${encounter.maxLevel}`}
+                            </div>
+                            <div className="flex gap-1 justify-center flex-wrap mb-2">
+                              {encounter.types.map((type) => (
+                                <TypeBadge key={type} type={type} />
+                              ))}
+                            </div>
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded-full capitalize ${RARITY_STYLE[encounter.rarity] ?? ''}`}
+                            >
+                              {encounter.rarity.replace('-', ' ')}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </div>

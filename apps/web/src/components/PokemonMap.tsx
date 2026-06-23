@@ -1,51 +1,27 @@
-
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchLocationsByRegion } from '../api/locationApi';
+import React from 'react';
+import { useRegionLocations } from '@/hooks/api/world';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { MapPin, Compass, AlertTriangle } from 'lucide-react';
 import LocationDetails from './LocationDetails';
-import { Location } from '../types/location';
-import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface PokemonMapProps {
-  regionId?: number;
+  regionId: number;
+  selectedLocationId: number | null;
+  onSelectLocation: (locationId: number | null) => void;
 }
 
-const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const { toast } = useToast();
-  
-  // Get region name based on ID
-  const regionName = regionId ? 
-    (regionId === 1 ? "kanto" : regionId === 2 ? "johto" : regionId === 3 ? "hoenn" : "unknown") : 
-    "kanto";
-  
-  const { data: locations, isLoading, error } = useQuery({
-    queryKey: ['locations', regionName],
-    queryFn: () => fetchLocationsByRegion(regionName)
-  });
-  
-  // Reset selected location when region changes
-  useEffect(() => {
-    setSelectedLocation(null);
-  }, [regionId]);
+const PokemonMap: React.FC<PokemonMapProps> = ({ regionId, selectedLocationId, onSelectLocation }) => {
+  const { data: locations, isLoading, error } = useRegionLocations(regionId);
 
-  // Display error toast if map data fails to load
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error loading map data",
-        description: "Unable to load location information. Please try again later.",
-        variant: "destructive"
-      });
-    }
-  }, [error, toast]);
-  
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64"><p>Loading map data...</p></div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p>Loading map data...</p>
+      </div>
+    );
   }
-  
+
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-center gap-3">
@@ -54,10 +30,9 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
       </div>
     );
   }
-  
-  // Format region name for display (capitalize)
-  const displayRegionName = regionName.charAt(0).toUpperCase() + regionName.slice(1);
-  
+
+  const regionName = locations?.[0]?.regionName ?? '';
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-1">
@@ -65,27 +40,36 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-pokebrand-red" />
-              {displayRegionName} Locations
+              {regionName ? `${regionName} Locations` : 'Locations'}
             </CardTitle>
-            <CardDescription>
-              Select a location to see which Pokémon can be found there
-            </CardDescription>
+            <CardDescription>Select a location to see which Pokémon can be found there</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
               <div className="divide-y">
                 {locations && locations.length > 0 ? (
                   locations.map((location) => (
-                    <div 
+                    <div
                       key={location.id}
-                      className={`p-3 hover:bg-secondary/50 cursor-pointer transition-colors ${
-                        selectedLocation?.id === location.id ? 'bg-secondary' : ''
-                      }`}
-                      onClick={() => setSelectedLocation(location)}
+                      className={cn(
+                        'p-3 hover:bg-secondary/50 cursor-pointer transition-colors',
+                        selectedLocationId === location.id && 'bg-secondary',
+                      )}
+                      onClick={() => onSelectLocation(location.id)}
                     >
-                      <div className="font-medium">{location.name}</div>
+                      <div className="font-medium">{location.displayName}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Compass className="h-3 w-3" /> {location.region}
+                        <Compass className="h-3 w-3" />
+                        {location.kind ? (
+                          <span className="capitalize">{location.kind}</span>
+                        ) : (
+                          location.regionName
+                        )}
+                        {location.areaCount > 0 && (
+                          <span className="ml-auto text-xs">
+                            {location.areaCount} area{location.areaCount === 1 ? '' : 's'}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))
@@ -101,8 +85,8 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ regionId }) => {
       </div>
 
       <div className="lg:col-span-2">
-        {selectedLocation ? (
-          <LocationDetails location={selectedLocation} />
+        {selectedLocationId !== null ? (
+          <LocationDetails locationId={selectedLocationId} onSelectLocation={onSelectLocation} />
         ) : (
           <Card className="h-full flex flex-col items-center justify-center p-6 text-center shadow-md">
             <MapPin className="h-12 w-12 text-muted-foreground mb-4" />

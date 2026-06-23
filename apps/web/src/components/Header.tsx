@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonList } from '../api/pokemonApi';
 import SearchBar from './SearchBar';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -39,24 +37,14 @@ const Header: React.FC = () => {
   const { session, signOut } = useAuth();
   const { data: me } = useMe();
 
-  const { data: pokemon, isLoading } = useQuery({
-    queryKey: ['pokemonList'],
-    queryFn: fetchPokemonList,
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-
-  const handleSearch = (pokemonName: string) => {
-    const foundPokemon = pokemon?.find(p => 
-      p.name.toLowerCase() === pokemonName.toLowerCase() ||
-      p.id.toString() === pokemonName
-    );
-    
-    if (foundPokemon) {
-      navigate(`/pokemon/${foundPokemon.id}`);
-      setIsSearchOpen(false);
-      setSearchTerm('');
-    }
+  // The detail endpoint accepts an id or an exact name, so submitting the
+  // header form navigates straight there; the dialog offers typeahead.
+  const handleSearch = (idOrName: string) => {
+    const target = idOrName.trim().toLowerCase();
+    if (!target) return;
+    navigate(`/pokemon/${encodeURIComponent(target)}`);
+    setIsSearchOpen(false);
+    setSearchTerm('');
   };
 
   const handleSubmitSearch = (e: React.FormEvent) => {
@@ -194,12 +182,7 @@ const Header: React.FC = () => {
 
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <DialogContent className={isMobile ? "max-w-full p-4 h-full" : ""}>
-          <SearchBar 
-            searchTerm={searchTerm} 
-            setSearchTerm={setSearchTerm} 
-            onSearch={handleSearch}
-            pokemonData={pokemon || []}
-          />
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSearch={handleSearch} />
         </DialogContent>
       </Dialog>
     </header>

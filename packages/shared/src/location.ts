@@ -44,6 +44,8 @@ export const LocationSummarySchema = z.object({
   mapY: z.number().min(0).max(100).nullable(),
   image: z.string().url().nullable(),
   description: z.string().nullable(),
+  /** Curated flavour: "city", "route", "cave", "forest"… Null when unplaced. */
+  kind: z.string().nullable(),
   areaCount: z.number().int().nonnegative(),
 });
 export type LocationSummary = z.infer<typeof LocationSummarySchema>;

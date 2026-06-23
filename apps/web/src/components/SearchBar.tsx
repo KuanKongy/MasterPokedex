@@ -1,52 +1,32 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, X } from 'lucide-react';
-import { Pokemon } from '../types/pokemon';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
+import { usePokemonList } from '@/hooks/api/pokemon';
+import { capitalize } from '../utils/helpers';
 
 interface SearchBarProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   onSearch?: (value: string) => void;
-  pokemonData?: Pokemon[];
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ 
-  searchTerm, 
-  setSearchTerm, 
-  onSearch,
-  pokemonData = [] 
-}) => {
-  const [filteredResults, setFilteredResults] = useState<Pokemon[]>([]);
-
-  useEffect(() => {
-    if (searchTerm.length > 1 && pokemonData.length > 0) {
-      const filtered = pokemonData.filter(pokemon => {
-        const term = searchTerm.toLowerCase();
-        return (
-          pokemon.name.toLowerCase().includes(term) ||
-          pokemon.id.toString().includes(term)
-        );
-      }).slice(0, 10); // Limit to 10 results
-      
-      setFilteredResults(filtered);
-    } else {
-      setFilteredResults([]);
-    }
-  }, [searchTerm, pokemonData]);
+/**
+ * Typeahead backed by the API's `q` search instead of an in-memory copy of
+ * the whole dex — which is also why it now finds all ~1300 Pokémon, not the
+ * 151 the old mock loaded.
+ */
+const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, onSearch }) => {
+  const isNumeric = /^\d+$/.test(searchTerm.trim());
+  const searching = searchTerm.length > 1 && !isNumeric;
+  const { data } = usePokemonList({ q: searchTerm, limit: 10 }, { enabled: searching });
+  const results = searching ? (data?.pages[0]?.items ?? []) : [];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch && searchTerm) {
       onSearch(searchTerm);
-    }
-  };
-
-  const handleResultClick = (pokemon: Pokemon) => {
-    if (onSearch) {
-      onSearch(pokemon.id.toString());
     }
   };
 
@@ -62,10 +42,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className="pl-10 pr-10"
           />
           {searchTerm && (
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
               onClick={() => setSearchTerm('')}
             >
@@ -73,27 +53,23 @@ const SearchBar: React.FC<SearchBarProps> = ({
             </Button>
           )}
         </div>
-        <Button type="submit" className="w-full mt-2">Search</Button>
+        <Button type="submit" className="w-full mt-2">
+          Search
+        </Button>
       </form>
 
-      {filteredResults.length > 0 && (
-        <div className="absolute w-full bg-white dark:bg-gray-800 mt-1 rounded-md border shadow-lg z-50">
+      {results.length > 0 && (
+        <div className="absolute w-full bg-popover mt-1 rounded-md border shadow-lg z-50">
           <ScrollArea className="max-h-60">
-            {filteredResults.map(pokemon => (
-              <div 
+            {results.map((pokemon) => (
+              <div
                 key={pokemon.id}
-                className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                onClick={() => handleResultClick(pokemon)}
+                className="flex items-center gap-2 p-2 hover:bg-accent cursor-pointer"
+                onClick={() => onSearch?.(pokemon.id.toString())}
               >
-                <img 
-                  src={pokemon.sprites.front_default} 
-                  alt={pokemon.name}
-                  className="w-10 h-10"
-                />
+                {pokemon.sprite && <img src={pokemon.sprite} alt={pokemon.name} className="w-10 h-10" />}
                 <div>
-                  <div className="font-medium">
-                    {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
-                  </div>
+                  <div className="font-medium">{capitalize(pokemon.name)}</div>
                   <div className="text-xs text-muted-foreground">
                     #{pokemon.id.toString().padStart(3, '0')}
                   </div>

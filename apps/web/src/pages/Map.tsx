@@ -1,29 +1,21 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PokemonMap from '../components/PokemonMap';
-import { useQuery } from '@tanstack/react-query';
-import { fetchRegions } from '../api/regionApi';
+import { useRegions } from '@/hooks/api/world';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle } from 'lucide-react';
-import { TypeBadge } from '@/components/ui/type-badge';
+import LoadingSpinner from '../components/LoadingSpinner';
 
+/**
+ * Region explorer. Every region the dex knows comes from the API; the map
+ * images and blurbs are our curated `location_meta`/`region` data, and the
+ * pins are per-location percentage coordinates over the map art.
+ */
 const Map = () => {
+  const { data: regions, isLoading } = useRegions();
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
-  const { toast } = useToast();
-  
-  const { data: regions, isLoading } = useQuery({
-    queryKey: ['regions'],
-    queryFn: fetchRegions
-  });
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
 
-  // Set default region when data loads
-  useEffect(() => {
-    if (regions && regions.length > 0 && !selectedRegionId) {
-      setSelectedRegionId(regions[0].id);
-    }
-  }, [regions, selectedRegionId]);
+  const activeRegionId = selectedRegionId ?? regions?.[0]?.id ?? null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -31,97 +23,70 @@ const Map = () => {
       <p className="text-muted-foreground mb-8">
         Explore locations and discover which Pokémon can be found in different areas
       </p>
-      
-      {isLoading ? (
-        <div className="flex justify-center p-8">Loading region data...</div>
+
+      {isLoading || !regions ? (
+        <div className="flex justify-center p-8">
+          <LoadingSpinner />
+        </div>
       ) : (
         <div className="space-y-6">
-          <Tabs 
-            defaultValue={regions?.[0]?.id.toString()} 
-            onValueChange={(value) => setSelectedRegionId(Number(value))}
+          <Tabs
+            value={activeRegionId?.toString()}
+            onValueChange={(value) => {
+              setSelectedRegionId(Number(value));
+              setSelectedLocationId(null);
+            }}
           >
-            <TabsList className="mb-4 flex overflow-x-auto">
-              {regions?.map(region => (
+            <TabsList className="mb-4 flex overflow-x-auto justify-start w-full">
+              {regions.map((region) => (
                 <TabsTrigger key={region.id} value={region.id.toString()}>
-                  {region.name}
+                  {region.displayName}
                 </TabsTrigger>
               ))}
             </TabsList>
-            
-            {regions?.map(region => (
+
+            {regions.map((region) => (
               <TabsContent key={region.id} value={region.id.toString()}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{region.name} Region</CardTitle>
+                    <CardTitle>{region.displayName} Region</CardTitle>
                     <CardDescription>{region.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div>
-                        <img 
-                          src={region.mainImage} 
-                          alt={`Map of ${region.name}`}
+                    {region.mapImage ? (
+                      <div className="max-w-3xl mx-auto">
+                        <img
+                          src={region.mapImage}
+                          alt={`Map of ${region.displayName}`}
                           className="rounded-md shadow-md w-full"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.onerror = null;
-                            
-                            // Use placeholder for missing image
-                            target.src = "/placeholder.svg";
-                            
-                            // Show toast notification
-                            if (region.name === "Kanto") {
-                              toast({
-                                title: "Map image not found",
-                                description: `The map image for ${region.name} region is unavailable.`,
-                                variant: "destructive"
-                              });
-                            }
+                            target.src = 'placeholder.svg';
                           }}
                         />
-                       
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Notable Locations</h3>
-                        <ul className="space-y-4">
-                          {region.locations.map(location => (
-                            <li key={location.id} className="border-b pb-3">
-                              <div className="font-medium">{location.name}</div>
-                              <div className="text-sm text-muted-foreground">{location.description}</div>
-                              {location.pokemonEncounters.length > 0 && (
-                                <div className="mt-2">
-                                  <div className="text-xs font-medium mb-1">Pokémon Encounters:</div>
-                                  <div className="flex flex-wrap gap-2">
-                                    {location.pokemonEncounters.map(encounter => (
-                                      <div key={encounter.pokemonId} className="flex items-center gap-1 bg-muted/50 px-3 py-2 rounded-md">
-                                        <img 
-                                          src={encounter.sprite || "/placeholder.svg"} 
-                                          alt={encounter.name} 
-                                          className="w-16 h-16" // Increased size from 4x4 to 8x8
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.onerror = null;
-                                            target.src = "/placeholder.svg";
-                                          }}
-                                        />
-                                        <span className="text-sm">{encounter.name}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-6">
+                        No map art for this region yet — its locations are listed below.
+                      </p>
+                    )}
+                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                      {region.locationCount} known locations
+                    </p>
                   </CardContent>
                 </Card>
               </TabsContent>
             ))}
           </Tabs>
-          
-          <PokemonMap regionId={selectedRegionId || 1} />
+
+          {activeRegionId !== null && (
+            <PokemonMap
+              regionId={activeRegionId}
+              selectedLocationId={selectedLocationId}
+              onSelectLocation={setSelectedLocationId}
+            />
+          )}
         </div>
       )}
     </div>
@@ -129,10 +94,3 @@ const Map = () => {
 };
 
 export default Map;
-
-// {region.name === "Kanto" && (
-//   <div className="mt-2 px-3 py-2 bg-orange-100 text-orange-800 rounded-md flex items-center gap-2 text-sm">
-//     <AlertTriangle className="h-4 w-4" />
-//     Map image unavailable. Our Pokédex systems are being updated.
-//   </div>
-// )}

@@ -40,13 +40,14 @@ function listQuery(params: PokemonListParams, cursor?: string): string {
 }
 
 /** Server-side paged list; replaces the old 152-requests-to-PokeAPI fetch. */
-export function usePokemonList(params: PokemonListParams = {}) {
+export function usePokemonList(params: PokemonListParams = {}, options: { enabled?: boolean } = {}) {
   return useInfiniteQuery({
     queryKey: ['pokemon', 'list', params],
     queryFn: ({ pageParam }) =>
       apiFetch<Page<PokemonSummary>>(`/v1/pokemon?${listQuery(params, pageParam)}`),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: options.enabled ?? true,
   });
 }
 

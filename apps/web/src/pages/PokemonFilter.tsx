@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonList } from '../api/pokemonApi';
+import React, { useMemo, useState } from 'react';
+import {
+  FILTER_FIELD_META,
+  GROWTH_RATES,
+  POKEMON_TYPES,
+  type PokemonFilter as PokemonFilterType,
+  type PokemonFilterCondition,
+} from '@masterpokedex/shared';
+import { usePokemonList } from '@/hooks/api/pokemon';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PlusCircle, MinusCircle, Search, Filter } from 'lucide-react';
-import { Pokemon } from '../types/pokemon';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { PlusCircle, MinusCircle, Filter } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import {
   Table,
@@ -24,479 +28,411 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { capitalize } from '../utils/helpers';
 import { TypeBadge } from '@/components/ui/type-badge';
+import { Link } from 'react-router-dom';
+import LoadingSpinner from '../components/LoadingSpinner';
 
-type Condition = {
+/**
+ * The advanced filter, rebuilt on the shared whitelist grammar. The field and
+ * operator lists come from FILTER_FIELD_META — the same source the server
+ * validates against — so the UI can never build a condition the API rejects.
+ * Filtering happens server-side over the whole dex, not on 151 rows in memory.
+ */
+
+type DraftCondition = {
   id: string;
   field: string;
-  operator: string;
+  op: string;
   value: string;
-  connector: 'AND' | 'OR' | null;
 };
 
-type ProjectionField = {
-  name: string;
-  selected: boolean;
-  display: string;
+const OP_LABELS: Record<string, string> = {
+  eq: 'equals',
+  neq: 'does not equal',
+  contains: 'contains',
+  startsWith: 'starts with',
+  endsWith: 'ends with',
+  gt: '>',
+  gte: '≥',
+  lt: '<',
+  lte: '≤',
+  in: 'is one of',
 };
+
+type ColumnKey =
+  | 'image'
+  | 'id'
+  | 'name'
+  | 'types'
+  | 'total'
+  | 'hp'
+  | 'attack'
+  | 'defense'
+  | 'specialAttack'
+  | 'specialDefense'
+  | 'speed'
+  | 'height'
+  | 'weight'
+  | 'baseExperience';
+
+const ALL_COLUMNS: { key: ColumnKey; label: string }[] = [
+  { key: 'image', label: 'Image' },
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Name' },
+  { key: 'types', label: 'Types' },
+  { key: 'total', label: 'Total' },
+  { key: 'hp', label: 'HP' },
+  { key: 'attack', label: 'Attack' },
+  { key: 'defense', label: 'Defense' },
+  { key: 'specialAttack', label: 'Sp. Atk' },
+  { key: 'specialDefense', label: 'Sp. Def' },
+  { key: 'speed', label: 'Speed' },
+  { key: 'height', label: 'Height' },
+  { key: 'weight', label: 'Weight' },
+  { key: 'baseExperience', label: 'Base Exp.' },
+];
+
+const DEFAULT_COLUMNS: ColumnKey[] = ['image', 'id', 'name', 'types', 'total', 'hp', 'attack', 'defense', 'speed'];
+
+let conditionSeq = 0;
+const newCondition = (): DraftCondition => ({
+  id: `c${++conditionSeq}`,
+  field: 'name',
+  op: 'contains',
+  value: '',
+});
+
+function metaFor(field: string) {
+  return FILTER_FIELD_META.find((m) => m.field === field) ?? FILTER_FIELD_META[0];
+}
+
+/** Draft rows → the shared filter shape; incomplete rows are simply skipped. */
+function buildFilter(drafts: DraftCondition[], match: 'all' | 'any'): PokemonFilterType {
+  const conditions: PokemonFilterCondition[] = [];
+  for (const draft of drafts) {
+    const meta = metaFor(draft.field);
+    if (draft.value === '' && meta.kind !== 'boolean') continue;
+    if (meta.kind === 'number') {
+      const value = Number(draft.value);
+      if (!Number.isFinite(value)) continue;
+      conditions.push({ field: draft.field, op: draft.op, value } as PokemonFilterCondition);
+    } else if (meta.kind === 'boolean') {
+      conditions.push({
+        field: draft.field,
+        op: 'eq',
+        value: draft.value !== 'false',
+      } as PokemonFilterCondition);
+    } else {
+      conditions.push({ field: draft.field, op: draft.op, value: draft.value } as PokemonFilterCondition);
+    }
+  }
+  return { match, conditions };
+}
 
 const PokemonFilter: React.FC = () => {
-  const [conditions, setConditions] = useState<Condition[]>([
-    { id: '1', field: 'name', operator: 'contains', value: '', connector: null }
-  ]);
-  
-  const [projectionFields, setProjectionFields] = useState<ProjectionField[]>([
-    { name: 'sprites', selected: true, display: 'Image' },
-    { name: 'id', selected: true, display: 'ID' },
-    { name: 'name', selected: true, display: 'Name' },
-    { name: 'types', selected: true, display: 'Types' },
-    { name: 'height', selected: true, display: 'Height' },
-    { name: 'weight', selected: true, display: 'Weight' },
-    { name: 'abilities', selected: true, display: 'Abilities' },
-    { name: 'stats', selected: true, display: 'Stats' },
-    { name: 'base_experience', selected: true, display: 'Base Experience' }
-  ]);
-  
-  const [filteredPokemon, setFilteredPokemon] = useState<Pokemon[]>([]);
-  
-  const { data: allPokemon, isLoading } = useQuery({
-    queryKey: ['pokemonList'],
-    queryFn: fetchPokemonList
-  });
-  
-  const addCondition = () => {
-    const lastCondition = conditions[conditions.length - 1];
-    setConditions([
-      ...conditions, 
-      { 
-        id: Date.now().toString(), 
-        field: 'name', 
-        operator: 'contains', 
-        value: '', 
-        connector: 'AND' 
-      }
-    ]);
-  };
-  
-  const removeCondition = (id: string) => {
-    if (conditions.length <= 1) return;
-    
-    setConditions(conditions.filter(c => c.id !== id));
-  };
-  
-  const updateCondition = (id: string, field: keyof Condition, value: any) => {
-    setConditions(conditions.map(c => {
-      if (c.id === id) {
-        return { ...c, [field]: value };
-      }
-      return c;
-    }));
-  };
-  
-  const toggleProjectionField = (name: string) => {
-    setProjectionFields(projectionFields.map(field => {
-      if (field.name === name) {
-        return { ...field, selected: !field.selected };
-      }
-      return field;
-    }));
-  };
-  
-  const applyFilter = () => {
-    if (!allPokemon) return;
-    
-    let result = [...allPokemon];
-    
-    conditions.forEach((condition, index) => {
-      let filterFn: (pokemon: Pokemon) => boolean;
-      
-      switch (condition.field) {
-        case 'name':
-          switch (condition.operator) {
-            case 'contains':
-              filterFn = (pokemon) => pokemon.name.toLowerCase().includes(condition.value.toLowerCase());
-              break;
-            case 'starts-with':
-              filterFn = (pokemon) => pokemon.name.toLowerCase().startsWith(condition.value.toLowerCase());
-              break;
-            case 'ends-with':
-              filterFn = (pokemon) => pokemon.name.toLowerCase().endsWith(condition.value.toLowerCase());
-              break;
-            case 'equals':
-              filterFn = (pokemon) => pokemon.name.toLowerCase() === condition.value.toLowerCase();
-              break;
-            case 'not-equals':
-              filterFn = (pokemon) => pokemon.name.toLowerCase() !== condition.value.toLowerCase();
-              break;
-            default:
-              filterFn = () => true;
-          }
-          break;
-          
-        case 'id':
-          switch (condition.operator) {
-            case 'equals':
-              filterFn = (pokemon) => pokemon.id === parseInt(condition.value);
-              break;
-            case 'not-equals':
-              filterFn = (pokemon) => pokemon.id !== parseInt(condition.value);
-              break;
-            case 'less-than':
-              filterFn = (pokemon) => pokemon.id < parseInt(condition.value);
-              break;
-            case 'less-than-equals':
-              filterFn = (pokemon) => pokemon.id <= parseInt(condition.value);
-              break;
-            case 'greater-than':
-              filterFn = (pokemon) => pokemon.id > parseInt(condition.value);
-              break;
-            case 'greater-than-equals':
-              filterFn = (pokemon) => pokemon.id >= parseInt(condition.value);
-              break;
-            default:
-              filterFn = () => true;
-          }
-          break;
-          
-        case 'type':
-          switch (condition.operator) {
-            case 'contains':
-              filterFn = (pokemon) => pokemon.types.some(t => 
-                t.type.name.toLowerCase().includes(condition.value.toLowerCase())
-              );
-              break;
-            case 'equals':
-              filterFn = (pokemon) => pokemon.types.some(t => 
-                t.type.name.toLowerCase() === condition.value.toLowerCase()
-              );
-              break;
-            default:
-              filterFn = () => true;
-          }
-          break;
-          
-        case 'height':
-        case 'weight':
-        case 'base_experience':
-          switch (condition.operator) {
-            case 'equals':
-              filterFn = (pokemon) => pokemon[condition.field] === parseInt(condition.value);
-              break;
-            case 'not-equals':
-              filterFn = (pokemon) => pokemon[condition.field] !== parseInt(condition.value);
-              break;
-            case 'less-than':
-              filterFn = (pokemon) => pokemon[condition.field] < parseInt(condition.value);
-              break;
-            case 'less-than-equals':
-              filterFn = (pokemon) => pokemon[condition.field] <= parseInt(condition.value);
-              break;
-            case 'greater-than':
-              filterFn = (pokemon) => pokemon[condition.field] > parseInt(condition.value);
-              break;
-            case 'greater-than-equals':
-              filterFn = (pokemon) => pokemon[condition.field] >= parseInt(condition.value);
-              break;
-            default:
-              filterFn = () => true;
-          }
-          break;
+  const [drafts, setDrafts] = useState<DraftCondition[]>([newCondition()]);
+  const [match, setMatch] = useState<'all' | 'any'>('all');
+  const [applied, setApplied] = useState<PokemonFilterType | null>(null);
+  const [columns, setColumns] = useState<ColumnKey[]>(DEFAULT_COLUMNS);
 
-        case 'abilities':
-          switch (condition.operator) {
-            case 'contains':
-              filterFn = (pokemon) => pokemon.abilities.some(a => 
-                a.ability.name.toLowerCase().includes(condition.value.toLowerCase())
-              );
-              break;
-            default:
-              filterFn = () => true;
-          }
-          break;
-          
-        default:
-          filterFn = () => true;
-      }
-      
-      if (index === 0 || !condition.connector) {
-        result = result.filter(filterFn);
-      } else if (condition.connector === 'AND') {
-        result = result.filter(filterFn);
-      } else if (condition.connector === 'OR') {
-        const additionalResults = allPokemon.filter(filterFn);
-        const idsSet = new Set(result.map(p => p.id));
-        additionalResults.forEach(p => {
-          if (!idsSet.has(p.id)) {
-            result.push(p);
-          }
-        });
-      }
-    });
-    
-    setFilteredPokemon(result);
+  const { data, isLoading, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    usePokemonList({ filter: applied ?? undefined, limit: 50 }, { enabled: applied !== null });
+
+  const results = applied !== null ? (data?.pages.flatMap((p) => p.items) ?? []) : [];
+  const appliedSummary = useMemo(() => {
+    if (!applied || applied.conditions.length === 0) return null;
+    return applied.conditions
+      .map((c) => `${metaFor(c.field).label} ${OP_LABELS[c.op] ?? c.op} ${String(c.value)}`)
+      .join(applied.match === 'all' ? ' AND ' : ' OR ');
+  }, [applied]);
+
+  const updateDraft = (id: string, patch: Partial<DraftCondition>) => {
+    setDrafts((current) =>
+      current.map((draft) => {
+        if (draft.id !== id) return draft;
+        const next = { ...draft, ...patch };
+        if (patch.field) {
+          // Changing the field resets operator and value to something valid.
+          const meta = metaFor(patch.field);
+          next.op = meta.ops.includes(next.op) && next.op !== 'in' ? next.op : (meta.ops[0] as string);
+          next.value = meta.kind === 'boolean' ? 'true' : '';
+        }
+        return next;
+      }),
+    );
   };
-  
-  const getOperatorOptions = (field: string) => {
-    switch (field) {
-      case 'name':
+
+  const renderValueInput = (draft: DraftCondition) => {
+    const meta = metaFor(draft.field);
+    switch (meta.kind) {
       case 'type':
-      case 'abilities':
-        return [
-          { value: 'contains', label: 'Contains' },
-          { value: 'equals', label: 'Equals' },
-          { value: 'starts-with', label: 'Starts With' },
-          { value: 'ends-with', label: 'Ends With' },
-          { value: 'not-equals', label: 'Not Equals' },
-        ];
-      case 'id':
-      case 'height':
-      case 'weight':
-      case 'base_experience':
-        return [
-          { value: 'equals', label: 'Equals (=)' },
-          { value: 'not-equals', label: 'Not Equals (≠)' },
-          { value: 'less-than', label: 'Less Than (<)' },
-          { value: 'less-than-equals', label: 'Less Than or Equal (≤)' },
-          { value: 'greater-than', label: 'Greater Than (>)' },
-          { value: 'greater-than-equals', label: 'Greater Than or Equal (≥)' }
-        ];
+        return (
+          <Select value={draft.value} onValueChange={(value) => updateDraft(draft.id, { value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Pick a type" />
+            </SelectTrigger>
+            <SelectContent>
+              {POKEMON_TYPES.map((type) => (
+                <SelectItem key={type} value={type} className="capitalize">
+                  {capitalize(type)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      case 'growthRate':
+        return (
+          <Select value={draft.value} onValueChange={(value) => updateDraft(draft.id, { value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Pick a growth rate" />
+            </SelectTrigger>
+            <SelectContent>
+              {GROWTH_RATES.map((rate) => (
+                <SelectItem key={rate} value={rate}>
+                  {capitalize(rate.replace(/-/g, ' '))}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      case 'boolean':
+        return (
+          <Select value={draft.value || 'true'} onValueChange={(value) => updateDraft(draft.id, { value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Yes</SelectItem>
+              <SelectItem value="false">No</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      case 'number':
+        return (
+          <Input
+            type="number"
+            value={draft.value}
+            onChange={(e) => updateDraft(draft.id, { value: e.target.value })}
+            placeholder="Value"
+          />
+        );
       default:
-        return [];
+        return (
+          <Input
+            value={draft.value}
+            onChange={(e) => updateDraft(draft.id, { value: e.target.value })}
+            placeholder="Value"
+          />
+        );
     }
   };
 
-  const formatCellValue = (pokemon: Pokemon, field: string) => {
-    switch (field) {
-      case 'id':
-        return `#${pokemon.id.toString().padStart(3, '0')}`;
-      case 'name':
-        return capitalize(pokemon.name);
-      case 'types':
-        return (
-          <div className="flex gap-1 flex-wrap">
-            {pokemon.types.map(({ type }) => (
-              <TypeBadge key={type.name} type={type.name as any} />
-            ))}
-          </div>
-        );
-      case 'height':
-        return `${(pokemon.height / 10).toFixed(1)}m`;
-      case 'weight':
-        return `${(pokemon.weight / 10).toFixed(1)}kg`;
-      case 'abilities':
-        return pokemon.abilities.map(a => capitalize(a.ability.name)).join(', ');
-      case 'stats':
-        return (
-          <div className="text-xs">
-            {pokemon.stats.map(stat => (
-              <div key={stat.stat.name} className="flex justify-between">
-                <span>{capitalize(stat.stat.name.replace('-', ' '))}:</span>
-                <span className="font-medium">{stat.base_stat}</span>
-              </div>
-            ))}
-          </div>
-        );
-      case 'base_experience':
-        return pokemon.base_experience !== undefined ? pokemon.base_experience.toString() : 'N/A';
-      case 'sprites':
-        return (
-          <div className="flex justify-center">
-            <img 
-              src={pokemon.sprites.front_default} 
-              alt={pokemon.name} 
-              className="h-12 w-12"
-            />
-          </div>
-        );
-      default:
-        return 'N/A';
-    }
-  };
-  
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Advanced Pokémon Filter</h1>
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Filter</h1>
       <p className="text-muted-foreground mb-8">
-        Create complex filters and customize which fields to display
+        Build multi-condition queries over every Pokémon in the dex
       </p>
-      
-      <div className="grid grid-cols-1 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" /> Selection (Filter)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {conditions.map((condition, index) => (
-                <div key={condition.id} className="grid grid-cols-12 gap-3 items-center">
-                  {index > 0 && (
-                    <div className="col-span-12 sm:col-span-1">
-                      <Select
-                        value={condition.connector || 'AND'}
-                        onValueChange={(value) => updateCondition(condition.id, 'connector', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="AND" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="AND">AND</SelectItem>
-                          <SelectItem value="OR">OR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                  
-                  <div className={`${index > 0 ? 'col-span-12 sm:col-span-3' : 'col-span-12 sm:col-span-4'}`}>
-                    <Select
-                      value={condition.field}
-                      onValueChange={(value) => updateCondition(condition.id, 'field', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="name">Name</SelectItem>
-                        <SelectItem value="id">ID</SelectItem>
-                        <SelectItem value="type">Type</SelectItem>
-                        <SelectItem value="height">Height</SelectItem>
-                        <SelectItem value="weight">Weight</SelectItem>
-                        <SelectItem value="abilities">Abilities</SelectItem>
-                        <SelectItem value="base_experience">Base Experience</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="col-span-12 sm:col-span-3">
-                    <Select
-                      value={condition.operator}
-                      onValueChange={(value) => updateCondition(condition.id, 'operator', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select operator" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getOperatorOptions(condition.field).map(op => (
-                          <SelectItem key={op.value} value={op.value}>{op.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="col-span-10 sm:col-span-4">
-                    <Input
-                      placeholder="Value"
-                      value={condition.value}
-                      onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="col-span-2 sm:col-span-1 flex justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCondition(condition.id)}
-                      disabled={conditions.length <= 1}
-                    >
-                      <MinusCircle className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              
-              <div className="flex items-center justify-between pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={addCondition}
-                  className="flex items-center gap-1"
-                >
-                  <PlusCircle className="h-4 w-4" /> Add Condition
-                </Button>
-                <Button onClick={applyFilter} className="flex items-center gap-1">
-                  <Search className="h-4 w-4" /> Apply Filter
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Projection (Fields to Display)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {projectionFields.map(field => (
-                <div key={field.name} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`field-${field.name}`}
-                    checked={field.selected}
-                    onCheckedChange={() => toggleProjectionField(field.name)}
-                  />
-                  <label
-                    htmlFor={`field-${field.name}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {field.display}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>
-              Results {filteredPokemon.length > 0 ? `(${filteredPokemon.length})` : ''}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center p-8">Loading Pokémon data...</div>
-            ) : filteredPokemon.length > 0 ? (
-              <div>
-                <ScrollArea className="h-[600px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {projectionFields.filter(field => field.selected).map(field => (
-                          <TableHead key={field.name}>{field.display}</TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredPokemon.map(pokemon => (
-                        <TableRow key={pokemon.id}>
-                          {projectionFields
-                            .filter(field => field.selected)
-                            .map(field => (
-                              <TableCell key={`${pokemon.id}-${field.name}`}>
-                                {formatCellValue(pokemon, field.name)}
-                              </TableCell>
-                            ))
-                          }
-                        </TableRow>
+
+      <Card className="mb-6">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Conditions
+          </CardTitle>
+          <Tabs value={match} onValueChange={(value) => setMatch(value as 'all' | 'any')}>
+            <TabsList>
+              <TabsTrigger value="all">Match all</TabsTrigger>
+              <TabsTrigger value="any">Match any</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {drafts.map((draft) => {
+            const meta = metaFor(draft.field);
+            return (
+              <div key={draft.id} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                <Select value={draft.field} onValueChange={(field) => updateDraft(draft.id, { field })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILTER_FIELD_META.map((m) => (
+                      <SelectItem key={m.field} value={m.field}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={draft.op} onValueChange={(op) => updateDraft(draft.id, { op })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {meta.ops
+                      .filter((op) => op !== 'in')
+                      .map((op) => (
+                        <SelectItem key={op} value={op}>
+                          {OP_LABELS[op] ?? op}
+                        </SelectItem>
                       ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
+                  </SelectContent>
+                </Select>
+
+                {renderValueInput(draft)}
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDrafts((c) => (c.length > 1 ? c.filter((d) => d.id !== draft.id) : c))}
+                  disabled={drafts.length <= 1}
+                  aria-label="Remove condition"
+                >
+                  <MinusCircle className="h-4 w-4" />
+                </Button>
               </div>
-            ) : (
-              <div className="text-center py-10 text-muted-foreground">
-                {conditions.some(c => c.value) ? (
-                  <p>No Pokémon match your filter criteria. Try adjusting your filters.</p>
-                ) : (
-                  <p>Apply a filter to see results</p>
-                )}
+            );
+          })}
+
+          <div className="flex flex-wrap gap-2 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setDrafts((c) => [...c, newCondition()])}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add condition
+            </Button>
+            <Button size="sm" onClick={() => setApplied(buildFilter(drafts, match))}>
+              Apply filter
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDrafts([newCondition()]);
+                setApplied(null);
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+
+          {appliedSummary && (
+            <div className="text-sm text-muted-foreground border-t pt-3">
+              <span className="font-medium">Applied:</span> {appliedSummary}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-base">Columns</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-4">
+          {ALL_COLUMNS.map((column) => (
+            <label key={column.key} className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox
+                checked={columns.includes(column.key)}
+                onCheckedChange={(checked) =>
+                  setColumns((current) =>
+                    checked
+                      ? [...ALL_COLUMNS.map((c) => c.key).filter((k) => current.includes(k) || k === column.key)]
+                      : current.filter((k) => k !== column.key),
+                  )
+                }
+              />
+              {column.label}
+            </label>
+          ))}
+        </CardContent>
+      </Card>
+
+      {applied === null ? (
+        <div className="text-center py-12 text-muted-foreground">
+          Build a query above and press <span className="font-medium">Apply filter</span>.
+        </div>
+      ) : isLoading || (isFetching && results.length === 0) ? (
+        <LoadingSpinner />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {results.length} result{results.length === 1 ? '' : 's'}
+              {hasNextPage ? '+' : ''}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {ALL_COLUMNS.filter((c) => columns.includes(c.key)).map((column) => (
+                    <TableHead key={column.key}>{column.label}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results.map((pokemon) => (
+                  <TableRow key={pokemon.id}>
+                    {columns.includes('image') && (
+                      <TableCell>
+                        <Link to={`/pokemon/${pokemon.id}`}>
+                          {pokemon.sprite && (
+                            <img src={pokemon.sprite} alt={pokemon.name} className="w-10 h-10 pixelated" />
+                          )}
+                        </Link>
+                      </TableCell>
+                    )}
+                    {columns.includes('id') && <TableCell>#{pokemon.id}</TableCell>}
+                    {columns.includes('name') && (
+                      <TableCell>
+                        <Link to={`/pokemon/${pokemon.id}`} className="font-medium hover:underline">
+                          {capitalize(pokemon.name)}
+                        </Link>
+                      </TableCell>
+                    )}
+                    {columns.includes('types') && (
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {pokemon.types.map((type) => (
+                            <TypeBadge key={type} type={type} />
+                          ))}
+                        </div>
+                      </TableCell>
+                    )}
+                    {columns.includes('total') && (
+                      <TableCell>
+                        <Badge variant="secondary">{pokemon.stats.total}</Badge>
+                      </TableCell>
+                    )}
+                    {columns.includes('hp') && <TableCell>{pokemon.stats.hp}</TableCell>}
+                    {columns.includes('attack') && <TableCell>{pokemon.stats.attack}</TableCell>}
+                    {columns.includes('defense') && <TableCell>{pokemon.stats.defense}</TableCell>}
+                    {columns.includes('specialAttack') && <TableCell>{pokemon.stats.specialAttack}</TableCell>}
+                    {columns.includes('specialDefense') && <TableCell>{pokemon.stats.specialDefense}</TableCell>}
+                    {columns.includes('speed') && <TableCell>{pokemon.stats.speed}</TableCell>}
+                    {columns.includes('height') && <TableCell>{pokemon.height}</TableCell>}
+                    {columns.includes('weight') && <TableCell>{pokemon.weight}</TableCell>}
+                    {columns.includes('baseExperience') && <TableCell>{pokemon.baseExperience ?? '—'}</TableCell>}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            {results.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">No Pokémon match this filter.</p>
+            )}
+
+            {hasNextPage && (
+              <div className="flex justify-center mt-4">
+                <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                  {isFetchingNextPage ? 'Loading…' : 'Load more'}
+                </Button>
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 };
