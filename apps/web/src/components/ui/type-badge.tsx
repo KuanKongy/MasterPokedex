@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from './badge';
 import { cn } from '@/lib/utils';
 
-type PokemonType = 
+export type PokemonType =
   | 'normal' | 'fire' | 'water' | 'electric' | 'grass' 
   | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying' 
   | 'psychic' | 'bug' | 'rock' | 'ghost' | 'dark' 

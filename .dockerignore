@@ -1,0 +1,19 @@
+# Keep images small and hermetic. .env is excluded on purpose: containers get
+# configuration exclusively from process env (compose `environment:` / Railway
+# variables), which both apps/api/src/env.ts and packages/db/src/env.ts prefer
+# over any .env file anyway.
+.git
+node_modules
+**/node_modules
+**/dist
+*.tsbuildinfo
+**/*.tsbuildinfo
+.env
+.env.*
+!.env.example
+packages/db/.cache
+.github
+docs
+.claude
+.DS_Store
+**/.DS_Store

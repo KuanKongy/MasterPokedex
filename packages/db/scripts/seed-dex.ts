@@ -667,8 +667,18 @@ async function main() {
     }));
     const validCategoryIds = new Set(itemCategoryRows.map((c) => c.id));
 
+    // Upstream items.csv has started shipping duplicate identifiers (e.g.
+    // roseli-berry as both 723 and 2279); dex.items has a unique name, so keep
+    // only the lowest id per identifier — the canonical, referenced one.
+    const seenItemNames = new Set<string>();
     const itemRows = csvItems
       .filter((r) => validCategoryIds.has(int(r.category_id)))
+      .sort((a, b) => int(a.id) - int(b.id))
+      .filter((r) => {
+        if (seenItemNames.has(r.identifier!)) return false;
+        seenItemNames.add(r.identifier!);
+        return true;
+      })
       .map((r) => ({
         id: int(r.id),
         name: r.identifier!,

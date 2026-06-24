@@ -34,7 +34,7 @@ const app = new Hono<AppBindings>()
     '/v1/*',
     cors({
       origin: env().CORS_ORIGINS,
-      allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Authorization', 'Content-Type'],
       maxAge: 86400,
       credentials: false,

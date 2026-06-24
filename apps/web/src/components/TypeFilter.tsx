@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { capitalize } from '../utils/helpers';
-import { TypeBadge } from './ui/type-badge';
+import { TypeBadge, type PokemonType } from './ui/type-badge';
 
 const pokemonTypes = [
   'all', 'normal', 'fire', 'water', 'electric', 'grass', 'ice', 
@@ -41,7 +41,7 @@ const TypeFilter: React.FC<TypeFilterProps> = ({ selectedType, setSelectedType }
                 selectedType === type ? "ring-2 ring-primary ring-offset-2" : ""
               )}
             >
-              <TypeBadge type={type as any} />
+              <TypeBadge type={type as PokemonType} />
             </div>
           )
         ))}

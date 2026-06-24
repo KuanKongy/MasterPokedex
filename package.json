@@ -25,6 +25,7 @@
     "db:push": "npm run push --workspace=@masterpokedex/db",
     "db:studio": "npm run studio --workspace=@masterpokedex/db",
     "db:seed": "npm run seed --workspace=@masterpokedex/db",
+    "db:seed:auth": "npm run seed:auth --workspace=@masterpokedex/db",
     "db:seed:demo": "npm run seed:demo --workspace=@masterpokedex/db",
     "db:verify": "npm run verify --workspace=@masterpokedex/db"
   },

@@ -1,0 +1,24 @@
+# Override: run the containerized api against the LOCAL db service instead of
+# Supabase — no Supabase project or filled-in .env required.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up
+#
+# Values are hardcoded on purpose: after the Supabase cutover the repo-root
+# .env points at Supabase, so ${...} interpolation here would defeat the point.
+# The placeholder SUPABASE_URL satisfies the API's required-URL check; auth'd
+# routes then only accept tokens minted with SUPABASE_JWT_SECRET (HS256), which
+# is how the authed API is exercised locally.
+services:
+  api:
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      SUPABASE_URL: https://placeholder.supabase.co
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    environment:
+      VITE_SUPABASE_URL: https://placeholder.supabase.co
+      VITE_SUPABASE_ANON_KEY: placeholder

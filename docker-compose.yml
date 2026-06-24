@@ -1,17 +1,68 @@
-# Local Postgres for schema work, migrations and tests.
+# One command, whole stack:
 #
-#   docker compose up -d
-#   cp .env.example .env   # DIRECT_DATABASE_URL is already pointed here
-#   npm run db:migrate && npm run db:verify
+#   docker compose up          # api :8787 + web :8080, both against Supabase
+#   → http://localhost:8080/MasterPokedex/
 #
-# This is plain Postgres, not Supabase. Migration 0001 installs a small shim for
-# `auth.users` / `auth.uid()` so the RLS policies load and can be tested here.
-# When you need real Auth locally (OAuth redirects, anonymous sign-in, JWT
-# issuance), run `supabase start` instead and point DIRECT_DATABASE_URL at it.
+# The api and web services interpolate ${...} values from the repo-root .env —
+# fill it in first (see .env.example and docs/devops.md). The images contain no
+# .env; configuration reaches them purely through `environment:` below.
+#
+# Offline / schema work (plain local Postgres, no Supabase project needed):
+#
+#   docker compose up -d db                                  # Postgres on :55432
+#   docker compose run --rm seed                             # migrate + seed it (one-shot)
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local up
+#
+# The db service is plain Postgres, not Supabase. Migration 0001 installs a
+# small shim for `auth.users` / `auth.uid()` so the RLS policies load and can
+# be tested there. When you need real Auth locally (OAuth redirects, anonymous
+# sign-in, JWT issuance), run `supabase start` instead and point
+# DIRECT_DATABASE_URL at it.
 services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: prod
+    container_name: masterpokedex-api
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      CORS_ORIGINS: http://localhost:8080,https://kuankongy.github.io
+      PORT: '8787'
+      DB_POOL_MAX: '10'
+    ports:
+      - '8787:8787'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8787/health || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: masterpokedex-web
+    environment:
+      # Browser-side URL, so localhost (not api:8787) is correct.
+      VITE_API_URL: http://localhost:8787
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+    ports:
+      - '8080:8080'
+    depends_on:
+      - api
+
   db:
     image: postgres:17-alpine
     container_name: masterpokedex-db
+    # In both profiles so `docker compose run --rm seed` can start its
+    # dependency; `docker compose up -d db` also works — explicitly naming a
+    # profiled service activates its profile.
+    profiles: [local, seed]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -26,5 +77,28 @@ services:
       timeout: 5s
       retries: 10
 
+  # One-shot migrate + seed of the LOCAL db service (~250k dex rows; the 41
+  # PokeAPI CSVs persist in the dexcache volume so re-runs skip the download).
+  # Deliberately hardcoded to db:5432 — never interpolate .env here, it points
+  # at Supabase. Supabase itself is migrated/seeded from the host (docs/devops.md).
+  seed:
+    # Own profile so `--profile local up` never re-runs the multi-minute ETL;
+    # naming the service explicitly activates the profile on its own.
+    profiles: [seed]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: dev
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+    volumes:
+      - masterpokedex-dexcache:/app/packages/db/.cache
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm run db:migrate && npm run db:seed && npm run db:seed:demo"
+
 volumes:
   masterpokedex-pgdata:
+  masterpokedex-dexcache:

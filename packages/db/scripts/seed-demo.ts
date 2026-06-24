@@ -80,28 +80,39 @@ async function main() {
     }
 
     // ── auth.users first: everything else hangs off it ──────────────────────
+    // SELECT before INSERT: on real Supabase the postgres role can read
+    // auth.users but not write it, and INSERT ... ON CONFLICT checks the
+    // privilege before resolving the conflict — so a blind insert fails even
+    // when every row already exists (created by `npm run db:seed:auth`).
     const trainerIds = DEMO_TRAINERS.map((t) => t.id);
-    try {
-      await sql`
-        INSERT INTO auth.users (id, email)
-        SELECT id, username || '@demo.masterpokedex.invalid'
-        FROM unnest(${trainerIds}::uuid[], ${DEMO_TRAINERS.map((t) => t.username)}::text[]) AS u(id, username)
-        ON CONFLICT (id) DO NOTHING
-      `;
-    } catch (err) {
-      const code = (err as { code?: string }).code;
-      if (code === '42501' || code === '42P01') {
-        console.error(
-          'Cannot write to auth.users — this looks like a real Supabase project, where the\n' +
-            'auth schema is owned by supabase_auth_admin. Create these users via the Admin API\n' +
-            '(supabase.auth.admin.createUser) or the dashboard, with exactly these ids:\n\n' +
-            DEMO_TRAINERS.map((t) => `  ${t.id}  ${t.username}`).join('\n') +
-            '\n\nthen re-run this script.',
-        );
-        process.exitCode = 1;
-        return;
+    const existingUsers = await sql<{ id: string }[]>`
+      SELECT id FROM auth.users WHERE id = ANY(${trainerIds}::uuid[])
+    `;
+    const existingIds = new Set(existingUsers.map((u) => u.id));
+    const missing = DEMO_TRAINERS.filter((t) => !existingIds.has(t.id));
+    if (missing.length > 0) {
+      try {
+        await sql`
+          INSERT INTO auth.users (id, email)
+          SELECT id, username || '@demo.masterpokedex.invalid'
+          FROM unnest(${missing.map((t) => t.id)}::uuid[], ${missing.map((t) => t.username)}::text[]) AS u(id, username)
+          ON CONFLICT (id) DO NOTHING
+        `;
+      } catch (err) {
+        const code = (err as { code?: string }).code;
+        if (code === '42501' || code === '42P01') {
+          console.error(
+            'Cannot write to auth.users — this looks like a real Supabase project, where the\n' +
+              'auth schema is owned by supabase_auth_admin. Run `npm run db:seed:auth` (needs\n' +
+              'SUPABASE_SERVICE_ROLE_KEY) to create these users via the Admin API:\n\n' +
+              missing.map((t) => `  ${t.id}  ${t.username}`).join('\n') +
+              '\n\nthen re-run this script.',
+          );
+          process.exitCode = 1;
+          return;
+        }
+        throw err;
       }
-      throw err;
     }
 
     // ── One transaction for the cast itself ─────────────────────────────────
