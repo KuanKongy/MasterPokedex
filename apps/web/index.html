@@ -2,18 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pokedex</title>
+    <title>MasterPokédex</title>
     <meta name="description" content="National Pokedex with Regions, Routes and Trainers" />
     <meta name="author" content="Saikou" />
-    <link rel="icon" href="./public/favicon.ico" />
+    <meta name="theme-color" content="#E3350D" />
+
+    <!-- Icons live in ./favicon, not public/, so Vite fingerprints them into assets/.
+         The hashed URL can't collide with another localhost app's cached /favicon.ico.
+         Regenerate with: node apps/web/scripts/generate-brand-assets.mjs -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon/favicon-192x192.png" />
+    <link rel="icon" sizes="16x16 32x32 48x48" href="./favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+
+    <!-- Crawlers need absolute URLs, so the card is served from public/ at a fixed path. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MasterPokedex" />
+    <meta property="og:title" content="MasterPokedex" />
+    <meta property="og:description" content="National Pokedex with Regions, Routes and Trainers" />
+    <meta property="og:url" content="https://kuankongy.github.io/MasterPokedex/" />
+    <meta property="og:image" content="https://kuankongy.github.io/MasterPokedex/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MasterPokédex title in pixel type, ringed by Pokémon type-colored blocks and Poké Balls" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MasterPokedex" />
+    <meta name="twitter:description" content="National Pokedex with Regions, Routes and Trainers" />
+    <meta name="twitter:image" content="https://kuankongy.github.io/MasterPokedex/og-image.png" />
   </head>
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
