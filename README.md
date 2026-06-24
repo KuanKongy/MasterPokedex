@@ -36,27 +36,28 @@ cryptographically via the JWKS endpoint and talks to Postgres over a connection 
 ## Prerequisites
 
 - Node ≥ 24, npm ≥ 11
-- Docker (for the local Postgres), or a Supabase project
+- A Supabase project (Docker alone works too — offline mode below)
 
 ## Getting started
 
 ```bash
 git clone <this repo> && cd NationalPokedex
 npm install
+cp .env.example .env          # fill in your Supabase values (docs/devops.md)
 
-docker compose up -d          # local Postgres on :55432
-cp .env.example .env          # local DB URLs already point at it
-
-npm run db:migrate            # schema, triggers, RLS, auth shim
+npm run db:migrate            # schema, triggers, RLS
 npm run db:seed               # dex ETL: ~250k rows from cached PokeAPI CSVs
+npm run db:seed:auth          # demo cast's auth users via the Admin API
 npm run db:seed:demo          # Ash, Misty, Brock & co. for a lively directory
 npm run db:verify             # runs the SQL assertion suites
 
-npm run dev                   # ONE command: api on :8787 + web on :8080
+npm run dev                   # api on :8787 + web on :8080 (hot reload)
+# — or —
+docker compose up             # same stack as containers, one command
 ```
 
-Open http://localhost:8080/MasterPokedex/ — the dex, map, filter and item catalogue work
-immediately. Sign-in needs real Supabase values in `.env` (next section).
+Open http://localhost:8080/MasterPokedex/. No Supabase project yet? A fully offline stack
+(local Postgres + auth shim) is three commands away — see [docs/devops.md](docs/devops.md).
 
 ## Environment
 
@@ -82,10 +83,12 @@ See `.env.example` for the annotated template.
    Supabase and touches nothing it owns.
 3. Email confirmation is on by default (the UI treats "check your email" as the happy path).
    Configure custom SMTP before real signups — the built-in sender is limited to ~2 emails/hour.
-4. `npm run db:seed:demo` cannot write `auth.users` on real Supabase; it prints the fixed UUIDs
-   to create via the Admin API, then reseeds cleanly.
+4. `npm run db:seed:demo` cannot write `auth.users` on real Supabase — run
+   `npm run db:seed:auth` first (needs `SUPABASE_SERVICE_ROLE_KEY`) to create the demo users
+   via the Admin API, then seed the cast.
 5. Free-tier note: projects pause after ~1 week idle. `GET /health` touches the database
-   precisely so an uptime pinger keeps both alive.
+   precisely so an uptime pinger keeps both alive — the `keep-alive.yml` workflow is that
+   pinger.
 
 ## Scripts
 
@@ -94,9 +97,9 @@ See `.env.example` for the annotated template.
 | `npm run dev` | API (tsx watch) + web (Vite) together |
 | `npm run typecheck` / `lint` / `test` | across all workspaces |
 | `npm run build` | production web build (SPA fallback copied to 404.html) |
-| `npm run deploy:web` | build + publish to GitHub Pages |
+| `npm run deploy:web` | manual Pages publish (CI does this on push — see docs/devops.md) |
 | `npm run db:migrate` / `db:generate` / `db:studio` | drizzle-kit against `DIRECT_DATABASE_URL` |
-| `npm run db:seed` / `db:seed:demo` / `db:verify` | dex ETL / demo cast / SQL assertion suites |
+| `npm run db:seed` / `db:seed:auth` / `db:seed:demo` / `db:verify` | dex ETL / demo auth users / demo cast / SQL assertions |
 
 ## API surface
 
@@ -111,6 +114,16 @@ Authenticated (`Authorization: Bearer <supabase jwt>`): `/v1/me` (claim, read, u
 `/v1/me/activity`; `/v1/trainers` is the public directory with RLS-mirroring visibility.
 
 Errors use a stable envelope: `{ "error": { "code": "team_full", "message": "…" } }`.
+
+## Documentation
+
+| | |
+| --- | --- |
+| [docs/frontend.md](docs/frontend.md) | every page and feature of the web app |
+| [docs/api.md](docs/api.md) | full endpoint reference: params, auth, error codes |
+| [docs/devops.md](docs/devops.md) | compose, Supabase setup, Railway, Pages CI, keep-alive, env reference |
+| [docs/decisions.md](docs/decisions.md) | why Hono, Drizzle, an API over raw supabase-js, no Redis |
+| [docs/feature-parity.md](docs/feature-parity.md) | mapping from the original CPSC 304 project |
 
 ## Credits
 
