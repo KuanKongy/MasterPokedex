@@ -1,0 +1,58 @@
+# Builds apps/web and deploys it to GitHub Pages on every push to main.
+#
+# One-time setup (see docs/devops.md):
+#   - Settings → Pages → Build and deployment → Source: "GitHub Actions"
+#   - Settings → Secrets and variables → Actions → Variables:
+#       VITE_API_URL            e.g. https://<service>.up.railway.app
+#       VITE_SUPABASE_URL       https://<ref>.supabase.co
+#       VITE_SUPABASE_ANON_KEY  the project's anon key
+#     Variables, not secrets — all three ship inside the public JS bundle anyway.
+#
+# No path filter on purpose: the web bundle bakes in code from packages/shared,
+# so a shared-contract change must redeploy the site even when apps/web is
+# untouched. .env is gitignored, so in CI Vite sees only the process env above.
+name: Deploy web to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false # let an in-flight deploy finish; the queued run supersedes it
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build # vite build && cp dist/index.html dist/404.html (SPA fallback)
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
