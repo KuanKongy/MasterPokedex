@@ -21,12 +21,12 @@ import { fileURLToPath } from 'node:url';
 /**
  * Loads the repo-root `.env` regardless of the working directory.
  *
- * Needed because `bun run --filter` sets cwd to the package, and drizzle-kit
+ * Needed because npm workspace scripts set cwd to the package, and drizzle-kit
  * runs under Node — so neither Bun's automatic `.env` loading nor a cwd-relative
  * lookup finds the file. Walks up from this module until it hits one.
  *
  * Variables already present in the environment always win, so
- * `DATABASE_URL=... bun run db:seed` still overrides the file.
+ * `DATABASE_URL=... npm run db:seed` still overrides the file.
  */
 let envLoaded = false;
 export function loadEnvFile(): void {

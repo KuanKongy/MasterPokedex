@@ -1,7 +1,7 @@
 /**
  * ETL: PokeAPI source CSVs → our `dex` schema.
  *
- *   bun run db:seed
+ *   npm run db:seed
  *
  * This is what makes the app self-sufficient. Before it, the web app fetched
  * 151 Pokémon detail records from pokeapi.co in parallel on every cold cache —

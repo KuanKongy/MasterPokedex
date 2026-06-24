@@ -2,7 +2,7 @@
 #
 #   docker compose up -d
 #   cp .env.example .env   # DIRECT_DATABASE_URL is already pointed here
-#   bun run db:migrate && bun run --filter '@masterpokedex/db' verify
+#   npm run db:migrate && npm run db:verify
 #
 # This is plain Postgres, not Supabase. Migration 0001 installs a small shim for
 # `auth.users` / `auth.uid()` so the RLS policies load and can be tested here.
