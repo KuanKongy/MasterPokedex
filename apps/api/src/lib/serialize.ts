@@ -18,6 +18,8 @@ export type PokemonRow = {
   specialDefense: number;
   speed: number;
   total: number;
+  formLabel: string | null;
+  isDefault: boolean;
 };
 
 /**
@@ -38,6 +40,8 @@ export function toPokemonSummary(row: PokemonRow): PokemonSummary {
     weight: row.weight,
     baseExperience: row.baseExperience,
     generation: row.generationId,
+    formLabel: row.formLabel,
+    isDefault: row.isDefault,
     stats: {
       hp: row.hp,
       attack: row.attack,
@@ -58,6 +62,8 @@ export const POKEMON_COLUMNS = `
   p.weight,
   p.base_experience  AS "baseExperience",
   p.generation_id    AS "generationId",
+  p.form_label       AS "formLabel",
+  p.is_default       AS "isDefault",
   p.sprite,
   p.artwork,
   p.hp,

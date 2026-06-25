@@ -55,6 +55,63 @@ export const worldRoutes = new Hono<AppBindings>()
     return c.json({ items: rows as unknown as unknown[] });
   })
 
+  /**
+   * GET /v1/locations — the global catalog, every region's locations grouped.
+   * ~1,100 locations in one response, cached an hour; the catalog page renders
+   * it whole, so paging would only complicate the client.
+   */
+  .get('/locations', async (c) => {
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        r.id            AS "regionId",
+        r.name          AS "regionName",
+        COALESCE(r.display_name, r.name) AS "regionDisplayName",
+        l.id,
+        l.name,
+        l.display_name  AS "displayName",
+        lm.kind,
+        (SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)::int AS "areaCount",
+        EXISTS(
+          SELECT 1 FROM dex.location_areas la
+          JOIN dex.encounters e ON e.location_area_id = la.id
+          WHERE la.location_id = l.id
+        ) AS "hasEncounters"
+      FROM dex.locations l
+      JOIN dex.regions r ON r.id = l.region_id
+      LEFT JOIN dex.location_meta lm ON lm.location_id = l.id
+      ORDER BY r.id, l.display_name
+    `)) as unknown as {
+      regionId: number;
+      regionName: string;
+      regionDisplayName: string;
+      id: number;
+      name: string;
+      displayName: string;
+      kind: string | null;
+      areaCount: number;
+      hasEncounters: boolean;
+    }[];
+
+    const regions = new Map<number, { id: number; name: string; displayName: string; locations: unknown[] }>();
+    for (const row of rows) {
+      let region = regions.get(row.regionId);
+      if (!region) {
+        region = { id: row.regionId, name: row.regionName, displayName: row.regionDisplayName, locations: [] };
+        regions.set(row.regionId, region);
+      }
+      region.locations.push({
+        id: row.id,
+        name: row.name,
+        displayName: row.displayName,
+        kind: row.kind,
+        areaCount: row.areaCount,
+        hasEncounters: row.hasEncounters,
+      });
+    }
+
+    return c.json({ items: [...regions.values()] });
+  })
+
   /** GET /v1/locations/:id — areas, their encounter tables, and map neighbours. */
   .get('/locations/:id', async (c) => {
     const id = Number(c.req.param('id'));
@@ -72,6 +129,7 @@ export const worldRoutes = new Hono<AppBindings>()
         lm.image,
         lm.description,
         lm.kind,
+        COALESCE(lm.notable_trainers, '{}') AS "notableTrainers",
         COALESCE(lm.neighbor_ids, '{}') AS "neighborIds"
       FROM dex.locations l
       LEFT JOIN dex.regions r ON r.id = l.region_id

@@ -23,7 +23,8 @@ export const RegionSummarySchema = z.object({
   name: z.string(),
   displayName: z.string(),
   description: z.string().nullable(),
-  mapImage: z.string().url().nullable(),
+  /** Absolute URL, or a path relative to the web app's public/ (self-hosted art). */
+  mapImage: z.string().nullable(),
   locationCount: z.number().int().nonnegative(),
 });
 export type RegionSummary = z.infer<typeof RegionSummarySchema>;
@@ -42,13 +43,33 @@ export const LocationSummarySchema = z.object({
   regionName: z.string(),
   mapX: z.number().min(0).max(100).nullable(),
   mapY: z.number().min(0).max(100).nullable(),
-  image: z.string().url().nullable(),
+  /** Absolute URL, or a path relative to the web app's public/ (self-hosted art). */
+  image: z.string().nullable(),
   description: z.string().nullable(),
   /** Curated flavour: "city", "route", "cave", "forest"… Null when unplaced. */
   kind: z.string().nullable(),
   areaCount: z.number().int().nonnegative(),
+  notableTrainers: z.array(z.string()).optional(),
 });
 export type LocationSummary = z.infer<typeof LocationSummarySchema>;
+
+/** One region's slice of the global locations catalog. */
+export const LocationCatalogRegionSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string(),
+  displayName: z.string(),
+  locations: z.array(
+    z.object({
+      id: z.number().int().positive(),
+      name: z.string(),
+      displayName: z.string(),
+      kind: z.string().nullable(),
+      areaCount: z.number().int().nonnegative(),
+      hasEncounters: z.boolean(),
+    }),
+  ),
+});
+export type LocationCatalogRegion = z.infer<typeof LocationCatalogRegionSchema>;
 
 export const AreaEncounterSchema = z.object({
   pokemonId: z.number().int().positive(),

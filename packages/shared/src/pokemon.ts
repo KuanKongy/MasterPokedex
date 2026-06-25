@@ -67,8 +67,27 @@ export const PokemonSummarySchema = z.object({
   baseExperience: z.number().int().nullable(),
   generation: z.number().int().positive(),
   stats: StatBlockSchema,
+  /** Full form name ("Mega Charizard X") — null for a species' default form. */
+  formLabel: z.string().nullable().optional(),
+  isDefault: z.boolean().optional(),
 });
 export type PokemonSummary = z.infer<typeof PokemonSummarySchema>;
+
+export const PokemonFormSchema = PokemonSummarySchema.extend({
+  formLabel: z.string().nullable(),
+  isDefault: z.boolean(),
+  isMega: z.boolean(),
+  isGmax: z.boolean(),
+  isRegional: z.boolean(),
+});
+export type PokemonForm = z.infer<typeof PokemonFormSchema>;
+
+export const MegaSummarySchema = PokemonFormSchema.extend({
+  speciesId: z.number().int().positive(),
+  baseName: z.string(),
+  basePokemonId: z.number().int().positive(),
+});
+export type MegaSummary = z.infer<typeof MegaSummarySchema>;
 
 export const PokemonAbilitySchema = z.object({
   name: z.string(),
@@ -84,6 +103,8 @@ export type DamageClass = z.infer<typeof DamageClassSchema>;
 
 export const PokemonMoveSchema = z.object({
   name: z.string(),
+  /** The move's identifier, for linking to its page. */
+  slug: z.string().optional(),
   type: PokemonTypeSchema,
   damageClass: DamageClassSchema,
   power: z.number().int().nullable(),
@@ -154,6 +175,29 @@ export const PokemonDetailSchema = PokemonSummarySchema.extend({
   matchups: MatchupsSchema,
 });
 export type PokemonDetail = z.infer<typeof PokemonDetailSchema>;
+
+/** One cell of the 18×18 efficacy chart. `factor` is a percentage: 0/50/100/200. */
+export const TypeChartCellSchema = z.object({
+  attack: PokemonTypeSchema,
+  defend: PokemonTypeSchema,
+  factor: z.number(),
+});
+export type TypeChartCell = z.infer<typeof TypeChartCellSchema>;
+
+/**
+ * One whole evolution family for the chains index. Nodes carry
+ * `evolvesFromSpeciesId` (`from`) so the client lays out the tree the same way
+ * the detail page does.
+ */
+export const EvolutionChainSchema = z.object({
+  chainId: z.number().int().positive(),
+  nodes: z.array(
+    EvolutionNodeSchema.extend({
+      types: z.array(PokemonTypeSchema).min(1).max(2),
+    }),
+  ),
+});
+export type EvolutionChain = z.infer<typeof EvolutionChainSchema>;
 
 export const TypeInfoSchema = z.object({
   name: PokemonTypeSchema,

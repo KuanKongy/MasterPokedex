@@ -3,3 +3,8 @@ export * from './pokemon';
 export * from './location';
 export * from './trainer';
 export * from './filters';
+export * from './moves';
+export * from './abilities';
+export * from './items';
+export * from './search';
+export * from './entity-filters';

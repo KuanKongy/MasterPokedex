@@ -16,7 +16,12 @@ export const TrainerSummarySchema = z.object({
   id: z.string().uuid(),
   username: UsernameSchema,
   displayName: z.string(),
-  avatarUrl: z.string().url().nullable(),
+  /**
+   * Absolute URL for user-set avatars; the demo cast uses paths relative to
+   * the web app's public/ (self-hosted art). Writes still require a URL —
+   * see UpdateProfileInputSchema.
+   */
+  avatarUrl: z.string().nullable(),
   regionId: z.number().int().positive().nullable(),
   regionName: z.string().nullable(),
   rank: TrainerRankSchema,

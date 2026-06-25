@@ -207,6 +207,79 @@ export const pokemonRoutes = new Hono<AppBindings>()
     return c.json({ items: page.map(toPokemonSummary), nextCursor });
   })
 
+  /**
+   * GET /v1/pokemon/megas — every Mega form, labeled, with its base species.
+   * Registered before /:idOrName, which would otherwise swallow "megas" as a name.
+   */
+  .get('/megas', async (c) => {
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        ${sql.raw(POKEMON_COLUMNS)},
+        p.is_mega    AS "isMega",
+        p.is_gmax    AS "isGmax",
+        p.is_regional AS "isRegional",
+        p.species_id AS "speciesId",
+        COALESCE(s.display_name, s.name) AS "baseName",
+        base.id      AS "basePokemonId"
+      FROM dex.pokemon p
+      JOIN dex.species s ON s.id = p.species_id
+      JOIN LATERAL (
+        SELECT b.id FROM dex.pokemon b
+        WHERE b.species_id = p.species_id AND b.is_default
+        LIMIT 1
+      ) base ON true
+      WHERE p.is_mega
+      ORDER BY p.species_id, p.id
+    `)) as unknown as (PokemonRow & {
+      isMega: boolean;
+      isGmax: boolean;
+      isRegional: boolean;
+      speciesId: number;
+      baseName: string;
+      basePokemonId: number;
+    })[];
+
+    return c.json({
+      items: rows.map((row) => ({
+        ...toPokemonSummary(row),
+        isMega: row.isMega,
+        isGmax: row.isGmax,
+        isRegional: row.isRegional,
+        speciesId: row.speciesId,
+        baseName: row.baseName,
+        basePokemonId: row.basePokemonId,
+      })),
+    });
+  })
+
+  /** GET /v1/pokemon/:id/forms — every variety of the same species, default first. */
+  .get('/:id/forms', async (c) => {
+    const id = Number(c.req.param('id'));
+    if (!Number.isInteger(id)) throw ApiError.badRequest('Pokémon id must be an integer');
+
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        ${sql.raw(POKEMON_COLUMNS)},
+        p.is_mega     AS "isMega",
+        p.is_gmax     AS "isGmax",
+        p.is_regional AS "isRegional"
+      FROM dex.pokemon p
+      WHERE p.species_id = (SELECT species_id FROM dex.pokemon WHERE id = ${id})
+      ORDER BY p.is_default DESC, p.id
+    `)) as unknown as (PokemonRow & { isMega: boolean; isGmax: boolean; isRegional: boolean })[];
+
+    if (rows.length === 0) throw ApiError.notFound('Pokémon');
+
+    return c.json({
+      items: rows.map((row) => ({
+        ...toPokemonSummary(row),
+        isMega: row.isMega,
+        isGmax: row.isGmax,
+        isRegional: row.isRegional,
+      })),
+    });
+  })
+
   /** GET /v1/pokemon/:idOrName — accepts either `25` or `pikachu`. */
   .get('/:idOrName', async (c) => {
     const raw = c.req.param('idOrName');
