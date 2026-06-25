@@ -152,6 +152,14 @@ export const pokemon = dex.table(
     isDefault: boolean('is_default').notNull().default(true),
     sortOrder: integer('sort_order'),
 
+    // Form metadata from pokemon_forms.csv. `formLabel` is the full English
+    // name ("Mega Charizard X", "Alolan Vulpix") and is null for the species'
+    // default form, so `formLabel != null` reliably means "this is a form".
+    formLabel: text('form_label'),
+    isMega: boolean('is_mega').notNull().default(false),
+    isGmax: boolean('is_gmax').notNull().default(false),
+    isRegional: boolean('is_regional').notNull().default(false),
+
     hp: smallint('hp').notNull(),
     attack: smallint('attack').notNull(),
     defense: smallint('defense').notNull(),
@@ -338,6 +346,7 @@ export const locationMeta = dex.table('location_meta', {
   description: text('description'),
   kind: text('kind'),
   neighborIds: integer('neighbor_ids').array().notNull().default(sql`'{}'::integer[]`),
+  notableTrainers: text('notable_trainers').array().notNull().default(sql`'{}'::text[]`),
 });
 
 export const locationAreas = dex.table(

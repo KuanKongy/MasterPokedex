@@ -24,6 +24,7 @@ import {
   ENGLISH_LANGUAGE_ID,
   bool,
   cleanFlavorText,
+  cleanMoveEffect,
   int,
   loadCsv,
   num,
@@ -85,6 +86,8 @@ async function main() {
       csvPokemon,
       csvPokemonStats,
       csvPokemonTypes,
+      csvPokemonForms,
+      csvPokemonFormNames,
       csvAbilities,
       csvAbilityNames,
       csvAbilityProse,
@@ -92,6 +95,7 @@ async function main() {
       csvMoves,
       csvMoveNames,
       csvMoveDamageClasses,
+      csvMoveEffects,
       csvPokemonMoves,
       csvMoveMethods,
       csvVersionGroups,
@@ -127,6 +131,8 @@ async function main() {
       loadCsv('pokemon'),
       loadCsv('pokemon_stats'),
       loadCsv('pokemon_types'),
+      loadCsv('pokemon_forms'),
+      loadCsv('pokemon_form_names'),
       loadCsv('abilities'),
       loadCsv('ability_names'),
       loadCsv('ability_prose'),
@@ -134,6 +140,7 @@ async function main() {
       loadCsv('moves'),
       loadCsv('move_names'),
       loadCsv('move_damage_classes'),
+      loadCsv('move_effect_prose'),
       loadCsv('pokemon_moves'),
       loadCsv('pokemon_move_methods'),
       loadCsv('version_groups'),
@@ -285,6 +292,31 @@ async function main() {
       entry[column] = int(r.base_stat);
     }
 
+    /**
+     * Form metadata. A pokemon row can own several form rows (cosmetic variants
+     * like Unown letters); the `is_default = 1` form row carries the canonical
+     * identity of that pokemon row. Labels come from pokemon_form_names'
+     * `pokemon_name` ("Mega Charizard X"), which unlike `form_name` ("Mega X")
+     * reads correctly standing alone; it is empty for plain base forms.
+     */
+    type FormInfo = { formIdentifier: string; isMega: boolean; label: string | null };
+    const formNameByFormId = new Map<number, string>();
+    for (const r of en(csvPokemonFormNames as never)) {
+      const row = r as unknown as Record<string, string>;
+      const label = text(row.pokemon_name) ?? text(row.form_name);
+      if (label) formNameByFormId.set(int(row.pokemon_form_id), label);
+    }
+    const formByPokemonId = new Map<number, FormInfo>();
+    for (const r of csvPokemonForms) {
+      if (!bool(r.is_default)) continue; // the pokemon row's own identity, not a cosmetic sub-form
+      formByPokemonId.set(int(r.pokemon_id), {
+        formIdentifier: r.form_identifier ?? '',
+        isMega: bool(r.is_mega),
+        label: formNameByFormId.get(int(r.id)) ?? null,
+      });
+    }
+    const REGIONAL_FORM_PREFIX = /^(alola|galar|hisui|paldea)/;
+
     let skippedForStats = 0;
     const pokemonRows = csvPokemon
       .map((r) => {
@@ -295,6 +327,8 @@ async function main() {
           skippedForStats += 1;
           return null;
         }
+        const isDefault = bool(r.is_default);
+        const form = formByPokemonId.get(id);
         return {
           id,
           name: r.identifier!,
@@ -303,8 +337,14 @@ async function main() {
           height: int(r.height),
           weight: int(r.weight),
           baseExperience: num(r.base_experience),
-          isDefault: bool(r.is_default),
+          isDefault,
           sortOrder: num(r.order),
+          formLabel: !isDefault ? (form?.label ?? prettify(r.identifier ?? '')) : null,
+          isMega: form?.isMega ?? false,
+          isGmax: form?.formIdentifier === 'gmax',
+          isRegional:
+            REGIONAL_FORM_PREFIX.test(form?.formIdentifier ?? '') ||
+            /-(alola|galar|hisui|paldea)$/.test(r.identifier ?? ''),
           hp: stats.hp ?? 1,
           attack: stats.attack ?? 1,
           defense: stats.defense ?? 1,
@@ -317,6 +357,10 @@ async function main() {
     const validPokemonIds = new Set(pokemonRows.map((p) => p.id));
     if (skippedForStats > 0) {
       warnings.push(`skipped ${skippedForStats} pokemon rows with missing species or stats`);
+    }
+    const megaCount = pokemonRows.filter((p) => p.isMega).length;
+    if (megaCount !== 97) {
+      warnings.push(`expected 97 mega forms, tagged ${megaCount} — upstream pokemon_forms.csv changed?`);
     }
 
     const pokemonTypeRows = csvPokemonTypes
@@ -365,6 +409,13 @@ async function main() {
       moveNameById.set(int(row.move_id), row.name!);
     }
 
+    const moveEffectById = new Map<number, string>();
+    for (const r of en(csvMoveEffects as never)) {
+      const row = r as unknown as Record<string, string>;
+      const effect = text(row.short_effect);
+      if (effect) moveEffectById.set(int(row.move_effect_id), effect);
+    }
+
     const moveRows = csvMoves
       .filter((r) => validTypeIds.has(int(r.type_id)))
       .map((r) => ({
@@ -378,7 +429,7 @@ async function main() {
         accuracy: num(r.accuracy),
         priority: int(r.priority),
         generationId: num(r.generation_id),
-        shortEffect: null as string | null,
+        shortEffect: cleanMoveEffect(moveEffectById.get(int(r.effect_id)), r.effect_chance),
       }));
     const validMoveIds = new Set(moveRows.map((m) => m.id));
 
@@ -496,6 +547,7 @@ async function main() {
       description: string | null;
       kind: string | null;
       neighborIds: number[];
+      notableTrainers: string[];
     }> = [];
     for (const [slug, meta] of Object.entries(LOCATION_META)) {
       const locationId = locationIdByName.get(slug);
@@ -520,6 +572,7 @@ async function main() {
         description: meta.description,
         kind: meta.kind,
         neighborIds,
+        notableTrainers: meta.notableTrainers ?? [],
       });
     }
 
@@ -719,6 +772,7 @@ async function main() {
         [
           'id', 'name', 'speciesId', 'generationId', 'height', 'weight',
           'baseExperience', 'isDefault', 'sortOrder',
+          'formLabel', 'isMega', 'isGmax', 'isRegional',
           'hp', 'attack', 'defense', 'specialAttack', 'specialDefense', 'speed',
         ],
         pokemonRows,
@@ -770,7 +824,7 @@ async function main() {
       await loadTable(
         sql,
         'dex.location_meta',
-        ['locationId', 'mapX', 'mapY', 'image', 'description', 'kind', 'neighborIds'],
+        ['locationId', 'mapX', 'mapY', 'image', 'description', 'kind', 'neighborIds', 'notableTrainers'],
         locationMetaRows,
       ),
     );

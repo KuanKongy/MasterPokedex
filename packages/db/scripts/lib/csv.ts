@@ -168,4 +168,23 @@ export function cleanFlavorText(value: string): string {
   return value.replace(/[\f\n\r]/g, ' ').replace(/­/g, '').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * Move effect prose carries two kinds of markup on top of the usual flavour
+ * noise: a `$effect_chance` placeholder that must be filled from the move's
+ * own effect_chance column, and PokeAPI link syntax `[label]{category:slug}`
+ * where the label may be empty (then the slug is the visible text).
+ */
+export function cleanMoveEffect(
+  effect: string | undefined,
+  effectChance: string | undefined,
+): string | null {
+  if (!effect) return null;
+  const withChance = effect.replace(/\$effect_chance/g, effectChance?.trim() ? effectChance.trim() : '—');
+  const withoutLinks = withChance.replace(
+    /\[([^\]]*)\]\{[^:}]*:([^}]*)\}/g,
+    (_, label: string, slug: string) => label || prettify(slug),
+  );
+  return cleanFlavorText(withoutLinks);
+}
+
 export const ENGLISH_LANGUAGE_ID = 9;

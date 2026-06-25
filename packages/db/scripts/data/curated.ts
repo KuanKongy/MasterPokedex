@@ -23,61 +23,67 @@ export type RegionMeta = {
   mapImage: string | null;
 };
 
-const BULBA = 'https://archives.bulbagarden.net/media/upload';
+/**
+ * Image values are RELATIVE paths under the web app's public/ directory
+ * (apps/web/public), committed to the repo because the original Bulbagarden
+ * archive hotlinks are Cloudflare-blocked for real browsers. The web client
+ * resolves them against its base URL; see apps/web/scripts/fetch-static-assets.mjs
+ * for each file's provenance.
+ */
 
 export const REGION_META: Record<string, RegionMeta> = {
   kanto: {
     displayName: 'Kanto',
     description:
       'The first region introduced in the Pokémon series, home to the original 151 Pokémon.',
-    mapImage: `${BULBA}/thumb/7/7d/PE_Kanto_Map.png/600px-PE_Kanto_Map.png`,
+    mapImage: 'maps/kanto.webp',
   },
   johto: {
     displayName: 'Johto',
     description:
       'A region west of Kanto, featuring many new Pokémon and the ancient Ruins of Alph.',
-    mapImage: `${BULBA}/thumb/6/64/JohtoMap.png/300px-JohtoMap.png`,
+    mapImage: 'maps/johto.webp',
   },
   hoenn: {
     displayName: 'Hoenn',
     description: 'A region with diverse environments and many bodies of water.',
-    mapImage: `${BULBA}/thumb/8/85/Hoenn_ORAS.png/300px-Hoenn_ORAS.png`,
+    mapImage: 'maps/hoenn.webp',
   },
   sinnoh: {
     displayName: 'Sinnoh',
     description:
       'A mountainous region split by Mt. Coronet, steeped in the mythology of time and space.',
-    mapImage: `${BULBA}/thumb/0/08/Sinnoh_BDSP_artwork.png/300px-Sinnoh_BDSP_artwork.png`,
+    mapImage: 'maps/sinnoh.webp',
   },
   unova: {
     displayName: 'Unova',
     description: 'A distant region built around a great city, far from the older lands.',
-    mapImage: `${BULBA}/thumb/f/fc/Unova_B2W2_alt.png/300px-Unova_B2W2_alt.png`,
+    mapImage: 'maps/unova.webp',
   },
   kalos: {
     displayName: 'Kalos',
     description: 'A star-shaped region known for beauty, fashion, and Mega Evolution.',
-    mapImage: `${BULBA}/thumb/8/8a/Kalos_map.png/300px-Kalos_map.png`,
+    mapImage: 'maps/kalos.webp',
   },
   alola: {
     displayName: 'Alola',
     description: 'A tropical archipelago of four natural islands, home to regional variants.',
-    mapImage: `${BULBA}/thumb/0/0b/Alola_USUM_artwork.png/300px-Alola_USUM_artwork.png`,
+    mapImage: 'maps/alola.webp',
   },
   galar: {
     displayName: 'Galar',
     description: 'An industrial region where Pokémon battling is a national sport.',
-    mapImage: `${BULBA}/thumb/c/ce/Galar_artwork.png/300px-Galar_artwork.png`,
+    mapImage: 'maps/galar.webp',
   },
   hisui: {
     displayName: 'Hisui',
     description: 'Sinnoh as it was in the distant past, long before its towns were built.',
-    mapImage: null,
+    mapImage: 'maps/hisui.webp',
   },
   paldea: {
     displayName: 'Paldea',
     description: 'An open region encircling a vast crater, explored in any order you like.',
-    mapImage: null,
+    mapImage: 'maps/paldea.webp',
   },
 };
 
@@ -89,49 +95,56 @@ export type LocationMetaSeed = {
   kind: string | null;
   /** PokeAPI location identifiers; resolved to ids at seed time. */
   neighbors: string[];
+  /** Gym Leaders, professors and other canon residents worth a chip on the page. */
+  notableTrainers?: string[];
 };
 
 export const LOCATION_META: Record<string, LocationMetaSeed> = {
   'pallet-town': {
     mapX: 16,
     mapY: 72,
-    image: `${BULBA}/4/45/Pallet_Town_PE.png`,
+    image: 'locations/pallet-town.webp',
     description: 'A small, quiet town where the protagonist begins their journey.',
     kind: 'town',
     neighbors: ['viridian-city', 'cinnabar-island'],
+    notableTrainers: ['Professor Oak'],
   },
   'viridian-city': {
     mapX: 16,
     mapY: 54,
-    image: `${BULBA}/f/fc/Viridian_City_PE.png`,
+    image: 'locations/viridian-city.webp',
     description: 'The first city encountered on your journey. Contains the first Gym.',
     kind: 'city',
     neighbors: ['pallet-town', 'pewter-city', 'viridian-forest'],
+    notableTrainers: ['Giovanni'],
   },
   'pewter-city': {
     mapX: 16,
     mapY: 37,
-    image: `${BULBA}/1/11/Pewter_City_PE.png`,
+    image: 'locations/pewter-city.webp',
     description:
       'A city located between Viridian Forest and Mt. Moon. Home to the Rock-type Gym Leader Brock.',
     kind: 'city',
     neighbors: ['viridian-city', 'mt-moon', 'cerulean-city'],
+    notableTrainers: ['Brock'],
   },
   'new-bark-town': {
     mapX: 88,
     mapY: 52,
-    image: `${BULBA}/d/dd/New_Bark_Town_HGSS.png`,
+    image: 'locations/new-bark-town.webp',
     description: 'A small town where winds of a new beginning blow.',
     kind: 'town',
     neighbors: ['cherrygrove-city'],
+    notableTrainers: ['Professor Elm'],
   },
   'littleroot-town': {
     mapX: 46,
     mapY: 83,
-    image: `${BULBA}/a/a3/Littleroot_Town_RS.png`,
+    image: 'locations/littleroot-town.webp',
     description: 'A small town with the scent of wild flowers.',
     kind: 'town',
     neighbors: ['oldale-town'],
+    notableTrainers: ['Professor Birch'],
   },
   'viridian-forest': {
     mapX: 16,
@@ -148,6 +161,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'A city of water, home to the Water-type Gym Leader Misty.',
     kind: 'city',
     neighbors: ['pewter-city', 'vermilion-city', 'mt-moon'],
+    notableTrainers: ['Misty'],
   },
   'mt-moon': {
     mapX: 28,
@@ -164,6 +178,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'A port city where ships from across the sea make harbour.',
     kind: 'city',
     neighbors: ['cerulean-city', 'lavender-town'],
+    notableTrainers: ['Lt. Surge'],
   },
   'lavender-town': {
     mapX: 62,
@@ -172,6 +187,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'A sombre town best known for the Pokémon Tower.',
     kind: 'town',
     neighbors: ['vermilion-city', 'celadon-city'],
+    notableTrainers: ['Mr. Fuji'],
   },
   'celadon-city': {
     mapX: 46,
@@ -180,6 +196,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'The largest city in Kanto, famous for its department store.',
     kind: 'city',
     neighbors: ['lavender-town', 'saffron-city'],
+    notableTrainers: ['Erika'],
   },
   'saffron-city': {
     mapX: 55,
@@ -188,6 +205,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'A bustling central city and the home of psychic training.',
     kind: 'city',
     neighbors: ['celadon-city', 'lavender-town', 'vermilion-city'],
+    notableTrainers: ['Sabrina'],
   },
   'cinnabar-island': {
     mapX: 16,
@@ -196,6 +214,7 @@ export const LOCATION_META: Record<string, LocationMetaSeed> = {
     description: 'A volcanic island with a Gym, a laboratory, and a long history.',
     kind: 'island',
     neighbors: ['pallet-town'],
+    notableTrainers: ['Blaine'],
   },
   'cherrygrove-city': {
     mapX: 80,
