@@ -4,14 +4,38 @@ import { useTheme } from 'next-themes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, FileText, Image as ImageIcon, Moon, Shield, Sun } from 'lucide-react';
+import {
+  ArrowRight,
+  BookOpen,
+  FileText,
+  Github,
+  Image as ImageIcon,
+  Linkedin,
+  Mail,
+  Monitor,
+  Moon,
+  Shield,
+  Sun,
+} from 'lucide-react';
 import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/prefs/SpritePrefContext';
+import { BALL_STYLES, ballSprite, useBallPref, type BallStyle } from '@/prefs/BallPrefContext';
+import { CONTACT } from '@/lib/contact';
+import { copyToClipboard } from '@/lib/clipboard';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 /** Pikachu previews the sprite styles; nobody needs a caption to recognise it. */
 const PREVIEW_ID = 25;
+
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
+] as const;
+
+const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline';
 
 /**
  * Device-level preferences. Deliberately public — how the app looks is not
@@ -20,7 +44,17 @@ const PREVIEW_ID = 25;
  */
 const Settings: React.FC = () => {
   const { spriteStyle, setSpriteStyle } = useSpritePref();
+  const { ballStyle, setBallStyle } = useBallPref();
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+
+  const sendEmail = async () => {
+    if (await copyToClipboard(CONTACT.email)) {
+      toast({ title: 'Email copied to clipboard', description: CONTACT.email });
+    } else {
+      window.location.href = `mailto:${CONTACT.email}`;
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -71,6 +105,40 @@ const Settings: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
+              <img src={ballSprite(ballStyle)} alt="" className="h-5 w-5 pixelated" />
+              Poké Ball style
+            </CardTitle>
+            <CardDescription>
+              The ball the app itself throws — loading spinners and catch buttons.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={ballStyle}
+              onValueChange={(value) => setBallStyle(value as BallStyle)}
+              className="grid grid-cols-2 sm:grid-cols-5 gap-3"
+            >
+              {BALL_STYLES.map((ball) => (
+                <Label
+                  key={ball.value}
+                  htmlFor={`ball-${ball.value}`}
+                  className={cn(
+                    'border rounded-lg p-3 cursor-pointer flex flex-col items-center gap-1.5 transition-colors',
+                    ballStyle === ball.value ? 'border-primary ring-2 ring-primary/30' : 'hover:bg-muted/50',
+                  )}
+                >
+                  <RadioGroupItem id={`ball-${ball.value}`} value={ball.value} className="sr-only" />
+                  <img src={ballSprite(ball.value)} alt="" className="h-10 w-10 pixelated" />
+                  <span className="text-xs font-medium text-center">{ball.label}</span>
+                </Label>
+              ))}
+            </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Sun className="h-5 w-5 dark:hidden" />
               <Moon className="h-5 w-5 hidden dark:block" />
               Theme
@@ -78,13 +146,77 @@ const Settings: React.FC = () => {
             <CardDescription>Light, dark, or follow this device's setting.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={theme ?? 'system'} onValueChange={setTheme}>
-              <TabsList className="grid w-full max-w-sm grid-cols-3">
-                <TabsTrigger value="light">Light</TabsTrigger>
-                <TabsTrigger value="dark">Dark</TabsTrigger>
-                <TabsTrigger value="system">System</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="inline-flex items-center gap-1 rounded-lg border p-1" role="group" aria-label="Theme">
+              {THEME_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  type="button"
+                  size="sm"
+                  variant={(theme ?? 'system') === option.value ? 'default' : 'ghost'}
+                  aria-pressed={(theme ?? 'system') === option.value}
+                  onClick={() => setTheme(option.value)}
+                >
+                  <option.icon className="mr-1.5 h-4 w-4" />
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Contact
+            </CardTitle>
+            <CardDescription>Found a bug, have an idea, or want to talk about MasterPokédex?</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="flex flex-col rounded-lg border p-4">
+                <Github className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
+                <h3 className="mt-2 text-sm font-semibold">GitHub</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Browse the source, open an issue, or contribute.
+                </p>
+                <div className="mt-3 flex flex-1 items-end">
+                  <a href={CONTACT.repo} target="_blank" rel="noopener noreferrer" className={ARROW_LINK}>
+                    View on GitHub
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4">
+                <Linkedin className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
+                <h3 className="mt-2 text-sm font-semibold">LinkedIn</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Connect with the person behind the project.
+                </p>
+                <div className="mt-3 flex flex-1 items-end">
+                  <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" className={ARROW_LINK}>
+                    Connect on LinkedIn
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4">
+                <Mail className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
+                <h3 className="mt-2 text-sm font-semibold">Email</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  For anything that doesn't fit GitHub: questions, feedback, ideas.
+                </p>
+                <div className="mt-3 flex flex-1 items-end">
+                  <button type="button" onClick={() => void sendEmail()} className={ARROW_LINK}>
+                    Send an email
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              An independent fan project, maintained by Nam Le.
+            </p>
           </CardContent>
         </Card>
 

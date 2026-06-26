@@ -1,54 +1,82 @@
-
 import React from 'react';
 import { Badge } from './badge';
 import { cn } from '@/lib/utils';
+import type { PokemonTypeName } from '@masterpokedex/shared';
+import { TypeIcon } from './type-icon';
 
-export type PokemonType =
-  | 'normal' | 'fire' | 'water' | 'electric' | 'grass' 
-  | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying' 
-  | 'psychic' | 'bug' | 'rock' | 'ghost' | 'dark' 
-  | 'dragon' | 'steel' | 'fairy';
+export type PokemonType = PokemonTypeName;
+
+/**
+ * Written-out literals on purpose: Tailwind only generates classes it can see
+ * in source, so `bg-poketype-${type}` would silently produce nothing (the bug
+ * this map replaces). These are the canonical poketype.* colors from
+ * tailwind.config.ts — the app's single type palette.
+ */
+const TYPE_BG: Record<PokemonTypeName, string> = {
+  normal: 'bg-poketype-normal',
+  fire: 'bg-poketype-fire',
+  water: 'bg-poketype-water',
+  electric: 'bg-poketype-electric',
+  grass: 'bg-poketype-grass',
+  ice: 'bg-poketype-ice',
+  fighting: 'bg-poketype-fighting',
+  poison: 'bg-poketype-poison',
+  ground: 'bg-poketype-ground',
+  flying: 'bg-poketype-flying',
+  psychic: 'bg-poketype-psychic',
+  bug: 'bg-poketype-bug',
+  rock: 'bg-poketype-rock',
+  ghost: 'bg-poketype-ghost',
+  dragon: 'bg-poketype-dragon',
+  dark: 'bg-poketype-dark',
+  steel: 'bg-poketype-steel',
+  fairy: 'bg-poketype-fairy',
+};
+
+/** Border variants of the same palette, for cards accented by a type. */
+export const TYPE_BORDER: Record<PokemonTypeName, string> = {
+  normal: 'border-poketype-normal',
+  fire: 'border-poketype-fire',
+  water: 'border-poketype-water',
+  electric: 'border-poketype-electric',
+  grass: 'border-poketype-grass',
+  ice: 'border-poketype-ice',
+  fighting: 'border-poketype-fighting',
+  poison: 'border-poketype-poison',
+  ground: 'border-poketype-ground',
+  flying: 'border-poketype-flying',
+  psychic: 'border-poketype-psychic',
+  bug: 'border-poketype-bug',
+  rock: 'border-poketype-rock',
+  ghost: 'border-poketype-ghost',
+  dragon: 'border-poketype-dragon',
+  dark: 'border-poketype-dark',
+  steel: 'border-poketype-steel',
+  fairy: 'border-poketype-fairy',
+};
 
 interface TypeBadgeProps {
-  type: PokemonType;
+  type: PokemonTypeName;
+  /** Show the type's glyph before the label (leaf for grass, flame for fire…). */
+  icon?: boolean;
+  size?: 'sm' | 'md';
   className?: string;
 }
 
-// Define type colors - now setting appropriate default colors
-const typeColors: Record<PokemonType, { bg: string, hover: string, text: string }> = {
-  normal: { bg: 'bg-gray-400', hover: 'hover:bg-gray-500', text: 'text-white' },
-  fire: { bg: 'bg-orange-500', hover: 'hover:bg-orange-600', text: 'text-white' },
-  water: { bg: 'bg-blue-500', hover: 'hover:bg-blue-600', text: 'text-white' },
-  electric: { bg: 'bg-yellow-400', hover: 'hover:bg-yellow-500', text: 'text-white' },
-  grass: { bg: 'bg-green-500', hover: 'hover:bg-green-600', text: 'text-white' },
-  ice: { bg: 'bg-cyan-400', hover: 'hover:bg-cyan-500', text: 'text-white' },
-  fighting: { bg: 'bg-red-700', hover: 'hover:bg-red-800', text: 'text-white' },
-  poison: { bg: 'bg-purple-600', hover: 'hover:bg-purple-700', text: 'text-white' },
-  ground: { bg: 'bg-amber-600', hover: 'hover:bg-amber-700', text: 'text-white' },
-  flying: { bg: 'bg-indigo-400', hover: 'hover:bg-indigo-500', text: 'text-white' },
-  psychic: { bg: 'bg-pink-500', hover: 'hover:bg-pink-600', text: 'text-white' },
-  bug: { bg: 'bg-lime-500', hover: 'hover:bg-lime-600', text: 'text-white' },
-  rock: { bg: 'bg-stone-500', hover: 'hover:bg-stone-600', text: 'text-white' },
-  ghost: { bg: 'bg-purple-800', hover: 'hover:bg-purple-900', text: 'text-white' },
-  dark: { bg: 'bg-gray-700', hover: 'hover:bg-gray-800', text: 'text-white' },
-  dragon: { bg: 'bg-indigo-600', hover: 'hover:bg-indigo-700', text: 'text-white' },
-  steel: { bg: 'bg-slate-400', hover: 'hover:bg-slate-500', text: 'text-white' },
-  fairy: { bg: 'bg-pink-300', hover: 'hover:bg-pink-400', text: 'text-white' }
-};
-
-const TypeBadge: React.FC<TypeBadgeProps> = ({ type, className }) => {
-  const typeColor = typeColors[type] || typeColors.normal;
-  
+const TypeBadge: React.FC<TypeBadgeProps> = ({ type, icon = false, size = 'md', className }) => {
   return (
-    <Badge 
+    <Badge
       className={cn(
-        'capitalize transition-colors',
-        typeColor.bg,
-        typeColor.hover,
-        typeColor.text,
-        className
+        'capitalize rounded-full border-transparent text-white transition-[filter] hover:brightness-110',
+        // The pale types need help for the white text to stay readable.
+        '[text-shadow:0_1px_1px_rgba(0,0,0,0.35)]',
+        TYPE_BG[type] ?? TYPE_BG.normal,
+        size === 'sm' ? 'px-2 py-0 text-[0.6875rem]' : 'px-2.5 py-0.5 text-xs',
+        icon && 'gap-1',
+        className,
       )}
     >
+      {icon && <TypeIcon type={type} className={size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5'} />}
       {type}
     </Badge>
   );

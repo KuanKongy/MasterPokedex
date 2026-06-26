@@ -9,6 +9,7 @@ import { useAdjustItem, useMyBag } from '@/hooks/api/items';
 import { useToast } from '@/hooks/use-toast';
 import { isApiError } from '@/lib/api';
 import LoadingSpinner from './LoadingSpinner';
+import ItemSprite from './ItemSprite';
 
 /**
  * The bag, grouped by pocket like the games. Quantities are real (the old
@@ -82,7 +83,7 @@ const ItemInventory: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {pocketItems.map((item) => (
               <div key={item.id} className="flex items-center gap-3 border rounded-md p-3 bg-card">
-                {item.sprite && <img src={item.sprite} alt={item.displayName} className="w-10 h-10 pixelated" />}
+                <ItemSprite src={item.sprite} alt={item.displayName} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{item.displayName}</div>
                   {item.effect && (

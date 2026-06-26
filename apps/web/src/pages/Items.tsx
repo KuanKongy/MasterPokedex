@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,13 +14,16 @@ import { useAuth } from '@/auth/AuthProvider';
  */
 const Items: React.FC = () => {
   const { session } = useAuth();
+  // A ?q= deep link (from the omnisearch) is a catalogue search, not a bag visit.
+  const [params] = useSearchParams();
+  const deepLinkedSearch = params.has('q');
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Items</h1>
       <p className="text-muted-foreground mb-8">Your bag, and every item known to the dex</p>
 
-      <Tabs defaultValue={session ? 'bag' : 'catalogue'} className="space-y-6">
+      <Tabs defaultValue={session && !deepLinkedSearch ? 'bag' : 'catalogue'} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="bag">My Bag</TabsTrigger>
           <TabsTrigger value="catalogue">Catalogue</TabsTrigger>

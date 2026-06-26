@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+import ItemSprite from './ItemSprite';
 import { PackagePlus, Search } from 'lucide-react';
 import { useItemCatalogue, useItemCategories, useAdjustItem } from '@/hooks/api/items';
 import { useAuth } from '@/auth/AuthProvider';
@@ -26,8 +27,11 @@ const ALL = 'all';
  * free-text "add item" form: items are reference data, not user input.
  */
 const ItemCatalogue: React.FC = () => {
-  const [searchInput, setSearchInput] = useState('');
-  const [search, setSearch] = useState('');
+  // The omnisearch deep-links here as /items?q=<name>.
+  const [params] = useSearchParams();
+  const initialQuery = params.get('q') ?? '';
+  const [searchInput, setSearchInput] = useState(initialQuery);
+  const [search, setSearch] = useState(initialQuery);
   const [category, setCategory] = useState(ALL);
   const { session } = useAuth();
   const { toast } = useToast();
@@ -102,7 +106,7 @@ const ItemCatalogue: React.FC = () => {
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-3 flex items-center gap-3">
-                {item.sprite && <img src={item.sprite} alt={item.displayName} loading="lazy" className="w-10 h-10 pixelated" />}
+                <ItemSprite src={item.sprite} alt={item.displayName} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate flex items-center gap-2">
                     {item.displayName}

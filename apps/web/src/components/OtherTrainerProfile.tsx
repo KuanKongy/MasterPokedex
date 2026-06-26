@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Medal, Sparkles, UserCheck, UserMinus, UserPlus, Clock, Check, X } from 'lucide-react';
 import { MemberCard } from './TeamsPanel';
 import LoadingSpinner from './LoadingSpinner';
+import { resolveAsset } from '@/lib/assets';
 import {
   useMyFriends,
   useRemoveFriend,
@@ -142,7 +143,7 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row items-start gap-6">
             <Avatar className="w-24 h-24 border-2 border-pokebrand-red rounded-md">
-              <AvatarImage src={trainer.avatarUrl ?? undefined} alt={trainer.displayName} />
+              <AvatarImage src={trainer.avatarUrl ? resolveAsset(trainer.avatarUrl) : undefined} alt={trainer.displayName} />
               <AvatarFallback className="text-2xl rounded-md">
                 {trainer.displayName.charAt(0)}
               </AvatarFallback>

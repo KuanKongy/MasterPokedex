@@ -13,13 +13,19 @@ React 18 + Vite single-page app in `apps/web`, served under the `/MasterPokedex/
 ## Pages
 
 ### `/` — National Pokédex (`pages/PokemonList.tsx`)
-The dex grid. Server-driven name search, type filter (`components/TypeFilter.tsx`), sort select (number, name, base-stat total, each individual stat), infinite "Load more" via keyset cursors. Each card shows sprite, id, name, types; hovering reveals a **Catch** button that opens `CatchPokemonDialog` for signed-in trainers and redirects to `/login` otherwise.
+The dex, browsed **generation by generation** by default (pokemondb-style sections with a "Load Generation N" button); searching, type-filtering or re-sorting switches to a flat cursor-paged list. Three view modes, persisted per device and in the URL: **Cards** (six per desktop row, hover **Catch** button → `CatchPokemonDialog` or `/login`), **Sprites** (a dense wall of pixel sprites, `components/dex/DexSpritesGrid.tsx`) and **Stats** (a sortable full-stats table, `components/dex/DexStatsTable.tsx`). All filter/sort/view state lives in URL search params, so views are shareable. The type filter (`components/TypeFilter.tsx`) renders uniform pills with per-type glyphs (`components/ui/type-icon.tsx`).
 
 ### `/pokemon/:id` — Pokémon detail (`pages/PokemonDetail.tsx`)
-Hero with sprite and prev/next navigation (capped at dex id 1025), favorite toggle (prompts sign-in when logged out), species text and genus, height/weight/growth rate/capture rate, type badges, abilities. Sections: **Matchups** (offensive/defensive efficacy from `/v1/types/:name`), base-stat bars, **Evolution Chain** (clickable, branching-aware), and tabs for **Locations** (encounters grouped by region/location with method, levels, rarity) and **Moves** (learnset table with a show-all toggle).
+Hero with sprite and prev/next navigation (capped at dex id 1025; forms above 10000 get a "View base form" link instead), favorite toggle, species text and genus, height/weight/growth rate/capture rate, type badges, abilities, **Matchups**, base-stat bars and the branching-aware **Evolution Chain**. New: a **Forms & Mega Evolutions** section (`components/pokemon/FormsSection.tsx`), hidden behind a toggle and fetched on open, showing labeled Megas/regionals/Gigantamax with links to their own detail pages (titles show `formLabel`). The **Moves** tab (`components/pokemon/MovesTable.tsx`) groups the learnset by method — level-up (sorted by level), TM, egg, tutor — with sortable columns including PP, and move names link to `/moves/:slug`. The **Locations** tab's entries link to `/locations/:id`.
 
 ### `/map` — World map (`pages/Map.tsx`)
-One tab per region (all ten). Each shows curated map art (with `placeholder.svg` fallback), a description, and location pins positioned by percentage coordinates. Clicking a pin opens `LocationDetails`: curated art and blurb, clickable neighbouring locations, and real per-area encounter tables (method, level range, rarity buckets).
+One tab per region (deep-linkable via `?region=`). Self-hosted map art from `public/maps/` (Bulbagarden hotlinks were Cloudflare-blocked; see `apps/web/scripts/fetch-static-assets.mjs` for provenance) with **percentage-positioned pins** for curated locations — click a pin or a row in the scrollable locations panel to open that location's page.
+
+### `/locations` — Locations catalog (`pages/Locations.tsx`)
+Every region's locations at once, pokemondb-style: kind badges, area counts, encounter-less rows dimmed, a client-side name filter, and per-region "Open map" links.
+
+### `/locations/:id` — Location detail (`pages/LocationDetailPage.tsx`)
+A full page per location: curated art, description, **Notable Trainers** chips, neighbour links, and per-area encounter tables grouped by method — compact rows with Pokémon link, types, level range, rarity (+slot %) and game version chips.
 
 ### `/trainer` — Trainer hub (`pages/Trainer.tsx`, auth required)
 Two tabs:
@@ -30,14 +36,22 @@ Two tabs:
 ### `/items` — Items (`pages/Items.tsx`)
 Two tabs. **My Bag** (`ItemInventory`): the bag grouped by pocket with optimistic ±1 quantity steppers (rows disappear at zero); shows a sign-in card when logged out. **Catalogue** (`ItemCatalogue`): the full ~2,200-item catalogue with category select, search, and an add-to-bag shortcut. Defaults to the bag when signed in.
 
-### `/pokemon-filter` — Advanced filter (`pages/PokemonFilter.tsx`)
-Query builder over the shared whitelist grammar (`FILTER_FIELD_META` from `packages/shared`): Match-all / Match-any modes, per-condition field + operator + value rows, column visibility toggles, and a results table filtered server-side across the whole dex. This page is the UI face of the validated filter grammar documented in [api.md](api.md).
+### `/pokemon-filter` — Advanced search (`pages/PokemonFilter.tsx`)
+The query builder, generalized: an entity switcher (Pokémon / Moves / Items, in `?entity=`) drives the condition rows from the shared `ENTITY_FILTER_META` registry, and results render through the per-entity column registry in `pages/advanced/columns.tsx`. Match-all / Match-any, column toggles and server-side filtering all work per entity.
+
+### The data pages
+- `/moves` (`pages/Moves.tsx`) — filterable move index (search, type, class) with effect text; rows link to `/moves/:idOrName` (`pages/MoveDetail.tsx`): move data card, effect prose, and every learner grouped by method.
+- `/abilities` (`pages/Abilities.tsx`) — searchable ability index with holder counts; `/abilities/:idOrName` (`pages/AbilityDetail.tsx`) lists every Pokémon with the ability, hidden slots badged.
+- `/types` (`pages/TypeChart.tsx`) — the 18×18 efficacy matrix with type-colored, icon-bearing headers; `/types/:name` (`pages/TypeDetail.tsx`) shows one type's offensive/defensive profile and links into the filtered dex.
+- `/evolutions` (`pages/Evolutions.tsx`) — the evolution-family index, one card per chain with trigger captions.
+- `/mega-evolutions` (`pages/MegaEvolutions.tsx`) — all 97 Megas with labels, types, BST and base-species links.
+- `/search` (`pages/SearchResults.tsx`) — the full-page landing for the omnisearch, grouped by kind.
 
 ### `/login` — Sign in (`pages/Login.tsx`)
 Sign-in / create-account tabs on Supabase auth. Treats "check your email" as the happy path for confirmations. Redirects back to `location.state.from` (or `/trainer`), and bounces away if already signed in.
 
 ### `/settings` — Settings (`pages/Settings.tsx`, public)
-Sprite style radio with a live Pikachu preview, theme tabs (light/dark/system), links to FAQ/Privacy/Terms, PokeAPI attribution.
+Sprite style radio with a live Pikachu preview; a **Poké Ball style** grid (ten balls, `prefs/BallPrefContext.tsx`) that drives the app's Poké Ball loading spinner; the theme as a proper segmented button group (Light/Dark/System with icons); a **Contact** section (GitHub / LinkedIn / Email cards — email copies to the clipboard with a toast, `lib/contact.ts` + `lib/clipboard.ts`); links to FAQ/Privacy/Terms and the PokeAPI attribution.
 
 ### `/faq`, `/privacy`, `/terms`
 World guide (teams, levels-from-experience, shinies, friends, visibility, the bag, demo trainers, data sources…), privacy policy, and terms, on a shared legal-page scaffold. Linked from the footer.
@@ -47,4 +61,4 @@ World guide (teams, levels-from-experience, shinies, friends, visibility, the ba
 
 ## Shell
 
-`components/Layout.tsx` renders header, outlet and footer. `components/Header.tsx`: logo, desktop search that navigates straight to `/pokemon/:idOrName`, nav (Home / Map / Trainer / Items / Pokémon Filter), a mobile bottom nav and search dialog with typeahead, and an account dropdown (profile, bag, settings, sign out) or a Sign in button.
+`components/Layout.tsx` renders header, outlet and footer (attribution left; FAQ/Privacy/Terms right). `components/Header.tsx`: the pixel-art logo + "MasterPokédex" brand, nav on the left (Pokédex / Locations / Trainer / Items / **Data ▾** with Moves, Abilities, Type chart, Evolution chains, Mega Evolutions, Advanced search), and on the right the **omnisearch** (`components/OmniSearch.tsx` — debounced, keyboard-navigable, grouped results across all entity kinds via `/v1/search`), then Sign in, then the settings gear. Mobile keeps a bottom tab strip plus a Data menu and a search dialog. Loading states app-wide use the Poké Ball spinner (`components/LoadingSpinner.tsx`), themed by the ball-style preference; item images fall back to a package icon (`components/ItemSprite.tsx`) instead of the broken-image glyph; curated art and demo avatars resolve through `lib/assets.ts` against the site base.

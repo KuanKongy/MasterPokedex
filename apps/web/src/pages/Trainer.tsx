@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { User, Medal, Search } from 'lucide-react';
 import { useMe, useMyFriends, useTrainers } from '@/hooks/api/trainer';
+import { resolveAsset } from '@/lib/assets';
 
 /**
  * The trainer hub. "My Profile" needs the claimed profile (onboarding card
@@ -125,7 +126,7 @@ const Trainer = () => {
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
                             <Avatar className="w-16 h-16 rounded-md border-2 border-pokebrand-red">
-                              <AvatarImage src={trainer.avatarUrl ?? undefined} alt={trainer.displayName} />
+                              <AvatarImage src={trainer.avatarUrl ? resolveAsset(trainer.avatarUrl) : undefined} alt={trainer.displayName} />
                               <AvatarFallback className="rounded-md text-xl">
                                 {trainer.displayName.charAt(0)}
                               </AvatarFallback>

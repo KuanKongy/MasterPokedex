@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { LocationDetail, LocationSummary, RegionSummary } from '@masterpokedex/shared';
+import type { LocationCatalogRegion, LocationDetail, LocationSummary, RegionSummary } from '@masterpokedex/shared';
 import { apiFetch } from '@/lib/api';
 
 export function useRegions() {
@@ -25,5 +25,14 @@ export function useLocationDetail(locationId: number | undefined) {
     queryKey: ['locations', locationId],
     queryFn: () => apiFetch<LocationDetail>(`/v1/locations/${locationId}`),
     enabled: locationId !== undefined,
+  });
+}
+
+export function useLocationCatalog() {
+  return useQuery({
+    queryKey: ['locations', 'catalog'],
+    queryFn: () => apiFetch<{ items: LocationCatalogRegion[] }>('/v1/locations'),
+    select: (data) => data.items,
+    staleTime: Infinity,
   });
 }

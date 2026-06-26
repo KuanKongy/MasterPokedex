@@ -13,6 +13,7 @@ import FriendsPanel from './FriendsPanel';
 import PokemonCard from './PokemonCard';
 import { useActivityFeed, useMyFavorites } from '@/hooks/api/trainer';
 import { capitalize } from '../utils/helpers';
+import { resolveAsset } from '@/lib/assets';
 
 const RANK_LABELS: Record<TrainerProfileType['rank'], string> = {
   rookie: 'Rookie',
@@ -51,7 +52,7 @@ const ActivityFeed: React.FC = () => {
       {events.map((event) => (
         <div key={event.id} className="flex items-center gap-3 p-3 border rounded-md text-sm">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={event.trainer.avatarUrl ?? undefined} alt={event.trainer.displayName} />
+            <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
             <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -125,7 +126,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
         <CardContent>
           <div className="flex flex-col md:flex-row items-start gap-6">
             <Avatar className="w-24 h-24 border-2 border-pokebrand-red rounded-md">
-              <AvatarImage src={profile.avatarUrl ?? undefined} alt={profile.displayName} />
+              <AvatarImage src={profile.avatarUrl ? resolveAsset(profile.avatarUrl) : undefined} alt={profile.displayName} />
               <AvatarFallback className="text-2xl rounded-md">
                 {profile.displayName.charAt(0)}
               </AvatarFallback>

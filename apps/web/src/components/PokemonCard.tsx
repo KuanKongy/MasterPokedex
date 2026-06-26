@@ -11,22 +11,15 @@ interface PokemonCardProps {
   pokemon: PokemonSummary;
 }
 
+/** Compact dex card — six of these fit a desktop row, like the reference site. */
 const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
   const { id, name, types } = pokemon;
   const { spriteStyle } = useSpritePref();
-  const primaryType = types[0] ?? 'normal';
 
   return (
-    <Link to={`/pokemon/${id}`} className="transition-transform hover:scale-105">
-      <Card
-        className={cn('overflow-hidden bg-card border-2', `hover:border-poketype-${primaryType}`)}
-      >
-        <div
-          className={cn(
-            'bg-gradient-to-b from-muted to-card p-4 flex items-center justify-center',
-            'min-h-[180px]',
-          )}
-        >
+    <Link to={`/pokemon/${id}`} className="transition-transform hover:scale-[1.03]">
+      <Card className="overflow-hidden bg-card border hover:border-pokebrand-red/50 transition-colors">
+        <div className="bg-gradient-to-b from-muted to-card px-3 pt-3 pb-1 flex items-center justify-center min-h-[112px]">
           <img
             src={pokemonImage(id, spriteStyle)}
             alt={name}
@@ -34,21 +27,17 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
             onError={(e) => spriteFallback(e, id)}
             className={cn(
               'object-contain animate-fade-in',
-              spriteStyle === 'sprite' ? 'h-24 w-24 pixelated' : 'h-32 w-32',
+              spriteStyle === 'sprite' ? 'h-20 w-20 pixelated' : 'h-24 w-24',
             )}
           />
         </div>
 
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-muted-foreground">#{id.toString().padStart(3, '0')}</p>
-          </div>
-
-          <h3 className="font-bold text-lg mb-2">{capitalize(name)}</h3>
-
-          <div className="flex gap-2 flex-wrap mt-1">
+        <CardContent className="p-3">
+          <p className="text-xs text-muted-foreground">#{id.toString().padStart(4, '0')}</p>
+          <h3 className="font-bold text-sm mb-1.5 truncate">{capitalize(name)}</h3>
+          <div className="flex gap-1 flex-wrap">
             {types.map((type) => (
-              <TypeBadge key={type} type={type} />
+              <TypeBadge key={type} type={type} size="sm" />
             ))}
           </div>
         </CardContent>

@@ -9,25 +9,8 @@ const Layout: React.FC = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
-      <footer className="bg-pokebrand-darkRed text-white py-6 text-center text-sm">
-        <div className="container mx-auto space-y-2">
-          <nav className="flex justify-center gap-4">
-            <Link to="/faq" className="hover:underline text-white/90">
-              FAQ
-            </Link>
-            <span className="text-white/40">·</span>
-            <Link to="/privacy" className="hover:underline text-white/90">
-              Privacy
-            </Link>
-            <span className="text-white/40">·</span>
-            <Link to="/terms" className="hover:underline text-white/90">
-              Terms
-            </Link>
-            <span className="text-white/40">·</span>
-            <Link to="/settings" className="hover:underline text-white/90">
-              Settings
-            </Link>
-          </nav>
+      <footer className="bg-pokebrand-darkRed text-white py-6 text-sm">
+        <div className="container mx-auto px-4 grid grid-cols-1 items-center gap-2 text-center sm:grid-cols-[1fr_auto] sm:text-left">
           <p className="text-white/70 text-xs">
             Pokémon data via{' '}
             <a href="https://pokeapi.co" target="_blank" rel="noreferrer" className="underline">
@@ -36,7 +19,17 @@ const Layout: React.FC = () => {
             . Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. — this is an unaffiliated fan
             project.
           </p>
-          <p className="text-white/90">Made by Nam Le</p>
+          <nav aria-label="Footer" className="flex justify-center gap-6 sm:justify-end">
+            <Link to="/faq" className="hover:underline text-white/90">
+              FAQ
+            </Link>
+            <Link to="/privacy" className="hover:underline text-white/90">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:underline text-white/90">
+              Terms
+            </Link>
+          </nav>
         </div>
       </footer>
     </div>

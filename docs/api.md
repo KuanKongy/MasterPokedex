@@ -14,7 +14,7 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 
 **Pagination.** List endpoints that page return `{ items, nextCursor }` and take `limit` + `cursor`, where `cursor` is an opaque keyset token from the previous response (`apps/api/src/lib/pagination.ts`). Never construct cursors by hand.
 
-**Caching.** Successful `/v1/pokemon/*` responses carry `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`; everything under `/v1/me` is `private, no-store`.
+**Caching.** Successful responses on every read-only dex surface (`/v1/pokemon/*`, `/v1/moves*`, `/v1/abilities*`, `/v1/types*`, `/v1/typechart`, `/v1/evolution-chains`, `/v1/items*`, `/v1/regions*`, `/v1/locations*`) carry `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`; `/v1/search` uses `max-age=300`; everything under `/v1/me` is `private, no-store`.
 
 **CORS.** Applied to `/v1/*` only, origins from `CORS_ORIGINS`, methods GET/POST/PATCH/PUT/DELETE/OPTIONS, headers `Authorization`/`Content-Type`.
 
@@ -32,9 +32,31 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 | GET | `/v1/pokemon/:idOrName` | — | dex id or name (`25` or `pikachu`) | Full detail: stats, types, abilities, species text, dimensions, rates. `not_found` otherwise. |
 | GET | `/v1/pokemon/:id/evolution` | — | | Whole evolution chain from the species root — branching-safe, ordered by depth. |
 | GET | `/v1/pokemon/:id/encounters` | — | | Every encounter: region, location, area, method, level range, rarity, conditions, versions. |
-| GET | `/v1/pokemon/:id/moves` | — | | Learnset grouped by method (level-up / machine / egg / tutor). Implemented in `routes/reference.ts`. |
+| GET | `/v1/pokemon/:id/moves` | — | | Learnset grouped by method (level-up / machine / egg / tutor), each row carrying the move's `slug` for linking. Implemented in `routes/reference.ts`. |
+| GET | `/v1/pokemon/megas` | — | | All 97 Mega forms with `formLabel`, stats, and the base species (`baseName`, `basePokemonId`). |
+| GET | `/v1/pokemon/:id/forms` | — | | Every variety of the same species (base, Megas, regionals, Gigantamax), labeled and flagged (`isMega`/`isGmax`/`isRegional`). |
 
 **Filter grammar.** `filter` is a JSON condition tree serialized by the helpers in `packages/shared/src/filters.ts` and validated with Zod enums on both field and operator — no request string ever reaches an identifier or operator position in SQL. Fields: `name`, `type`, `generation`, `total`, `hp`, `attack`, `defense`, `specialAttack`, `specialDefense`, `speed`, `height`, `weight`, `baseExperience`, `captureRate`, `growthRate`, `color`, `habitat`, `isLegendary`, `isMythical`. Operators: strings `eq|neq|contains|startsWith|endsWith`, numbers `eq|neq|gt|gte|lt|lte`, booleans `eq`, enums `eq|neq|in`; conditions combine under `all` (AND) or `any` (OR).
+
+## Moves — `apps/api/src/routes/moves.ts`
+
+| Method | Path | Auth | Parameters | Purpose |
+|---|---|---|---|---|
+| GET | `/v1/moves` | — | `limit`, `cursor`, `q`, `type`, `damageClass`, `generation`, `sort` (`id`, `name`, `power`, `pp`, `accuracy`, `priority`), `dir`, `filter` (move grammar) | Cursor-paged move index with effect text. |
+| GET | `/v1/moves/:idOrName` | — | | Move detail plus every Pokémon that learns it (`learners`, grouped by method with levels). |
+
+## Abilities — `apps/api/src/routes/abilities.ts`
+
+| Method | Path | Auth | Parameters | Purpose |
+|---|---|---|---|---|
+| GET | `/v1/abilities` | — | `limit`, `cursor`, `q`, `sort` (`id`/`name`), `dir` | Main-series abilities (side-game rows filtered out) with per-ability Pokémon counts. |
+| GET | `/v1/abilities/:idOrName` | — | | Ability detail plus every Pokémon that can have it (with `isHidden`). |
+
+## Search — `apps/api/src/routes/search.ts`
+
+| Method | Path | Auth | Parameters | Purpose |
+|---|---|---|---|---|
+| GET | `/v1/search` | — | `q` (1–50 chars), `limit` (per kind, default 8) | Cross-entity search over Pokémon, moves, abilities, items, locations and types; flat kind-tagged results, prefix matches ranked first. Backs the header omnisearch and `/search` page. |
 
 ## Reference data — `apps/api/src/routes/reference.ts`
 
@@ -42,16 +64,19 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 |---|---|---|---|---|
 | GET | `/v1/types` | — | | All 18 types with Pokémon counts. |
 | GET | `/v1/types/:name` | — | | Offensive + defensive matchup profile from the 324-row efficacy chart. |
-| GET | `/v1/items` | — | `category`, `q`, `limit` (default 200, max 500) | Item catalogue. |
+| GET | `/v1/items` | — | `category`, `q`, `limit` (default 200, max 500), plus optional `cursor`, `sort` (`id`/`name`/`cost`), `dir`, `filter` (item grammar) | Item catalogue; the cursor/filter params are additive for the advanced-search page. |
 | GET | `/v1/item-categories` | — | | Categories with pocket and item counts. |
+| GET | `/v1/typechart` | — | | The whole 18×18 efficacy matrix (324 cells) in one response. |
+| GET | `/v1/evolution-chains` | — | `limit` (≤50), `cursor` (chain id), `q` (matches any family member) | Paged evolution-family index; nodes carry sprites, types and evolution conditions. |
 
 ## World — `apps/api/src/routes/world.ts`
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/v1/regions` | — | All regions: display name, description, map image, location count. |
+| GET | `/v1/regions` | — | All regions: display name, description, map image (a path into the web app's self-hosted `public/maps/`), location count. |
 | GET | `/v1/regions/:id/locations` | — | Locations in a region, including curated `mapX`/`mapY` pin coordinates (nullable). |
-| GET | `/v1/locations/:id` | — | One location: areas, per-area encounter tables, map neighbours. |
+| GET | `/v1/locations` | — | The global catalog: every region with its locations (`kind`, `areaCount`, `hasEncounters`). |
+| GET | `/v1/locations/:id` | — | One location: areas, per-area encounter tables, map neighbours, curated `notableTrainers`. |
 
 ## Stats — `apps/api/src/routes/stats.ts`
 

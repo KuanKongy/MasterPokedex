@@ -8,6 +8,7 @@ import { Check, UserMinus, X } from 'lucide-react';
 import { useMyFriends, useRemoveFriend, useRespondToFriend } from '@/hooks/api/trainer';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from './LoadingSpinner';
+import { resolveAsset } from '@/lib/assets';
 
 interface FriendsPanelProps {
   onOpenTrainer: (username: string) => void;
@@ -28,7 +29,7 @@ const FriendRow: React.FC<{ friendship: Friendship; onOpenTrainer: (username: st
     <div className="flex items-center gap-3 p-3 border rounded-md">
       <button className="flex items-center gap-3 flex-1 text-left" onClick={() => onOpenTrainer(trainer.username)}>
         <Avatar className="h-10 w-10">
-          <AvatarImage src={trainer.avatarUrl ?? undefined} alt={trainer.displayName} />
+          <AvatarImage src={trainer.avatarUrl ? resolveAsset(trainer.avatarUrl) : undefined} alt={trainer.displayName} />
           <AvatarFallback>{trainer.displayName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>

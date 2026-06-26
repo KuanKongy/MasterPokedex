@@ -9,22 +9,17 @@ import {
 import { useMyFavorites, useSetFavorite } from '@/hooks/api/trainer';
 import { useAuth } from '@/auth/AuthProvider';
 import LoadingSpinner from '../components/LoadingSpinner';
+import MovesTable from '../components/pokemon/MovesTable';
+import FormsSection from '../components/pokemon/FormsSection';
+import { evolutionCondition } from '../components/pokemon/evolution-utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { ChevronLeft, ChevronRight, Heart, MapPin } from 'lucide-react';
 import { capitalize, formatHeight, formatWeight, getStatColor, formatStatName } from '../utils/helpers';
 import { cn } from '@/lib/utils';
-import { TypeBadge } from '@/components/ui/type-badge';
+import { TypeBadge, TYPE_BORDER } from '@/components/ui/type-badge';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -47,7 +42,6 @@ const PokemonDetail: React.FC = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const { spriteStyle } = useSpritePref();
-  const [showAllMoves, setShowAllMoves] = useState(false);
 
   const { data: pokemon, isLoading, error } = usePokemon(idOrName);
   const { data: evolution } = useEvolutionChain(pokemon?.id);
@@ -87,9 +81,10 @@ const PokemonDetail: React.FC = () => {
   }
 
   const primaryType = pokemon.types[0] ?? 'normal';
+  // Forms live above id 10000, outside the linear dex — no prev/next there.
+  const isForm = pokemon.id > MAX_DEX_ID;
   const prevPokemonId = pokemon.id - 1;
   const nextPokemonId = pokemon.id + 1;
-  const shownMoves = showAllMoves ? (moves ?? []) : (moves ?? []).slice(0, 12);
 
   const handleFavorite = () => {
     if (!session) {
@@ -112,14 +107,19 @@ const PokemonDetail: React.FC = () => {
         </Link>
 
         <div className="flex gap-2">
-          {prevPokemonId >= 1 && (
+          {isForm && (
+            <Link to={`/pokemon/${pokemon.speciesId}`}>
+              <Button variant="outline">View base form</Button>
+            </Link>
+          )}
+          {!isForm && prevPokemonId >= 1 && (
             <Link to={`/pokemon/${prevPokemonId}`}>
               <Button variant="outline">
                 <ChevronLeft className="mr-2 h-4 w-4" />#{prevPokemonId.toString().padStart(3, '0')}
               </Button>
             </Link>
           )}
-          {nextPokemonId <= MAX_DEX_ID && (
+          {!isForm && nextPokemonId <= MAX_DEX_ID && (
             <Link to={`/pokemon/${nextPokemonId}`}>
               <Button variant="outline">
                 #{nextPokemonId.toString().padStart(3, '0')}
@@ -134,8 +134,12 @@ const PokemonDetail: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-sm text-muted-foreground">#{pokemon.id.toString().padStart(3, '0')}</p>
-            <h1 className="text-3xl md:text-5xl font-extrabold">{capitalize(pokemon.name)}</h1>
+            <p className="text-sm text-muted-foreground">
+              #{(isForm ? pokemon.speciesId : pokemon.id).toString().padStart(4, '0')}
+            </p>
+            <h1 className="text-3xl md:text-5xl font-extrabold">
+              {pokemon.formLabel ?? capitalize(pokemon.name)}
+            </h1>
             {pokemon.species.genus && (
               <p className="text-muted-foreground mt-1">{pokemon.species.genus}</p>
             )}
@@ -160,8 +164,8 @@ const PokemonDetail: React.FC = () => {
         {/* Left column with image */}
         <Card
           className={cn(
-            'overflow-hidden bg-gradient-to-b from-muted to-card',
-            `border-poketype-${primaryType} border-2`,
+            'overflow-hidden bg-gradient-to-b from-muted to-card border-2',
+            TYPE_BORDER[primaryType] ?? TYPE_BORDER.normal,
           )}
         >
           <CardContent className="flex items-center justify-center p-8">
@@ -313,15 +317,7 @@ const PokemonDetail: React.FC = () => {
                     <div className="text-center px-2">
                       <ChevronRight className="h-6 w-6 text-muted-foreground mx-auto" />
                       <div className="text-xs text-muted-foreground mt-1 max-w-[90px]">
-                        {evo.minLevel
-                          ? `Lv. ${evo.minLevel}`
-                          : evo.item
-                            ? capitalize(evo.item.replace(/-/g, ' '))
-                            : evo.minHappiness
-                              ? 'Friendship'
-                              : evo.trigger
-                                ? capitalize(evo.trigger.replace(/-/g, ' '))
-                                : 'Evolution'}
+                        {evolutionCondition(evo)}
                       </div>
                     </div>
                   )}
@@ -357,6 +353,8 @@ const PokemonDetail: React.FC = () => {
         </Card>
       )}
 
+      <FormsSection pokemonId={pokemon.id} currentId={pokemon.id} />
+
       {/* Where to find it + moves */}
       <Card className="mt-6">
         <CardContent className="p-6">
@@ -374,7 +372,11 @@ const PokemonDetail: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {encountersByLocation.map(([locationId, entry]) => (
-                    <div key={locationId} className="flex items-start gap-2 border rounded-md p-3">
+                    <Link
+                      key={locationId}
+                      to={`/locations/${locationId}`}
+                      className="flex items-start gap-2 border rounded-md p-3 transition-colors hover:bg-muted/50"
+                    >
                       <MapPin className="h-4 w-4 text-pokebrand-red mt-0.5 shrink-0" />
                       <div>
                         <div className="font-medium text-sm">{entry.name}</div>
@@ -382,58 +384,14 @@ const PokemonDetail: React.FC = () => {
                           {entry.region ?? 'Unknown region'} · {[...entry.methods].join(', ')}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="moves" className="pt-4">
-              {shownMoves.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No move data.</p>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Move</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead className="text-right">Power</TableHead>
-                        <TableHead className="text-right">Acc.</TableHead>
-                        <TableHead>Learned by</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {shownMoves.map((move) => (
-                        <TableRow key={`${move.name}-${move.learnMethod}`}>
-                          <TableCell className="font-medium">
-                            {capitalize(move.name.replace(/-/g, ' '))}
-                          </TableCell>
-                          <TableCell>
-                            <TypeBadge type={move.type} />
-                          </TableCell>
-                          <TableCell className="capitalize">{move.damageClass}</TableCell>
-                          <TableCell className="text-right">{move.power ?? '—'}</TableCell>
-                          <TableCell className="text-right">{move.accuracy ?? '—'}</TableCell>
-                          <TableCell className="capitalize">
-                            {move.learnMethod === 'level-up' && move.levelLearnedAt
-                              ? `Level ${move.levelLearnedAt}`
-                              : move.learnMethod.replace(/-/g, ' ')}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {(moves?.length ?? 0) > 12 && (
-                    <div className="flex justify-center mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setShowAllMoves((v) => !v)}>
-                        {showAllMoves ? 'Show fewer' : `Show all ${moves!.length} moves`}
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
+              <MovesTable moves={moves ?? []} />
             </TabsContent>
           </Tabs>
         </CardContent>

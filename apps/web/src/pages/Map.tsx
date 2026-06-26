@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PokemonMap from '../components/PokemonMap';
 import { useRegions } from '@/hooks/api/world';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,15 +8,17 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 /**
  * Region explorer. Every region the dex knows comes from the API; the map
- * images and blurbs are our curated `location_meta`/`region` data, and the
- * pins are per-location percentage coordinates over the map art.
+ * images and blurbs are our curated data, self-hosted under public/maps, and
+ * the pins are per-location percentage coordinates over the art. The active
+ * region rides in ?region= so the catalog page can deep-link here.
  */
 const Map = () => {
   const { data: regions, isLoading } = useRegions();
-  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [params, setParams] = useSearchParams();
 
-  const activeRegionId = selectedRegionId ?? regions?.[0]?.id ?? null;
+  const requested = params.get('region');
+  const activeRegion =
+    regions?.find((r) => r.name === requested || String(r.id) === requested) ?? regions?.[0] ?? null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -24,70 +27,42 @@ const Map = () => {
         Explore locations and discover which Pokémon can be found in different areas
       </p>
 
-      {isLoading || !regions ? (
+      {isLoading || !regions || !activeRegion ? (
         <div className="flex justify-center p-8">
           <LoadingSpinner />
         </div>
       ) : (
-        <div className="space-y-6">
-          <Tabs
-            value={activeRegionId?.toString()}
-            onValueChange={(value) => {
-              setSelectedRegionId(Number(value));
-              setSelectedLocationId(null);
-            }}
-          >
-            <TabsList className="mb-4 flex overflow-x-auto justify-start w-full">
-              {regions.map((region) => (
-                <TabsTrigger key={region.id} value={region.id.toString()}>
-                  {region.displayName}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
+        <Tabs
+          value={String(activeRegion.id)}
+          onValueChange={(value) => {
+            const region = regions.find((r) => String(r.id) === value);
+            setParams(region ? { region: region.name } : {}, { replace: true });
+          }}
+        >
+          <TabsList className="mb-4 flex overflow-x-auto justify-start w-full">
             {regions.map((region) => (
-              <TabsContent key={region.id} value={region.id.toString()}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{region.displayName} Region</CardTitle>
-                    <CardDescription>{region.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {region.mapImage ? (
-                      <div className="max-w-3xl mx-auto">
-                        <img
-                          src={region.mapImage}
-                          alt={`Map of ${region.displayName}`}
-                          className="rounded-md shadow-md w-full"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.onerror = null;
-                            target.src = 'placeholder.svg';
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-6">
-                        No map art for this region yet — its locations are listed below.
-                      </p>
-                    )}
-                    <p className="text-sm text-muted-foreground mt-3 text-center">
-                      {region.locationCount} known locations
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              <TabsTrigger key={region.id} value={region.id.toString()}>
+                {region.displayName}
+              </TabsTrigger>
             ))}
-          </Tabs>
+          </TabsList>
 
-          {activeRegionId !== null && (
-            <PokemonMap
-              regionId={activeRegionId}
-              selectedLocationId={selectedLocationId}
-              onSelectLocation={setSelectedLocationId}
-            />
-          )}
-        </div>
+          {regions.map((region) => (
+            <TabsContent key={region.id} value={region.id.toString()} className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{region.displayName} Region</CardTitle>
+                  <CardDescription>
+                    {region.description}
+                    {region.description ? ' · ' : ''}
+                    {region.locationCount} known locations
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <PokemonMap region={region} />
+            </TabsContent>
+          ))}
+        </Tabs>
       )}
     </div>
   );
