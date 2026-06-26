@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BOOLEAN_OPS, NUMBER_OPS, STRING_OPS } from './filters';
 import { PokemonTypeSchema } from './pokemon';
 
 /**
@@ -105,6 +106,77 @@ export const LocationDetailSchema = LocationSummarySchema.extend({
   ),
 });
 export type LocationDetail = z.infer<typeof LocationDetailSchema>;
+
+// ── Location search (advanced search entity) ──
+
+const LOCATION_STRING_FIELDS = ['name', 'region', 'kind'] as const;
+const LOCATION_NUMBER_FIELDS = ['areaCount'] as const;
+const LOCATION_BOOLEAN_FIELDS = ['hasEncounters'] as const;
+
+const LocationStringConditionSchema = z.object({
+  field: z.enum(LOCATION_STRING_FIELDS),
+  op: z.enum(STRING_OPS),
+  value: z.string().min(1).max(50),
+});
+const LocationNumberConditionSchema = z.object({
+  field: z.enum(LOCATION_NUMBER_FIELDS),
+  op: z.enum(NUMBER_OPS),
+  value: z.number().finite(),
+});
+const LocationBooleanConditionSchema = z.object({
+  field: z.enum(LOCATION_BOOLEAN_FIELDS),
+  op: z.enum(BOOLEAN_OPS),
+  value: z.boolean(),
+});
+
+export const LocationFilterConditionSchema = z.union([
+  LocationStringConditionSchema,
+  LocationNumberConditionSchema,
+  LocationBooleanConditionSchema,
+]);
+export type LocationFilterCondition = z.infer<typeof LocationFilterConditionSchema>;
+
+export const LocationFilterSchema = z.object({
+  match: z.enum(['all', 'any']).default('all'),
+  conditions: z.array(LocationFilterConditionSchema).max(10).default([]),
+});
+export type LocationFilter = z.infer<typeof LocationFilterSchema>;
+
+export const LOCATION_FILTER_FIELD_META: ReadonlyArray<{
+  field: string;
+  label: string;
+  kind: 'string' | 'number' | 'boolean';
+  ops: readonly string[];
+}> = [
+  { field: 'name', label: 'Name', kind: 'string', ops: STRING_OPS },
+  { field: 'region', label: 'Region', kind: 'string', ops: STRING_OPS },
+  { field: 'kind', label: 'Kind', kind: 'string', ops: STRING_OPS },
+  { field: 'areaCount', label: 'Areas', kind: 'number', ops: NUMBER_OPS },
+  { field: 'hasEncounters', label: 'Has encounters', kind: 'boolean', ops: BOOLEAN_OPS },
+] as const;
+
+export function decodeLocationFilter(raw: string | undefined | null): LocationFilter {
+  if (!raw) return { match: 'all', conditions: [] };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error('filter must be valid JSON');
+  }
+  return LocationFilterSchema.parse(parsed);
+}
+
+/** One flat row of GET /v1/locations/search. */
+export const LocationSearchRowSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string(),
+  displayName: z.string(),
+  regionName: z.string().nullable(),
+  kind: z.string().nullable(),
+  areaCount: z.number().int().nonnegative(),
+  hasEncounters: z.boolean(),
+});
+export type LocationSearchRow = z.infer<typeof LocationSearchRowSchema>;
 
 /** The inverse view: given a Pokémon, everywhere in the world it can be found. */
 export const PokemonEncounterSchema = z.object({

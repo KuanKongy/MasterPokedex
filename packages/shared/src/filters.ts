@@ -16,7 +16,7 @@ import { PokemonTypeSchema, GrowthRateSchema } from './pokemon';
  * request string is ever concatenated into SQL.
  */
 
-const STRING_FIELDS = ['name', 'color', 'habitat'] as const;
+const STRING_FIELDS = ['name', 'color', 'habitat', 'ability', 'evolutionTrigger'] as const;
 const NUMBER_FIELDS = [
   'generation',
   'hp',
@@ -31,7 +31,7 @@ const NUMBER_FIELDS = [
   'baseExperience',
   'captureRate',
 ] as const;
-const BOOLEAN_FIELDS = ['isLegendary', 'isMythical'] as const;
+const BOOLEAN_FIELDS = ['isLegendary', 'isMythical', 'hasMega', 'hasGmax', 'isFullyEvolved'] as const;
 
 export const STRING_OPS = ['eq', 'neq', 'contains', 'startsWith', 'endsWith'] as const;
 export const NUMBER_OPS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte'] as const;
@@ -132,6 +132,16 @@ export const FILTER_FIELD_META: ReadonlyArray<{
   { field: 'habitat', label: 'Habitat', kind: 'string', ops: STRING_OPS },
   { field: 'isLegendary', label: 'Legendary', kind: 'boolean', ops: BOOLEAN_OPS },
   { field: 'isMythical', label: 'Mythical', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'ability', label: 'Ability', kind: 'string', ops: STRING_OPS },
+  { field: 'hasMega', label: 'Has Mega Evolution', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'hasGmax', label: 'Has Gigantamax', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'isFullyEvolved', label: 'Fully evolved', kind: 'boolean', ops: BOOLEAN_OPS },
+  {
+    field: 'evolutionTrigger',
+    label: 'Evolution trigger',
+    kind: 'string',
+    ops: ['eq', 'neq'] as const,
+  },
 ] as const;
 
 /**

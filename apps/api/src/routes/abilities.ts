@@ -1,6 +1,10 @@
 import { Hono } from 'hono';
 import { sql, type SQL } from 'drizzle-orm';
-import { AbilityListQuerySchema } from '@masterpokedex/shared';
+import {
+  AbilityListQuerySchema,
+  decodeAbilityFilter,
+  type AbilityFilterCondition,
+} from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
 import { decodeCursor, encodeCursor, type Cursor } from '../lib/pagination';
@@ -10,6 +14,44 @@ import { decodeCursor, encodeCursor, type Cursor } from '../lib/pagination';
  * (side games) above that id, none of which any main-series Pokémon carries.
  */
 const MAIN_SERIES = sql`a.id < 10000`;
+
+/** Same whitelist discipline as routes/pokemon.ts — see the comment there. */
+const ABILITY_FILTER_COLUMNS: Record<string, SQL> = {
+  name: sql`a.display_name`,
+  generation: sql`a.generation_id`,
+  pokemonCount: sql`(SELECT count(*) FROM dex.pokemon_abilities pa WHERE pa.ability_id = a.id)`,
+};
+
+function conditionToSql(condition: AbilityFilterCondition): SQL {
+  const column = ABILITY_FILTER_COLUMNS[condition.field];
+  if (!column) {
+    throw ApiError.badRequest(`Field "${condition.field}" is not filterable`);
+  }
+  switch (condition.op) {
+    case 'eq':
+      return sql`${column} = ${condition.value}`;
+    case 'neq':
+      return sql`${column} IS DISTINCT FROM ${condition.value}`;
+    case 'gt':
+      return sql`${column} > ${condition.value}`;
+    case 'gte':
+      return sql`${column} >= ${condition.value}`;
+    case 'lt':
+      return sql`${column} < ${condition.value}`;
+    case 'lte':
+      return sql`${column} <= ${condition.value}`;
+    case 'contains':
+      return sql`${column} ILIKE ${`%${condition.value}%`}`;
+    case 'startsWith':
+      return sql`${column} ILIKE ${`${condition.value}%`}`;
+    case 'endsWith':
+      return sql`${column} ILIKE ${`%${condition.value}`}`;
+    default: {
+      const exhaustive: never = condition;
+      throw ApiError.badRequest(`Unsupported operator on ${JSON.stringify(exhaustive)}`);
+    }
+  }
+}
 
 const ABILITY_COLUMNS = `
   a.id,
@@ -32,12 +74,20 @@ export const abilitiesRoutes = new Hono<AppBindings>()
   /** GET /v1/abilities — main-series abilities with holder counts. */
   .get('/', async (c) => {
     const query = AbilityListQuerySchema.parse(c.req.query());
+    const filter = decodeAbilityFilter(query.filter);
     const sortColumn = query.sort === 'name' ? sql`a.display_name` : sql`a.id`;
     const ascending = query.dir === 'asc';
     const cursor = decodeCursor(query.cursor);
 
     const predicates: SQL[] = [MAIN_SERIES];
     if (query.q) predicates.push(sql`(a.display_name ILIKE ${`%${query.q}%`} OR a.name ILIKE ${`%${query.q}%`})`);
+
+    if (filter.conditions.length > 0) {
+      const parts = filter.conditions.map(conditionToSql);
+      const joiner = filter.match === 'any' ? sql` OR ` : sql` AND `;
+      predicates.push(sql`(${sql.join(parts, joiner)})`);
+    }
+
     if (cursor) predicates.push(cursorPredicate(cursor, sortColumn, ascending));
 
     const where = sql.join(predicates, sql` AND `);

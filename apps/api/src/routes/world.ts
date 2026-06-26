@@ -1,8 +1,55 @@
 import { Hono } from 'hono';
-import { sql } from 'drizzle-orm';
-import { rarityFromChance } from '@masterpokedex/shared';
+import { sql, type SQL } from 'drizzle-orm';
+import { decodeLocationFilter, rarityFromChance, type LocationFilterCondition } from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
+
+/** Same whitelist discipline as routes/pokemon.ts — see the comment there. */
+const LOCATION_FILTER_COLUMNS: Record<string, SQL> = {
+  name: sql`l.display_name`,
+  region: sql`r.display_name`,
+  kind: sql`lm.kind`,
+  areaCount: sql`(SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)`,
+};
+
+function locationConditionToSql(condition: LocationFilterCondition): SQL {
+  if (condition.field === 'hasEncounters') {
+    const exists = sql`EXISTS (
+      SELECT 1 FROM dex.location_areas la
+      JOIN dex.encounters e ON e.location_area_id = la.id
+      WHERE la.location_id = l.id
+    )`;
+    return condition.value ? exists : sql`NOT ${exists}`;
+  }
+  const column = LOCATION_FILTER_COLUMNS[condition.field];
+  if (!column) {
+    throw ApiError.badRequest(`Field "${condition.field}" is not filterable`);
+  }
+  switch (condition.op) {
+    case 'eq':
+      return sql`${column} = ${condition.value}`;
+    case 'neq':
+      return sql`${column} IS DISTINCT FROM ${condition.value}`;
+    case 'gt':
+      return sql`${column} > ${condition.value}`;
+    case 'gte':
+      return sql`${column} >= ${condition.value}`;
+    case 'lt':
+      return sql`${column} < ${condition.value}`;
+    case 'lte':
+      return sql`${column} <= ${condition.value}`;
+    case 'contains':
+      return sql`${column} ILIKE ${`%${condition.value}%`}`;
+    case 'startsWith':
+      return sql`${column} ILIKE ${`${condition.value}%`}`;
+    case 'endsWith':
+      return sql`${column} ILIKE ${`%${condition.value}`}`;
+    default: {
+      const exhaustive: never = condition;
+      throw ApiError.badRequest(`Unsupported operator on ${JSON.stringify(exhaustive)}`);
+    }
+  }
+}
 
 export const worldRoutes = new Hono<AppBindings>()
   /** GET /v1/regions */
@@ -110,6 +157,49 @@ export const worldRoutes = new Hono<AppBindings>()
     }
 
     return c.json({ items: [...regions.values()] });
+  })
+
+  /**
+   * GET /v1/locations/search — the advanced-search entity: flat, filterable
+   * rows with a plain integer keyset. Registered before /locations/:id so
+   * "search" never resolves as an id.
+   */
+  .get('/locations/search', async (c) => {
+    const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 50) || 50, 1), 200);
+    const after = Number(c.req.query('cursor') ?? 0) || 0;
+    const filter = decodeLocationFilter(c.req.query('filter'));
+
+    const predicates: SQL[] = [sql`l.id > ${after}`];
+    if (filter.conditions.length > 0) {
+      const parts = filter.conditions.map(locationConditionToSql);
+      const joiner = filter.match === 'any' ? sql` OR ` : sql` AND `;
+      predicates.push(sql`(${sql.join(parts, joiner)})`);
+    }
+
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        l.id,
+        l.name,
+        l.display_name AS "displayName",
+        r.display_name AS "regionName",
+        lm.kind,
+        (SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)::int AS "areaCount",
+        EXISTS(
+          SELECT 1 FROM dex.location_areas la
+          JOIN dex.encounters e ON e.location_area_id = la.id
+          WHERE la.location_id = l.id
+        ) AS "hasEncounters"
+      FROM dex.locations l
+      LEFT JOIN dex.regions r ON r.id = l.region_id
+      LEFT JOIN dex.location_meta lm ON lm.location_id = l.id
+      WHERE ${sql.join(predicates, sql` AND `)}
+      ORDER BY l.id
+      LIMIT ${limit + 1}
+    `)) as unknown as { id: number }[];
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    return c.json({ items: page, nextCursor: hasMore ? String(page.at(-1)!.id) : null });
   })
 
   /** GET /v1/locations/:id — areas, their encounter tables, and map neighbours. */

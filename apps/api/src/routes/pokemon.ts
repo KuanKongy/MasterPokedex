@@ -93,6 +93,52 @@ function conditionToSql(condition: PokemonFilterCondition): SQL {
     return condition.op === 'neq' ? sql`NOT ${exists}` : exists;
   }
 
+  // Ability is a relation too: match either the identifier or the pretty name.
+  if (condition.field === 'ability') {
+    const value = condition.value as string;
+    const pattern =
+      condition.op === 'contains'
+        ? `%${value}%`
+        : condition.op === 'startsWith'
+          ? `${value}%`
+          : condition.op === 'endsWith'
+            ? `%${value}`
+            : value;
+    const exists = sql`EXISTS (
+      SELECT 1 FROM dex.pokemon_abilities pa
+      JOIN dex.abilities ab ON ab.id = pa.ability_id
+      WHERE pa.pokemon_id = p.id
+        AND (ab.name ILIKE ${pattern} OR ab.display_name ILIKE ${pattern})
+    )`;
+    return condition.op === 'neq' ? sql`NOT ${exists}` : exists;
+  }
+
+  // "How does this species evolve (from its parent)": matches dex.evolution
+  // for the species itself. Base forms have no evolution row, so `eq` never
+  // matches them and `neq` includes them.
+  if (condition.field === 'evolutionTrigger') {
+    const exists = sql`EXISTS (
+      SELECT 1 FROM dex.evolution ev
+      WHERE ev.evolved_species_id = p.species_id AND ev.trigger = ${condition.value}
+    )`;
+    return condition.op === 'neq' ? sql`NOT ${exists}` : exists;
+  }
+
+  // Species-level facts about siblings and children.
+  if (condition.field === 'hasMega' || condition.field === 'hasGmax') {
+    const flag = condition.field === 'hasMega' ? sql`sib.is_mega` : sql`sib.is_gmax`;
+    const exists = sql`EXISTS (
+      SELECT 1 FROM dex.pokemon sib WHERE sib.species_id = p.species_id AND ${flag}
+    )`;
+    return condition.value ? exists : sql`NOT ${exists}`;
+  }
+  if (condition.field === 'isFullyEvolved') {
+    const hasChild = sql`EXISTS (
+      SELECT 1 FROM dex.species child WHERE child.evolves_from_species_id = p.species_id
+    )`;
+    return condition.value ? sql`NOT ${hasChild}` : hasChild;
+  }
+
   const column = FILTER_COLUMNS[condition.field];
   if (!column) {
     // Unreachable: Zod validated `field` against the same whitelist. Thrown
