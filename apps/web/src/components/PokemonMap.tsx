@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import type { RegionSummary } from '@masterpokedex/shared';
 import { useRegionLocations } from '@/hooks/api/world';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -7,6 +6,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MapPin, Compass, AlertTriangle } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
+import LocationSurfaceCard from './locations/LocationSurfaceCard';
 import { resolveAsset } from '@/lib/assets';
 import { cn } from '@/lib/utils';
 
@@ -23,13 +23,21 @@ interface PokemonMapProps {
 }
 
 /**
- * The interactive half of the map page: the region's art with curated
- * percentage-coordinate pins over it, and the full location list beside it.
- * Both roads lead to /locations/:id — the location page owns the detail view.
+ * The interactive half of the map page. Picking a pin or a list row keeps
+ * you here: the right column swaps to a surface preview of that location,
+ * and only its "Full details" button leaves for /locations/:id.
  */
 const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
   const { data: locations, isLoading, error } = useRegionLocations(region.id);
-  const navigate = useNavigate();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // On stacked (mobile) layouts the panel sits below the map — bring it into view.
+  useEffect(() => {
+    if (selectedId !== null) {
+      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedId]);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -67,13 +75,17 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
                       <button
                         type="button"
                         aria-label={location.displayName}
-                        onClick={() => navigate(`/locations/${location.id}`)}
+                        onClick={() => setSelectedId(location.id)}
                         style={{ left: `${location.mapX}%`, top: `${location.mapY}%` }}
-                        className="absolute -translate-x-1/2 -translate-y-full drop-shadow transition-transform hover:scale-125 focus-visible:scale-125"
+                        className={cn(
+                          'absolute -translate-x-1/2 -translate-y-full drop-shadow transition-transform hover:scale-125 focus-visible:scale-125',
+                          selectedId === location.id && 'scale-125 drop-shadow-lg',
+                        )}
                       >
                         <MapPin
                           className={cn(
-                            'h-6 w-6 fill-white/80',
+                            'h-6 w-6',
+                            selectedId === location.id ? 'fill-pokebrand-red/30' : 'fill-white/80',
                             KIND_PIN_COLOR[location.kind ?? ''] ?? 'text-pokebrand-red',
                           )}
                         />
@@ -93,51 +105,60 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
             )}
             {pinned.length > 0 && (
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                {pinned.length} of {region.locationCount} locations placed on the map — click a pin to explore
+                {pinned.length} of {region.locationCount} locations placed on the map — click a pin to preview it here
               </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      <div className="lg:col-span-1">
-        <Card className="flex h-[560px] flex-col shadow-md">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-pokebrand-red" />
-              {region.displayName} Locations
-            </CardTitle>
-            <CardDescription>Open a location to see which Pokémon can be found there</CardDescription>
-          </CardHeader>
-          <CardContent className="min-h-0 flex-1 p-0">
-            <ScrollArea className="h-full">
-              <div className="divide-y">
-                {locations && locations.length > 0 ? (
-                  locations.map((location) => (
-                    <Link
-                      key={location.id}
-                      to={`/locations/${location.id}`}
-                      className="block p-3 transition-colors hover:bg-secondary/50"
-                    >
-                      <div className="font-medium">{location.displayName}</div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Compass className="h-3 w-3" />
-                        {location.kind ? <span className="capitalize">{location.kind}</span> : location.regionName}
-                        {location.areaCount > 0 && (
-                          <span className="ml-auto text-xs">
-                            {location.areaCount} area{location.areaCount === 1 ? '' : 's'}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="p-3 text-center text-muted-foreground">No locations found for this region</div>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+      <div className="lg:col-span-1" ref={panelRef}>
+        {selectedId !== null ? (
+          <LocationSurfaceCard
+            locationId={selectedId}
+            onSelectNeighbor={setSelectedId}
+            onClose={() => setSelectedId(null)}
+          />
+        ) : (
+          <Card className="flex h-[560px] flex-col shadow-md">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-pokebrand-red" />
+                {region.displayName} Locations
+              </CardTitle>
+              <CardDescription>Pick a location to preview which Pokémon can be found there</CardDescription>
+            </CardHeader>
+            <CardContent className="min-h-0 flex-1 p-0">
+              <ScrollArea className="h-full">
+                <div className="divide-y">
+                  {locations && locations.length > 0 ? (
+                    locations.map((location) => (
+                      <button
+                        key={location.id}
+                        type="button"
+                        onClick={() => setSelectedId(location.id)}
+                        className="block w-full p-3 text-left transition-colors hover:bg-secondary/50"
+                      >
+                        <div className="font-medium">{location.displayName}</div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Compass className="h-3 w-3" />
+                          {location.kind ? <span className="capitalize">{location.kind}</span> : location.regionName}
+                          {location.areaCount > 0 && (
+                            <span className="ml-auto text-xs">
+                              {location.areaCount} area{location.areaCount === 1 ? '' : 's'}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-3 text-center text-muted-foreground">No locations found for this region</div>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

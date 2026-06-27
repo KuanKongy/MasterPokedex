@@ -10,7 +10,7 @@ import {
   type FilterEntity,
 } from '@masterpokedex/shared';
 import { usePokemonList } from '@/hooks/api/pokemon';
-import { useItemSearch, useMoves } from '@/hooks/api/dex';
+import { useAbilities, useItemSearch, useLocationSearch, useMoves } from '@/hooks/api/dex';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,11 +123,28 @@ const PokemonFilter: React.FC = () => {
     { filter: (applied as never) ?? undefined, limit: 50 },
     { enabled: enabled && entity === 'move' },
   );
+  const abilityQuery = useAbilities(
+    { filter: (applied as never) ?? undefined, limit: 50 },
+    { enabled: enabled && entity === 'ability' },
+  );
   const itemQuery = useItemSearch(
     { filter: (applied as never) ?? undefined, sort: 'name', limit: 50 },
     { enabled: enabled && entity === 'item' },
   );
-  const query = entity === 'pokemon' ? pokemonQuery : entity === 'move' ? moveQuery : itemQuery;
+  const locationQuery = useLocationSearch(
+    { filter: (applied as never) ?? undefined, limit: 50 },
+    { enabled: enabled && entity === 'location' },
+  );
+  const query =
+    entity === 'pokemon'
+      ? pokemonQuery
+      : entity === 'move'
+        ? moveQuery
+        : entity === 'ability'
+          ? abilityQuery
+          : entity === 'location'
+            ? locationQuery
+            : itemQuery;
 
   const results = enabled ? (query.data?.pages.flatMap((p) => p.items as never[]) ?? []) : [];
   const activeColumns = ENTITY_COLUMNS[entity].filter((c) => columns.includes(c.key));

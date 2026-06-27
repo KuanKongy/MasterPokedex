@@ -11,6 +11,7 @@ import RequireAuth from "./auth/RequireAuth";
 import { SpritePrefProvider } from "./prefs/SpritePrefContext";
 import { BallPrefProvider } from "./prefs/BallPrefContext";
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import PokemonDetail from "./pages/PokemonDetail";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,7 @@ const App = () => {
         <BallPrefProvider>
           <AuthProvider>
             <BrowserRouter basename={import.meta.env.BASE_URL}>
+              <ScrollToTop />
               <TooltipProvider>
                 <Toaster />
                 <Sonner />

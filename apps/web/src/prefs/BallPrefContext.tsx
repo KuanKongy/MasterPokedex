@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { BALL_THEME_COLOR } from './ballTheme';
 
 /**
  * Which Poké Ball the app uses for its own chrome — the loading spinner and
@@ -62,6 +63,14 @@ export const BallPrefProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     setBallStyleState(readStored());
   }, []);
+
+  // The ball themes the whole site: index.css keys its palettes off this
+  // attribute, and the browser chrome color follows the light header band.
+  // (index.html mirrors localStorage before hydration to avoid a flash.)
+  useEffect(() => {
+    document.documentElement.dataset.ball = ballStyle;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', BALL_THEME_COLOR[ballStyle]);
+  }, [ballStyle]);
 
   const setBallStyle = useCallback((style: BallStyle) => {
     setBallStyleState(style);

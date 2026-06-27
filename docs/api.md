@@ -36,7 +36,7 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 | GET | `/v1/pokemon/megas` | — | | All 97 Mega forms with `formLabel`, stats, and the base species (`baseName`, `basePokemonId`). |
 | GET | `/v1/pokemon/:id/forms` | — | | Every variety of the same species (base, Megas, regionals, Gigantamax), labeled and flagged (`isMega`/`isGmax`/`isRegional`). |
 
-**Filter grammar.** `filter` is a JSON condition tree serialized by the helpers in `packages/shared/src/filters.ts` and validated with Zod enums on both field and operator — no request string ever reaches an identifier or operator position in SQL. Fields: `name`, `type`, `generation`, `total`, `hp`, `attack`, `defense`, `specialAttack`, `specialDefense`, `speed`, `height`, `weight`, `baseExperience`, `captureRate`, `growthRate`, `color`, `habitat`, `isLegendary`, `isMythical`. Operators: strings `eq|neq|contains|startsWith|endsWith`, numbers `eq|neq|gt|gte|lt|lte`, booleans `eq`, enums `eq|neq|in`; conditions combine under `all` (AND) or `any` (OR).
+**Filter grammar.** `filter` is a JSON condition tree serialized by the helpers in `packages/shared/src/filters.ts` and validated with Zod enums on both field and operator — no request string ever reaches an identifier or operator position in SQL. Fields: `name`, `type`, `generation`, `total`, `hp`, `attack`, `defense`, `specialAttack`, `specialDefense`, `speed`, `height`, `weight`, `baseExperience`, `captureRate`, `growthRate`, `color`, `habitat`, `isLegendary`, `isMythical`, plus relation-backed fields `ability` (matches identifier or display name), `evolutionTrigger`, and the species-level booleans `hasMega`, `hasGmax`, `isFullyEvolved`. Operators: strings `eq|neq|contains|startsWith|endsWith`, numbers `eq|neq|gt|gte|lt|lte`, booleans `eq`, enums `eq|neq|in`; conditions combine under `all` (AND) or `any` (OR).
 
 ## Moves — `apps/api/src/routes/moves.ts`
 
@@ -49,7 +49,7 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 
 | Method | Path | Auth | Parameters | Purpose |
 |---|---|---|---|---|
-| GET | `/v1/abilities` | — | `limit`, `cursor`, `q`, `sort` (`id`/`name`), `dir` | Main-series abilities (side-game rows filtered out) with per-ability Pokémon counts. |
+| GET | `/v1/abilities` | — | `limit`, `cursor`, `q`, `sort` (`id`/`name`), `dir`, `filter` (name/generation/pokemonCount grammar) | Main-series abilities (side-game rows filtered out) with per-ability Pokémon counts. |
 | GET | `/v1/abilities/:idOrName` | — | | Ability detail plus every Pokémon that can have it (with `isHidden`). |
 
 ## Search — `apps/api/src/routes/search.ts`
@@ -76,6 +76,7 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 | GET | `/v1/regions` | — | All regions: display name, description, map image (a path into the web app's self-hosted `public/maps/`), location count. |
 | GET | `/v1/regions/:id/locations` | — | Locations in a region, including curated `mapX`/`mapY` pin coordinates (nullable). |
 | GET | `/v1/locations` | — | The global catalog: every region with its locations (`kind`, `areaCount`, `hasEncounters`). |
+| GET | `/v1/locations/search` | — | Flat filterable rows for the advanced-search Locations entity (`filter` grammar: name/region/kind/areaCount/hasEncounters; integer-keyset `cursor`). |
 | GET | `/v1/locations/:id` | — | One location: areas, per-area encounter tables, map neighbours, curated `notableTrainers`. |
 
 ## Stats — `apps/api/src/routes/stats.ts`

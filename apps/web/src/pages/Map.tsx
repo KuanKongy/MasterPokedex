@@ -1,5 +1,6 @@
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { List } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
 import { useRegions } from '@/hooks/api/world';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,10 +23,21 @@ const Map = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Map</h1>
-      <p className="text-muted-foreground mb-8">
-        Explore locations and discover which Pokémon can be found in different areas
-      </p>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Map</h1>
+          <p className="text-muted-foreground">
+            Explore locations and discover which Pokémon can be found in different areas
+          </p>
+        </div>
+        <Link
+          to="/locations"
+          className="inline-flex items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline"
+        >
+          <List className="h-3.5 w-3.5" />
+          Browse all locations
+        </Link>
+      </div>
 
       {isLoading || !regions || !activeRegion ? (
         <div className="flex justify-center p-8">

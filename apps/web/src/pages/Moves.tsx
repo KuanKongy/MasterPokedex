@@ -8,8 +8,21 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../components/ui/type-badge';
+import ColumnToggle from '../components/ColumnToggle';
+import { useColumnPrefs } from '@/hooks/useColumnPrefs';
 import { Search } from 'lucide-react';
 import { capitalize } from '../utils/helpers';
+
+const MOVE_TABLE_COLUMNS = [
+  { key: 'type', label: 'Type' },
+  { key: 'class', label: 'Class' },
+  { key: 'power', label: 'Power' },
+  { key: 'accuracy', label: 'Acc.' },
+  { key: 'pp', label: 'PP' },
+  { key: 'gen', label: 'Gen' },
+  { key: 'effect', label: 'Effect' },
+] as const;
+const MOVE_COLUMN_KEYS = MOVE_TABLE_COLUMNS.map((c) => c.key);
 
 /** The full move dex: filterable, linked through to per-move pages. */
 const Moves: React.FC = () => {
@@ -32,6 +45,8 @@ const Moves: React.FC = () => {
       { replace: true },
     );
   };
+
+  const { visible, toggle } = useColumnPrefs('moves', MOVE_COLUMN_KEYS, MOVE_COLUMN_KEYS);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useMoves({
     q: q || undefined,
@@ -93,6 +108,7 @@ const Moves: React.FC = () => {
             ))}
           </SelectContent>
         </Select>
+        <ColumnToggle columns={MOVE_TABLE_COLUMNS} visible={visible} onToggle={toggle} />
       </div>
 
       {isLoading ? (
@@ -104,12 +120,13 @@ const Moves: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Move</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Class</TableHead>
-                  <TableHead className="text-right">Power</TableHead>
-                  <TableHead className="text-right">Acc.</TableHead>
-                  <TableHead className="text-right">PP</TableHead>
-                  <TableHead>Effect</TableHead>
+                  {visible.includes('type') && <TableHead>Type</TableHead>}
+                  {visible.includes('class') && <TableHead>Class</TableHead>}
+                  {visible.includes('power') && <TableHead className="text-right">Power</TableHead>}
+                  {visible.includes('accuracy') && <TableHead className="text-right">Acc.</TableHead>}
+                  {visible.includes('pp') && <TableHead className="text-right">PP</TableHead>}
+                  {visible.includes('gen') && <TableHead className="text-right">Gen</TableHead>}
+                  {visible.includes('effect') && <TableHead>Effect</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -120,16 +137,25 @@ const Moves: React.FC = () => {
                         {move.displayName}
                       </Link>
                     </TableCell>
-                    <TableCell>
-                      <TypeBadge type={move.type} size="sm" icon />
-                    </TableCell>
-                    <TableCell className="capitalize">{move.damageClass}</TableCell>
-                    <TableCell className="text-right">{move.power ?? '—'}</TableCell>
-                    <TableCell className="text-right">{move.accuracy ?? '—'}</TableCell>
-                    <TableCell className="text-right">{move.pp ?? '—'}</TableCell>
-                    <TableCell className="max-w-md text-sm text-muted-foreground">
-                      <span className="line-clamp-1">{move.shortEffect ?? ''}</span>
-                    </TableCell>
+                    {visible.includes('type') && (
+                      <TableCell>
+                        <TypeBadge type={move.type} size="sm" icon />
+                      </TableCell>
+                    )}
+                    {visible.includes('class') && <TableCell className="capitalize">{move.damageClass}</TableCell>}
+                    {visible.includes('power') && <TableCell className="text-right">{move.power ?? '—'}</TableCell>}
+                    {visible.includes('accuracy') && (
+                      <TableCell className="text-right">{move.accuracy ?? '—'}</TableCell>
+                    )}
+                    {visible.includes('pp') && <TableCell className="text-right">{move.pp ?? '—'}</TableCell>}
+                    {visible.includes('gen') && (
+                      <TableCell className="text-right">{move.generation ?? '—'}</TableCell>
+                    )}
+                    {visible.includes('effect') && (
+                      <TableCell className="max-w-md text-sm text-muted-foreground">
+                        <span className="line-clamp-1">{move.shortEffect ?? ''}</span>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

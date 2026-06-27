@@ -106,7 +106,7 @@ const ItemCatalogue: React.FC = () => {
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-3 flex items-center gap-3">
-                <ItemSprite src={item.sprite} alt={item.displayName} />
+                <ItemSprite src={item.sprite} itemName={item.name} alt={item.displayName} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate flex items-center gap-2">
                     {item.displayName}

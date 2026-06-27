@@ -34,6 +34,9 @@
 
   <body>
     <div id="root"></div>
+    <!-- Mirror the stored Poké Ball theme before hydration (next-themes does
+         the same for dark mode) so the chrome never flashes the default red. -->
+    <script>try{var b=localStorage.getItem('masterpokedex.ballStyle');if(b)document.documentElement.dataset.ball=b}catch(e){}</script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

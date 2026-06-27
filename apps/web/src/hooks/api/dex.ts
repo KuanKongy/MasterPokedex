@@ -1,11 +1,14 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   type AbilityDetail,
+  type AbilityFilter,
   type AbilitySummary,
   type DamageClass,
   type EvolutionChain,
   type ItemFilter,
   type ItemSummary,
+  type LocationFilter,
+  type LocationSearchRow,
   type MegaSummary,
   type MoveDetail,
   type MoveFilter,
@@ -70,7 +73,10 @@ export function useMove(idOrName: string | undefined) {
 
 // ── Abilities ──────────────────────────────────────────────────────────────
 
-export function useAbilities(params: { q?: string; sort?: 'id' | 'name'; dir?: SortDir; limit?: number } = {}) {
+export function useAbilities(
+  params: { q?: string; sort?: 'id' | 'name'; dir?: SortDir; filter?: AbilityFilter; limit?: number } = {},
+  options: { enabled?: boolean } = {},
+) {
   return useInfiniteQuery({
     queryKey: ['abilities', 'list', params],
     queryFn: ({ pageParam }) => {
@@ -78,12 +84,39 @@ export function useAbilities(params: { q?: string; sort?: 'id' | 'name'; dir?: S
       if (params.q) search.set('q', params.q);
       if (params.sort) search.set('sort', params.sort);
       if (params.dir) search.set('dir', params.dir);
+      if (params.filter && params.filter.conditions.length > 0) {
+        search.set('filter', JSON.stringify(params.filter));
+      }
       search.set('limit', String(params.limit ?? 60));
       if (pageParam) search.set('cursor', pageParam);
       return apiFetch<Page<AbilitySummary>>(`/v1/abilities?${search.toString()}`);
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: options.enabled ?? true,
+  });
+}
+
+export function useLocationSearch(
+  params: { filter?: LocationFilter; limit?: number },
+  options: { enabled?: boolean } = {},
+) {
+  return useInfiniteQuery({
+    queryKey: ['locations', 'search', params],
+    queryFn: ({ pageParam }) => {
+      const search = new URLSearchParams();
+      if (params.filter && params.filter.conditions.length > 0) {
+        search.set('filter', JSON.stringify(params.filter));
+      }
+      search.set('limit', String(params.limit ?? 50));
+      if (pageParam) search.set('cursor', pageParam);
+      return apiFetch<{ items: LocationSearchRow[]; nextCursor: string | null }>(
+        `/v1/locations/search?${search.toString()}`,
+      );
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: options.enabled ?? true,
   });
 }
 

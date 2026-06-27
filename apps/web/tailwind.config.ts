@@ -85,10 +85,13 @@ export default {
 					steel: '#B7B7CE',
 					fairy: '#D685AD',
 				},
-				// Pokémon brand colors
+				// Brand chrome — driven by the Poké Ball theme variables in index.css.
+				// `red` kept its name so 30-odd accent call sites recolor untouched.
 				pokebrand: {
-					red: '#E3350D',
-					darkRed: '#CC0000',
+					red: 'hsl(var(--brand))',
+					darkRed: 'hsl(var(--brand-band-strong))',
+					band: 'hsl(var(--brand-band))',
+					foreground: 'hsl(var(--brand-foreground))',
 					white: '#FFFFFF',
 					black: '#222224',
 					gray: '#919191',

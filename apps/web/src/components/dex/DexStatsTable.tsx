@@ -4,6 +4,8 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import type { PokemonSortField, PokemonSummary, SortDir } from '@masterpokedex/shared';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
+import ColumnToggle from '../ColumnToggle';
+import { useColumnPrefs } from '@/hooks/useColumnPrefs';
 import { capitalize } from '../../utils/helpers';
 import { cn } from '@/lib/utils';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -25,9 +27,13 @@ type DexStatsTableProps = {
   onSort: (field: PokemonSortField) => void;
 };
 
+const STAT_KEYS = STAT_COLUMNS.map((c) => c.key);
+
 /** The pokemondb-style full-stats view; header clicks re-sort server-side. */
 const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSort }) => {
   const { spriteStyle } = useSpritePref();
+  const { visible, toggle } = useColumnPrefs('dex-stats', STAT_KEYS, STAT_KEYS);
+  const shownStats = STAT_COLUMNS.filter((c) => visible.includes(c.key));
 
   const header = (key: PokemonSortField, label: string, alignRight = false) => (
     <TableHead
@@ -45,14 +51,18 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
   );
 
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <div>
+      <div className="mb-2 flex justify-end">
+        <ColumnToggle columns={STAT_COLUMNS} visible={visible} onToggle={toggle} />
+      </div>
+      <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             {header('id', '#')}
             {header('name', 'Name')}
             <TableHead>Types</TableHead>
-            {STAT_COLUMNS.map((col) => header(col.key, col.label, true))}
+            {shownStats.map((col) => header(col.key, col.label, true))}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -78,17 +88,19 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
                   ))}
                 </div>
               </TableCell>
-              <TableCell className="text-right font-semibold">{p.stats.total}</TableCell>
-              <TableCell className="text-right">{p.stats.hp}</TableCell>
-              <TableCell className="text-right">{p.stats.attack}</TableCell>
-              <TableCell className="text-right">{p.stats.defense}</TableCell>
-              <TableCell className="text-right">{p.stats.specialAttack}</TableCell>
-              <TableCell className="text-right">{p.stats.specialDefense}</TableCell>
-              <TableCell className="text-right">{p.stats.speed}</TableCell>
+              {shownStats.map((col) => (
+                <TableCell
+                  key={col.key}
+                  className={cn('text-right', col.key === 'total' && 'font-semibold')}
+                >
+                  {p.stats[col.key as keyof typeof p.stats]}
+                </TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 };

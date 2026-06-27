@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/prefs/SpritePrefContext';
 import { BALL_STYLES, ballSprite, useBallPref, type BallStyle } from '@/prefs/BallPrefContext';
+import { BALL_SWATCHES } from '@/prefs/ballTheme';
 import { CONTACT } from '@/lib/contact';
 import { copyToClipboard } from '@/lib/clipboard';
 import { useToast } from '@/hooks/use-toast';
@@ -45,8 +46,9 @@ const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-poke
 const Settings: React.FC = () => {
   const { spriteStyle, setSpriteStyle } = useSpritePref();
   const { ballStyle, setBallStyle } = useBallPref();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { toast } = useToast();
+  const swatchMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   const sendEmail = async () => {
     if (await copyToClipboard(CONTACT.email)) {
@@ -109,7 +111,8 @@ const Settings: React.FC = () => {
               Poké Ball style
             </CardTitle>
             <CardDescription>
-              The ball the app itself throws — loading spinners and catch buttons.
+              Your ball recolors the whole site — header, accents, buttons, the logo, and the
+              loading spinner — with its own light and dark look.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -130,6 +133,15 @@ const Settings: React.FC = () => {
                   <RadioGroupItem id={`ball-${ball.value}`} value={ball.value} className="sr-only" />
                   <img src={ballSprite(ball.value)} alt="" className="h-10 w-10 pixelated" />
                   <span className="text-xs font-medium text-center">{ball.label}</span>
+                  <span className="flex gap-1">
+                    {BALL_SWATCHES[ball.value][swatchMode].map((hex, index) => (
+                      <span
+                        key={index}
+                        className="h-2.5 w-2.5 rounded-full border border-border"
+                        style={{ backgroundColor: hex }}
+                      />
+                    ))}
+                  </span>
                 </Label>
               ))}
             </RadioGroup>
@@ -164,7 +176,50 @@ const Settings: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+<Card>
+          <CardHeader>
+            <CardTitle>About this Pokédex</CardTitle>
+            <CardDescription>How the world works, and the fine print.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            <Link to="/faq" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
+              <BookOpen className="h-5 w-5 text-pokebrand-red" />
+              <div>
+                <div className="font-medium">FAQ &amp; World Guide</div>
+                <div className="text-sm text-muted-foreground">
+                  Teams, catching, friends, and where the data comes from
+                </div>
+              </div>
+            </Link>
+            <Separator />
+            <Link to="/privacy" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
+              <Shield className="h-5 w-5 text-pokebrand-red" />
+              <div>
+                <div className="font-medium">Privacy Policy</div>
+                <div className="text-sm text-muted-foreground">What we store and what we never do with it</div>
+              </div>
+            </Link>
+            <Separator />
+            <Link to="/terms" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
+              <FileText className="h-5 w-5 text-pokebrand-red" />
+              <div>
+                <div className="font-medium">Terms of Service</div>
+                <div className="text-sm text-muted-foreground">The rules of the road</div>
+              </div>
+            </Link>
+            <Separator />
+            <p className="text-xs text-muted-foreground pt-3">
+              Pokémon data and sprites are served via{' '}
+              <a href="https://pokeapi.co" target="_blank" rel="noreferrer" className="underline">
+                PokeAPI
+              </a>
+              . Pokémon and Pokémon character names are trademarks of Nintendo, Creatures Inc. and
+              GAME FREAK inc. This is a fan project, unaffiliated with any of them.
+            </p>
+          </CardContent>
+        </Card>
+
+                <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5" />
@@ -216,49 +271,6 @@ const Settings: React.FC = () => {
             </div>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               An independent fan project, maintained by Nam Le.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>About this Pokédex</CardTitle>
-            <CardDescription>How the world works, and the fine print.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            <Link to="/faq" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
-              <BookOpen className="h-5 w-5 text-pokebrand-red" />
-              <div>
-                <div className="font-medium">FAQ &amp; World Guide</div>
-                <div className="text-sm text-muted-foreground">
-                  Teams, catching, friends, and where the data comes from
-                </div>
-              </div>
-            </Link>
-            <Separator />
-            <Link to="/privacy" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
-              <Shield className="h-5 w-5 text-pokebrand-red" />
-              <div>
-                <div className="font-medium">Privacy Policy</div>
-                <div className="text-sm text-muted-foreground">What we store and what we never do with it</div>
-              </div>
-            </Link>
-            <Separator />
-            <Link to="/terms" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
-              <FileText className="h-5 w-5 text-pokebrand-red" />
-              <div>
-                <div className="font-medium">Terms of Service</div>
-                <div className="text-sm text-muted-foreground">The rules of the road</div>
-              </div>
-            </Link>
-            <Separator />
-            <p className="text-xs text-muted-foreground pt-3">
-              Pokémon data and sprites are served via{' '}
-              <a href="https://pokeapi.co" target="_blank" rel="noreferrer" className="underline">
-                PokeAPI
-              </a>
-              . Pokémon and Pokémon character names are trademarks of Nintendo, Creatures Inc. and
-              GAME FREAK inc. This is a fan project, unaffiliated with any of them.
             </p>
           </CardContent>
         </Card>

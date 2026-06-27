@@ -1,6 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { ItemSummary, MoveSummary, PokemonSummary } from '@masterpokedex/shared';
+import type {
+  AbilitySummary,
+  ItemSummary,
+  LocationSearchRow,
+  MoveSummary,
+  PokemonSummary,
+} from '@masterpokedex/shared';
 import type { FilterEntity } from '@masterpokedex/shared';
 import { Badge } from '@/components/ui/badge';
 import { TypeBadge } from '@/components/ui/type-badge';
@@ -108,7 +114,7 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
     key: 'image',
     label: 'Image',
     defaultOn: true,
-    render: (i) => <ItemSprite src={i.sprite} alt={i.displayName} className="w-8 h-8" />,
+    render: (i) => <ItemSprite src={i.sprite} itemName={i.name} alt={i.displayName} className="w-8 h-8" />,
   },
   { key: 'name', label: 'Name', defaultOn: true, render: (i) => <span className="font-medium">{i.displayName}</span> },
   { key: 'category', label: 'Category', defaultOn: true, render: (i) => i.category ?? '—' },
@@ -123,10 +129,62 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
   },
 ];
 
+export const ABILITY_COLUMNS: ColumnDef<AbilitySummary>[] = [
+  {
+    key: 'name',
+    label: 'Ability',
+    defaultOn: true,
+    render: (a) => (
+      <Link to={`/abilities/${a.name}`} className="font-medium hover:underline">
+        {a.displayName}
+      </Link>
+    ),
+  },
+  {
+    key: 'effect',
+    label: 'Effect',
+    defaultOn: true,
+    render: (a) => (
+      <span className="line-clamp-2 max-w-xl text-sm text-muted-foreground">{a.shortEffect ?? ''}</span>
+    ),
+  },
+  { key: 'generation', label: 'Gen', defaultOn: true, render: (a) => a.generation ?? '—' },
+  { key: 'pokemonCount', label: 'Pokémon', defaultOn: true, render: (a) => a.pokemonCount },
+];
+
+export const LOCATION_COLUMNS: ColumnDef<LocationSearchRow>[] = [
+  {
+    key: 'name',
+    label: 'Location',
+    defaultOn: true,
+    render: (l) => (
+      <Link to={`/locations/${l.id}`} className="font-medium hover:underline">
+        {l.displayName}
+      </Link>
+    ),
+  },
+  { key: 'region', label: 'Region', defaultOn: true, render: (l) => l.regionName ?? '—' },
+  {
+    key: 'kind',
+    label: 'Kind',
+    defaultOn: true,
+    render: (l) => <span className="capitalize">{l.kind ?? '—'}</span>,
+  },
+  { key: 'areaCount', label: 'Areas', defaultOn: true, render: (l) => l.areaCount },
+  {
+    key: 'hasEncounters',
+    label: 'Encounters',
+    defaultOn: true,
+    render: (l) => (l.hasEncounters ? <Badge variant="secondary">Yes</Badge> : <span className="text-muted-foreground">No</span>),
+  },
+];
+
 // A registry keyed like ENTITY_FILTER_META; rows are typed per entity at the
 // use site, so the registry itself stays loosely typed.
 export const ENTITY_COLUMNS: Record<FilterEntity, ColumnDef<never>[]> = {
   pokemon: POKEMON_COLUMNS as ColumnDef<never>[],
   move: MOVE_COLUMNS as ColumnDef<never>[],
+  ability: ABILITY_COLUMNS as ColumnDef<never>[],
   item: ITEM_COLUMNS as ColumnDef<never>[],
+  location: LOCATION_COLUMNS as ColumnDef<never>[],
 };

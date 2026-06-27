@@ -11,7 +11,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import LoadingSpinner from '../components/LoadingSpinner';
 import MovesTable from '../components/pokemon/MovesTable';
 import FormsSection from '../components/pokemon/FormsSection';
-import { evolutionCondition } from '../components/pokemon/evolution-utils';
+import EvolutionChainCard from '../components/pokemon/EvolutionChainCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -307,50 +307,7 @@ const PokemonDetail: React.FC = () => {
 
       {/* Evolution chain */}
       {evolution && evolution.length > 1 && (
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Evolution Chain</h2>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              {evolution.map((evo, index) => (
-                <React.Fragment key={evo.id}>
-                  {index > 0 && (
-                    <div className="text-center px-2">
-                      <ChevronRight className="h-6 w-6 text-muted-foreground mx-auto" />
-                      <div className="text-xs text-muted-foreground mt-1 max-w-[90px]">
-                        {evolutionCondition(evo)}
-                      </div>
-                    </div>
-                  )}
-
-                  <Link to={`/pokemon/${evo.id}`}>
-                    <div
-                      className={cn(
-                        'p-4 border rounded-lg hover:border-pokebrand-red bg-card',
-                        evo.id === pokemon.speciesId && 'bg-muted',
-                      )}
-                    >
-                      <div className="w-24 h-24 flex items-center justify-center">
-                        <img
-                          src={pokemonImage(evo.id, spriteStyle)}
-                          alt={evo.name}
-                          onError={(e) => spriteFallback(e, evo.id)}
-                          className={cn(
-                            'max-w-full max-h-full object-contain',
-                            spriteStyle === 'sprite' && 'pixelated',
-                          )}
-                        />
-                      </div>
-                      <p className="text-center mt-2 text-sm font-medium">{capitalize(evo.name)}</p>
-                      <p className="text-xs text-center text-muted-foreground">
-                        #{evo.id.toString().padStart(3, '0')}
-                      </p>
-                    </div>
-                  </Link>
-                </React.Fragment>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <EvolutionChainCard evolution={evolution} pokemonId={pokemon.id} speciesId={pokemon.speciesId} />
       )}
 
       <FormsSection pokemonId={pokemon.id} currentId={pokemon.id} />

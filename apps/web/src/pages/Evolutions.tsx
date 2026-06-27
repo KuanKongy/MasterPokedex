@@ -77,16 +77,16 @@ const Evolutions: React.FC = () => {
                       )}
                       <Link
                         to={`/pokemon/${node.id}`}
-                        className="flex w-24 flex-col items-center rounded-lg border p-2 transition-colors hover:border-pokebrand-red/60"
+                        className="flex w-32 flex-col items-center rounded-lg border p-3 transition-colors hover:border-pokebrand-red/60"
                       >
                         <img
                           src={pokemonImage(node.id, spriteStyle)}
                           alt={node.name}
                           loading="lazy"
                           onError={(e) => spriteFallback(e, node.id)}
-                          className={cn('h-16 w-16 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                          className={cn('h-24 w-24 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                         />
-                        <span className="mt-1 w-full truncate text-center text-xs font-medium">
+                        <span className="mt-1 w-full truncate text-center text-sm font-medium">
                           {capitalize(node.name)}
                         </span>
                         <span className="flex gap-0.5">

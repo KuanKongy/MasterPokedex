@@ -13,8 +13,22 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /*
+     * Poké Ball site theming. The chosen ball (data-ball on <html>) recolors
+     * the whole chrome: --brand is the app-wide accent (links, icons,
+     * primary buttons via --primary), --brand-band/-strong are the header
+     * and footer bands, and the two foregrounds keep text readable on each.
+     * These :root values are the Poké Ball defaults, also used before the
+     * inline script in index.html has mirrored localStorage.
+     */
+    --brand: 14 89% 47%;
+    --brand-on: 0 0% 100%;
+    --brand-band: 14 89% 47%;
+    --brand-band-strong: 0 100% 40%;
+    --brand-foreground: 0 0% 100%;
+
+    --primary: var(--brand);
+    --primary-foreground: var(--brand-on);
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -30,7 +44,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: var(--brand);
 
     --radius: 0.5rem;
 
@@ -61,8 +75,14 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --brand: 14 90% 57%;
+    --brand-on: 0 0% 100%;
+    --brand-band: 14 75% 42%;
+    --brand-band-strong: 0 85% 33%;
+    --brand-foreground: 0 0% 100%;
+
+    --primary: var(--brand);
+    --primary-foreground: var(--brand-on);
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -78,7 +98,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: var(--brand);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -88,6 +108,43 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /*
+   * The 10 ball colorways × light/dark. Keep in sync with
+   * src/prefs/ballTheme.ts (theme-color meta + Settings swatches).
+   * .dark[data-ball=…] wins over [data-ball=…] by specificity — both live on
+   * <html>, next-themes owns the class, BallPrefContext owns the attribute.
+   */
+  [data-ball='poke-ball'] { --brand: 14 89% 47%; --brand-on: 0 0% 100%; --brand-band: 14 89% 47%; --brand-band-strong: 0 100% 40%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='poke-ball'] { --brand: 14 90% 57%; --brand-on: 0 0% 100%; --brand-band: 14 75% 42%; --brand-band-strong: 0 85% 33%; --brand-foreground: 0 0% 100%; }
+
+  [data-ball='great-ball'] { --brand: 213 85% 40%; --brand-on: 0 0% 100%; --brand-band: 213 85% 40%; --brand-band-strong: 218 90% 30%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='great-ball'] { --brand: 213 90% 64%; --brand-on: 218 90% 12%; --brand-band: 215 70% 34%; --brand-band-strong: 219 75% 25%; --brand-foreground: 0 0% 100%; }
+
+  [data-ball='ultra-ball'] { --brand: 40 95% 32%; --brand-on: 0 0% 100%; --brand-band: 240 6% 14%; --brand-band-strong: 240 8% 9%; --brand-foreground: 45 100% 96%; }
+  .dark[data-ball='ultra-ball'] { --brand: 45 93% 55%; --brand-on: 45 100% 8%; --brand-band: 45 90% 50%; --brand-band-strong: 43 85% 40%; --brand-foreground: 45 100% 8%; }
+
+  [data-ball='master-ball'] { --brand: 271 55% 40%; --brand-on: 0 0% 100%; --brand-band: 271 55% 40%; --brand-band-strong: 274 60% 30%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='master-ball'] { --brand: 271 75% 70%; --brand-on: 271 70% 12%; --brand-band: 271 45% 33%; --brand-band-strong: 274 50% 24%; --brand-foreground: 300 50% 94%; }
+
+  [data-ball='beast-ball'] { --brand: 235 45% 40%; --brand-on: 0 0% 100%; --brand-band: 235 45% 40%; --brand-band-strong: 238 50% 30%; --brand-foreground: 55 80% 92%; }
+  .dark[data-ball='beast-ball'] { --brand: 235 75% 72%; --brand-on: 238 60% 12%; --brand-band: 236 40% 31%; --brand-band-strong: 238 45% 23%; --brand-foreground: 55 80% 90%; }
+
+  [data-ball='luxury-ball'] { --brand: 41 70% 32%; --brand-on: 0 0% 100%; --brand-band: 0 0% 12%; --brand-band-strong: 0 0% 7%; --brand-foreground: 43 75% 65%; }
+  .dark[data-ball='luxury-ball'] { --brand: 43 80% 58%; --brand-on: 43 100% 8%; --brand-band: 0 0% 11%; --brand-band-strong: 0 0% 5%; --brand-foreground: 43 75% 62%; }
+
+  [data-ball='quick-ball'] { --brand: 199 90% 34%; --brand-on: 0 0% 100%; --brand-band: 199 90% 34%; --brand-band-strong: 217 85% 28%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='quick-ball'] { --brand: 195 90% 58%; --brand-on: 200 100% 10%; --brand-band: 200 70% 29%; --brand-band-strong: 215 70% 23%; --brand-foreground: 0 0% 100%; }
+
+  [data-ball='dusk-ball'] { --brand: 152 65% 26%; --brand-on: 0 0% 100%; --brand-band: 150 30% 16%; --brand-band-strong: 155 35% 10%; --brand-foreground: 140 60% 88%; }
+  .dark[data-ball='dusk-ball'] { --brand: 145 70% 52%; --brand-on: 150 100% 6%; --brand-band: 150 28% 14%; --brand-band-strong: 152 32% 9%; --brand-foreground: 140 55% 85%; }
+
+  /* Timer is the polarity flip: a silver band with dark text in light mode. */
+  [data-ball='timer-ball'] { --brand: 0 85% 42%; --brand-on: 0 0% 100%; --brand-band: 220 15% 93%; --brand-band-strong: 220 12% 84%; --brand-foreground: 224 25% 12%; }
+  .dark[data-ball='timer-ball'] { --brand: 0 90% 66%; --brand-on: 0 100% 10%; --brand-band: 222 14% 20%; --brand-band-strong: 222 14% 13%; --brand-foreground: 220 15% 92%; }
+
+  [data-ball='net-ball'] { --brand: 185 75% 28%; --brand-on: 0 0% 100%; --brand-band: 185 70% 32%; --brand-band-strong: 190 75% 23%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='net-ball'] { --brand: 180 70% 50%; --brand-on: 185 100% 8%; --brand-band: 188 55% 24%; --brand-band-strong: 190 60% 17%; --brand-foreground: 180 40% 95%; }
 }
 
 @layer base {

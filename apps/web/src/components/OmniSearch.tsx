@@ -92,11 +92,11 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ variant = 'header', autoFocus, 
         className={cn(
           'flex items-center gap-2 rounded-md border px-3',
           variant === 'header'
-            ? 'border-white/20 bg-white/10 text-white focus-within:ring-2 focus-within:ring-white/40'
+            ? 'border-pokebrand-foreground/20 bg-pokebrand-foreground/10 text-pokebrand-foreground focus-within:ring-2 focus-within:ring-pokebrand-foreground/40'
             : 'border-input bg-background focus-within:ring-2 focus-within:ring-ring',
         )}
       >
-        <Search className={cn('h-4 w-4 shrink-0', variant === 'header' ? 'text-white/70' : 'text-muted-foreground')} />
+        <Search className={cn('h-4 w-4 shrink-0', variant === 'header' ? 'text-pokebrand-foreground/70' : 'text-muted-foreground')} />
         {/* cmdk's own input, unstyled, so arrow keys drive the list. */}
         <input
           value={query}
@@ -116,7 +116,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ variant = 'header', autoFocus, 
           aria-label="Search the Pokédex"
           className={cn(
             'h-9 w-full bg-transparent text-sm outline-none',
-            variant === 'header' ? 'placeholder:text-white/70' : 'placeholder:text-muted-foreground',
+            variant === 'header' ? 'placeholder:text-pokebrand-foreground/70' : 'placeholder:text-muted-foreground',
           )}
           // cmdk listens on its own input; mirror value through the Command root instead.
           data-omnisearch-input

@@ -11,9 +11,11 @@ import {
   LogIn,
   LogOut,
   MapPin,
+  Moon,
   Search,
   Settings,
   ShoppingBag,
+  Sun,
   User,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -28,18 +30,20 @@ import {
 import { useAuth } from '@/auth/AuthProvider';
 import { useMe } from '@/hooks/api/trainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTheme } from 'next-themes';
 import { resolveAsset } from '@/lib/assets';
 import { cn } from '@/lib/utils';
-import brandLogo from '../../favicon/favicon-192x192.png';
+import { ballSprite, useBallPref } from '@/prefs/BallPrefContext';
 
 const navigation = [
   { name: 'Pokédex', href: '/', icon: BookOpen },
-  { name: 'Locations', href: '/locations', icon: MapPin },
+  { name: 'Map', href: '/map', icon: MapPin },
   { name: 'Trainer', href: '/trainer', icon: User },
   { name: 'Items', href: '/items', icon: ShoppingBag },
 ];
 
 const dataMenu = [
+  { name: 'All locations', href: '/locations' },
   { name: 'Moves', href: '/moves' },
   { name: 'Abilities', href: '/abilities' },
   { name: 'Type chart', href: '/types' },
@@ -61,15 +65,17 @@ const Header: React.FC = () => {
 
   const { session, signOut } = useAuth();
   const { data: me } = useMe();
+  const { resolvedTheme, setTheme } = useTheme();
+  const { ballStyle } = useBallPref();
 
   const dataActive = dataMenu.some((item) => isNavActive(location.pathname, item.href));
 
   return (
-    <header className="bg-pokebrand-red dark:bg-pokebrand-red border-b dark:border-gray-800">
+    <header className="bg-pokebrand-band border-b dark:border-gray-800">
       <div className="container mx-auto px-4 flex h-16 items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={brandLogo} alt="" className="h-8 w-8 pixelated" />
-          <span className="text-xl font-bold text-white">MasterPokédex</span>
+          <img src={ballSprite(ballStyle)} alt="" className="h-8 w-8 pixelated" />
+          <span className="text-xl font-bold text-pokebrand-foreground">MasterPokédex</span>
         </Link>
 
         {/* Pages on the left… */}
@@ -81,8 +87,8 @@ const Header: React.FC = () => {
               className={cn(
                 'px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1',
                 isNavActive(location.pathname, item.href)
-                  ? 'bg-white/20 text-white'
-                  : 'text-white/90 hover:bg-white/10',
+                  ? 'bg-pokebrand-foreground/20 text-pokebrand-foreground'
+                  : 'text-pokebrand-foreground/90 hover:bg-pokebrand-foreground/10',
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -94,7 +100,7 @@ const Header: React.FC = () => {
               <button
                 className={cn(
                   'px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1',
-                  dataActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10',
+                  dataActive ? 'bg-pokebrand-foreground/20 text-pokebrand-foreground' : 'text-pokebrand-foreground/90 hover:bg-pokebrand-foreground/10',
                 )}
               >
                 <Database className="h-4 w-4" />
@@ -121,16 +127,26 @@ const Header: React.FC = () => {
             size="sm"
             onClick={() => setIsSearchOpen(true)}
             aria-label="Search"
-            className="md:hidden bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="md:hidden bg-pokebrand-foreground/10 border-pokebrand-foreground/20 text-pokebrand-foreground hover:bg-pokebrand-foreground/20"
           >
             <Search className="h-4 w-4" />
           </Button>
+
+          <button
+            type="button"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="text-pokebrand-foreground/80 hover:text-pokebrand-foreground p-1.5 rounded-md hover:bg-pokebrand-foreground/10 transition-colors"
+          >
+            <Sun className="h-5 w-5 hidden dark:block" />
+            <Moon className="h-5 w-5 dark:hidden" />
+          </button>
 
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button aria-label="Account menu">
-                  <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-white/50">
+                  <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-pokebrand-foreground/50">
                     <AvatarImage
                       src={me?.avatarUrl ? resolveAsset(me.avatarUrl) : undefined}
                       alt={me?.displayName || 'Trainer'}
@@ -171,7 +187,7 @@ const Header: React.FC = () => {
                 size="sm"
                 variant="outline"
                 onClick={() => navigate('/login')}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+                className="bg-pokebrand-foreground/10 border-pokebrand-foreground/20 text-pokebrand-foreground hover:bg-pokebrand-foreground/20 hover:text-pokebrand-foreground"
               >
                 <LogIn className="mr-1 h-4 w-4" />
                 Sign in
@@ -179,7 +195,7 @@ const Header: React.FC = () => {
               <Link
                 to="/settings"
                 aria-label="Settings"
-                className="text-white/80 hover:text-white p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                className="text-pokebrand-foreground/80 hover:text-pokebrand-foreground p-1.5 rounded-md hover:bg-pokebrand-foreground/10 transition-colors"
               >
                 <Settings className="h-5 w-5" />
               </Link>
@@ -189,7 +205,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile navigation */}
-      <div className="lg:hidden border-t border-white/20">
+      <div className="lg:hidden border-t border-pokebrand-foreground/20">
         <div className="flex justify-around">
           {navigation.map((item) => (
             <Link
@@ -198,8 +214,8 @@ const Header: React.FC = () => {
               className={cn(
                 'flex flex-1 flex-col items-center py-2 px-1 text-xs',
                 isNavActive(location.pathname, item.href)
-                  ? 'text-white bg-white/20'
-                  : 'text-white/80 hover:text-white',
+                  ? 'text-pokebrand-foreground bg-pokebrand-foreground/20'
+                  : 'text-pokebrand-foreground/80 hover:text-pokebrand-foreground',
               )}
             >
               <item.icon className="h-4 w-4 mb-1" />
@@ -211,7 +227,7 @@ const Header: React.FC = () => {
               <button
                 className={cn(
                   'flex flex-1 flex-col items-center py-2 px-1 text-xs',
-                  dataActive ? 'text-white bg-white/20' : 'text-white/80 hover:text-white',
+                  dataActive ? 'text-pokebrand-foreground bg-pokebrand-foreground/20' : 'text-pokebrand-foreground/80 hover:text-pokebrand-foreground',
                 )}
               >
                 <Database className="h-4 w-4 mb-1" />
