@@ -6,6 +6,8 @@
   "homepage": "https://kuankongy.github.io/MasterPokedex",
   "scripts": {
     "dev": "vite",
+    "brand": "node scripts/generate-brand-assets.mjs",
+    "assets": "node scripts/fetch-static-assets.mjs",
     "build": "vite build && cp dist/index.html dist/404.html",
     "build:dev": "vite build --mode development && cp dist/index.html dist/404.html",
     "lint": "eslint .",
