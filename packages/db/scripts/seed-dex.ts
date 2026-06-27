@@ -32,7 +32,10 @@ import {
   text,
 } from './lib/csv';
 import { loadTable, report, truncateDex, type LoadResult } from './lib/load';
-import { LOCATION_META, REGION_META } from './data/curated';
+import { LOCATION_META, MANUAL_MAP_PINS, REGION_META, type LocationMetaSeed } from './data/curated';
+import { GENERATED_LOCATION_META } from './data/locations.generated';
+import { GENERATED_MAP_PINS } from './data/map-pins.generated';
+import { GENERATED_ITEM_EFFECTS } from './data/item-effects.generated';
 
 /** stat_id → column. Order matters for nothing; the mapping does. */
 const STAT_COLUMN: Record<number, 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed'> =
@@ -51,6 +54,9 @@ const MAX_REAL_TYPE_ID = 18;
 const KEPT_MOVE_METHODS = new Set(['level-up', 'machine', 'egg', 'tutor']);
 
 const GENDER_BY_ID: Record<number, string> = { 1: 'female', 2: 'male', 3: 'genderless' };
+
+/** Tyrogue, and only Tyrogue: upstream stores 1 / -1 / 0. */
+const RELATIVE_STATS_BY_VALUE: Record<string, string> = { '1': 'attack', '-1': 'defense', '0': 'equal' };
 
 async function main() {
   const url = requireEnv('DIRECT_DATABASE_URL');
@@ -208,6 +214,8 @@ async function main() {
     const versionIdentById = identById(csvVersions);
     const itemIdentById = identById(csvItems);
     const moveIdentById = identById(csvMoves);
+    const typeIdentById = identById(csvTypes);
+    const speciesIdentById = identById(csvSpecies);
     const pocketById = identById(csvPockets);
 
     // ── types ───────────────────────────────────────────────────────────────
@@ -486,6 +494,11 @@ async function main() {
     const pokemonMoveRows = [...movepool.values()];
 
     // ── evolution ───────────────────────────────────────────────────────────
+    // Every condition upstream records, not the seven the first draft kept:
+    // without `known_move_type` Sylveon reads "Level Up", without
+    // `near_special_rock` Leafeon and Glaceon lose the Mossy and Icy Rocks,
+    // and Gen 9's count-based evolutions (Annihilape, Kingambit, Pawmot) have
+    // no expressible trigger at all. The chain keeps one row per method.
     const evolutionRows = csvEvolution
       .filter((r) => validSpeciesIds.has(int(r.evolved_species_id)))
       .map((r) => ({
@@ -496,11 +509,24 @@ async function main() {
         triggerItem: itemIdentById.get(int(r.trigger_item_id)) ?? null,
         heldItem: itemIdentById.get(int(r.held_item_id)) ?? null,
         knownMove: moveIdentById.get(int(r.known_move_id)) ?? null,
+        knownMoveType: typeIdentById.get(int(r.known_move_type_id)) ?? null,
         minimumHappiness: num(r.minimum_happiness),
         minimumAffection: num(r.minimum_affection),
+        minimumBeauty: num(r.minimum_beauty),
         timeOfDay: text(r.time_of_day),
         gender: GENDER_BY_ID[int(r.gender_id)] ?? null,
         locationId: num(r.location_id),
+        nearSpecialRock: bool(r.near_special_rock),
+        relativePhysicalStats: RELATIVE_STATS_BY_VALUE[text(r.relative_physical_stats) ?? ''] ?? null,
+        partySpecies: speciesIdentById.get(int(r.party_species_id)) ?? null,
+        partyType: typeIdentById.get(int(r.party_type_id)) ?? null,
+        tradeSpecies: speciesIdentById.get(int(r.trade_species_id)) ?? null,
+        needsMultiplayer: bool(r.needs_multiplayer),
+        usedMove: moveIdentById.get(int(r.used_move_id)) ?? null,
+        minimumMoveCount: num(r.minimum_move_count),
+        minimumSteps: num(r.minimum_steps),
+        minimumDamageTaken: num(r.minimum_damage_taken),
+        regionId: num(r.region_id),
         needsOverworldRain: bool(r.needs_overworld_rain),
         turnUpsideDown: bool(r.turn_upside_down),
       }));
@@ -537,8 +563,11 @@ async function main() {
     const validLocationIds = new Set(locationRows.map((l) => l.id));
     const locationIdByName = new Map(locationRows.map((l) => [l.name, l.id]));
 
-    // Curated map data. Warn loudly about slugs that do not resolve — a silent
-    // miss here is an invisible hole in the map.
+    // Map data, in two layers: everything Bulbapedia knows (generated), with
+    // the hand-written curation on top. Curation wins field by field rather
+    // than wholesale, so a hand-placed pin does not erase a fetched image and
+    // re-running the fetcher never undoes a correction. Warn loudly about
+    // slugs that do not resolve — a silent miss is an invisible hole in the map.
     const locationMetaRows: Array<{
       locationId: number;
       mapX: number | null;
@@ -548,15 +577,26 @@ async function main() {
       kind: string | null;
       neighborIds: number[];
       notableTrainers: string[];
+      notable: boolean;
     }> = [];
-    for (const [slug, meta] of Object.entries(LOCATION_META)) {
+    const metaSlugs = new Set([
+      ...Object.keys(GENERATED_LOCATION_META),
+      ...Object.keys(LOCATION_META),
+      ...Object.keys(GENERATED_MAP_PINS),
+      ...Object.keys(MANUAL_MAP_PINS),
+    ]);
+    for (const slug of metaSlugs) {
       const locationId = locationIdByName.get(slug);
       if (locationId === undefined) {
         warnings.push(`curated location "${slug}" has no matching PokeAPI location — skipped`);
         continue;
       }
+      const generated = GENERATED_LOCATION_META[slug];
+      const curated = LOCATION_META[slug];
+      const pick = <K extends keyof LocationMetaSeed>(key: K) => curated?.[key] ?? generated?.[key];
+
       const neighborIds: number[] = [];
-      for (const neighbor of meta.neighbors) {
+      for (const neighbor of curated?.neighbors?.length ? curated.neighbors : (generated?.neighbors ?? [])) {
         const nid = locationIdByName.get(neighbor);
         if (nid === undefined) {
           warnings.push(`curated neighbour "${neighbor}" of "${slug}" does not resolve — dropped`);
@@ -564,15 +604,22 @@ async function main() {
         }
         neighborIds.push(nid);
       }
+      const notableTrainers = curated?.notableTrainers?.length
+        ? curated.notableTrainers
+        : (generated?.notableTrainers ?? []);
+      // Pins: hand-placed beats derived, and nothing else carries them.
+      const pin = MANUAL_MAP_PINS[slug] ?? GENERATED_MAP_PINS[slug] ?? null;
       locationMetaRows.push({
         locationId,
-        mapX: meta.mapX,
-        mapY: meta.mapY,
-        image: meta.image,
-        description: meta.description,
-        kind: meta.kind,
+        mapX: pin?.[0] ?? null,
+        mapY: pin?.[1] ?? null,
+        image: pick('image') ?? null,
+        description: pick('description') ?? null,
+        kind: pick('kind') ?? null,
         neighborIds,
-        notableTrainers: meta.notableTrainers ?? [],
+        notableTrainers,
+        // A hand-curated place is notable by the act of curating it.
+        notable: Boolean(curated) || Boolean(generated?.notable) || notableTrainers.length > 0,
       });
     }
 
@@ -739,7 +786,10 @@ async function main() {
         categoryId: int(r.category_id),
         cost: num(r.cost),
         flingPower: num(r.fling_power),
-        shortEffect: itemEffectById.get(int(r.id)) ?? null,
+        // 1,267 of 2,221 items have no short_effect upstream — most of Gen 8
+        // and 9, every crafting material. Bulbapedia and PokémonDB have a
+        // sentence for nearly all of them; upstream still wins where it exists.
+        shortEffect: itemEffectById.get(int(r.id)) ?? GENERATED_ITEM_EFFECTS[r.identifier!] ?? null,
       }));
 
     // ── Load, in dependency order ───────────────────────────────────────────
@@ -810,8 +860,11 @@ async function main() {
         'dex.evolution',
         [
           'id', 'evolvedSpeciesId', 'trigger', 'minimumLevel', 'triggerItem',
-          'heldItem', 'knownMove', 'minimumHappiness', 'minimumAffection',
-          'timeOfDay', 'gender', 'locationId', 'needsOverworldRain', 'turnUpsideDown',
+          'heldItem', 'knownMove', 'knownMoveType', 'minimumHappiness', 'minimumAffection',
+          'minimumBeauty', 'timeOfDay', 'gender', 'locationId', 'nearSpecialRock',
+          'relativePhysicalStats', 'partySpecies', 'partyType', 'tradeSpecies',
+          'needsMultiplayer', 'usedMove', 'minimumMoveCount', 'minimumSteps',
+          'minimumDamageTaken', 'regionId', 'needsOverworldRain', 'turnUpsideDown',
         ],
         evolutionRows,
       ),
@@ -824,7 +877,7 @@ async function main() {
       await loadTable(
         sql,
         'dex.location_meta',
-        ['locationId', 'mapX', 'mapY', 'image', 'description', 'kind', 'neighborIds', 'notableTrainers'],
+        ['locationId', 'mapX', 'mapY', 'image', 'description', 'kind', 'neighborIds', 'notableTrainers', 'notable'],
         locationMetaRows,
       ),
     );

@@ -12,7 +12,14 @@ import { cn } from '@/lib/utils';
  * The world's location catalog, every region at once — the browsable
  * counterpart to the visual /map. Rows without encounter data are still
  * listed (they exist in the world) but dimmed, so the useful ones stand out.
+ *
+ * The last group has no region: 91 rows upstream are meeting points and event
+ * venues rather than places — "Link Trade (Met)", "Pokémon Movie 12", the
+ * Fukuoka Pokémon Center. They used to be joined away and unreachable from
+ * here while still resolving by id, so they are shown and labelled instead.
  */
+const OTHER_REGION_ID = 0;
+
 const Locations: React.FC = () => {
   const { data: regions, isLoading } = useLocationCatalog();
   const [query, setQuery] = useState('');
@@ -53,14 +60,23 @@ const Locations: React.FC = () => {
           {filtered.map((region) => (
             <Card key={region.id}>
               <CardHeader className="flex flex-row items-baseline justify-between space-y-0 pb-3">
-                <CardTitle className="text-xl">{region.displayName}</CardTitle>
-                <Link
-                  to={`/map?region=${region.name}`}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline"
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  Open map
-                </Link>
+                <div>
+                  <CardTitle className="text-xl">{region.displayName}</CardTitle>
+                  {region.id === OTHER_REGION_ID && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Not places in the world: trade and event venues, distribution sites and side games.
+                    </p>
+                  )}
+                </div>
+                {region.id !== OTHER_REGION_ID && (
+                  <Link
+                    to={`/map?region=${region.name}`}
+                    className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline"
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    Open map
+                  </Link>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">

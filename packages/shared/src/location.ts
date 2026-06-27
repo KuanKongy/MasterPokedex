@@ -20,13 +20,16 @@ export function rarityFromChance(chance: number): EncounterRarity {
 }
 
 export const RegionSummarySchema = z.object({
-  id: z.number().int().positive(),
+  id: z.number().int().nonnegative(),
   name: z.string(),
   displayName: z.string(),
   description: z.string().nullable(),
   /** Absolute URL, or a path relative to the web app's public/ (self-hosted art). */
   mapImage: z.string().nullable(),
   locationCount: z.number().int().nonnegative(),
+  areaCount: z.number().int().nonnegative().default(0),
+  /** Distinct Pokémon with a recorded encounter anywhere in the region. */
+  speciesCount: z.number().int().nonnegative().default(0),
 });
 export type RegionSummary = z.infer<typeof RegionSummarySchema>;
 
@@ -40,7 +43,7 @@ export const LocationSummarySchema = z.object({
   id: z.number().int().positive(),
   name: z.string(),
   displayName: z.string(),
-  regionId: z.number().int().positive(),
+  regionId: z.number().int().nonnegative(),
   regionName: z.string(),
   mapX: z.number().min(0).max(100).nullable(),
   mapY: z.number().min(0).max(100).nullable(),
@@ -51,6 +54,8 @@ export const LocationSummarySchema = z.object({
   kind: z.string().nullable(),
   areaCount: z.number().int().nonnegative(),
   notableTrainers: z.array(z.string()).optional(),
+  /** Worth surfacing beside the region map rather than buried in the list. */
+  notable: z.boolean().optional(),
 });
 export type LocationSummary = z.infer<typeof LocationSummarySchema>;
 

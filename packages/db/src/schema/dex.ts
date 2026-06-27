@@ -282,6 +282,12 @@ export const pokemonMoves = dex.table(
  * the real games gate evolution on level, item, held item, happiness, time of
  * day, a known move, a location, gender, and more. The chain itself is walked
  * with a recursive CTE, replacing Oracle's `CONNECT BY NOCYCLE PRIOR`.
+ *
+ * A species has one row per *method*, not one row in total — Leafeon has six,
+ * because "level up beside a Mossy Rock" and "use a Leaf Stone" are different
+ * games' answers to the same question. Rendering only the first is how the
+ * chain used to caption Sylveon as a bare "Level Up"; the read path aggregates
+ * them all and the caption builder joins the distinct ones.
  */
 export const evolution = dex.table(
   'evolution',
@@ -295,11 +301,30 @@ export const evolution = dex.table(
     triggerItem: text('trigger_item'),
     heldItem: text('held_item'),
     knownMove: text('known_move'),
+    /** e.g. `fairy` — Sylveon needs a Fairy-type move, not one named move. */
+    knownMoveType: text('known_move_type'),
     minimumHappiness: smallint('minimum_happiness'),
     minimumAffection: smallint('minimum_affection'),
+    minimumBeauty: smallint('minimum_beauty'),
     timeOfDay: text('time_of_day'),
     gender: text('gender'),
     locationId: integer('location_id'),
+    /** The Mossy/Icy Rock rule: a location *feature*, not the place itself. */
+    nearSpecialRock: boolean('near_special_rock').notNull().default(false),
+    /** Tyrogue: `attack`, `defense` or `equal`. */
+    relativePhysicalStats: text('relative_physical_stats'),
+    /** Mantyke needs a Remoraid in the party; Karrablast trades for a Shelmet. */
+    partySpecies: text('party_species'),
+    partyType: text('party_type'),
+    tradeSpecies: text('trade_species'),
+    needsMultiplayer: boolean('needs_multiplayer').notNull().default(false),
+    /** Gen 9's "do a thing N times" evolutions: Annihilape, Kingambit, Pawmot. */
+    usedMove: text('used_move'),
+    minimumMoveCount: smallint('minimum_move_count'),
+    minimumSteps: integer('minimum_steps'),
+    minimumDamageTaken: integer('minimum_damage_taken'),
+    /** Regional evolutions (Meowth → Perrserker only in Galar). */
+    regionId: integer('region_id'),
     needsOverworldRain: boolean('needs_overworld_rain').notNull().default(false),
     turnUpsideDown: boolean('turn_upside_down').notNull().default(false),
   },
@@ -347,6 +372,12 @@ export const locationMeta = dex.table('location_meta', {
   kind: text('kind'),
   neighborIds: integer('neighbor_ids').array().notNull().default(sql`'{}'::integer[]`),
   notableTrainers: text('notable_trainers').array().notNull().default(sql`'{}'::text[]`),
+  /**
+   * Worth listing beside the region map — somewhere with a Gym, a named
+   * resident, or a hand-placed pin. Without it the map's side panel would
+   * have to show all 128 of Sinnoh's locations or an arbitrary first ten.
+   */
+  notable: boolean('notable').notNull().default(false),
 });
 
 export const locationAreas = dex.table(

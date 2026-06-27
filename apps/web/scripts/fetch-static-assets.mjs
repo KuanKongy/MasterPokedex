@@ -46,6 +46,10 @@ const MANIFEST = {
   'maps/galar.webp': `${BULBA}/c/ce/Galar_artwork.png`,
   'maps/hisui.webp': `${BULBA}/5/5b/Hisui.png`,
   'maps/paldea.webp': `${BULBA}/f/fd/Paldea_artwork.png`,
+  // Orre has no illustrated region artwork. The obvious candidate, Orre.png,
+  // is a screenshot with the in-game UI printed over its southern third; this
+  // is the clean contour map with the location diamonds on it.
+  'maps/orre.webp': `${BULBA}/4/41/Orre_Map.png`,
   // Location art (LOCATION_META)
   'locations/pallet-town.webp': `${BULBA}/4/45/Pallet_Town_PE.png`,
   'locations/viridian-city.webp': `${BULBA}/f/fc/Viridian_City_PE.png`,

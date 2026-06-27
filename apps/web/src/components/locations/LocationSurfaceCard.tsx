@@ -20,27 +20,37 @@ type LocationSurfaceCardProps = {
  * The map page's surface view of a location: enough to know what and who is
  * there, one click from the full page. Shares the react-query cache with
  * /locations/:id, so "Full details" opens instantly.
+ *
+ * Two columns from `sm` up — art on the left, the description, residents and
+ * neighbours on the right, encounters full width underneath. Stacking all of
+ * that in one narrow column, as this card used to, left every block cramped
+ * and the art shrunk to a strip.
  */
 const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, onSelectNeighbor, onClose }) => {
   const { data: location, isLoading, error } = useLocationDetail(locationId);
 
   return (
-    <Card className="flex h-[560px] flex-col shadow-md">
-      <CardHeader className="pb-2">
-        <Button variant="ghost" size="sm" onClick={onClose} className="-ml-2 mb-1 w-fit text-muted-foreground">
+    <Card className="flex h-[32rem] flex-col shadow-md">
+      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0 pb-3">
+        <div className="min-w-0">
+          {location && (
+            <CardTitle className="flex flex-wrap items-center gap-2">
+              {location.displayName}
+              {location.kind && (
+                <Badge variant="outline" className="capitalize">
+                  {location.kind}
+                </Badge>
+              )}
+            </CardTitle>
+          )}
+          {location?.regionName && (
+            <p className="mt-1 text-sm text-muted-foreground">{location.regionName}</p>
+          )}
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0 text-muted-foreground">
           <ChevronLeft className="mr-1 h-4 w-4" />
-          All locations
+          Close
         </Button>
-        {location && (
-          <CardTitle className="flex flex-wrap items-center gap-2">
-            {location.displayName}
-            {location.kind && (
-              <Badge variant="outline" className="capitalize">
-                {location.kind}
-              </Badge>
-            )}
-          </CardTitle>
-        )}
       </CardHeader>
 
       <CardContent className="min-h-0 flex-1 p-0">
@@ -53,56 +63,63 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="space-y-4 px-4 pb-4">
-              {location.image && (
-                <img
-                  src={resolveAsset(location.image)}
-                  alt={location.displayName}
-                  className="w-full rounded-md border object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src = resolveAsset('placeholder.svg');
-                  }}
-                />
-              )}
-              {location.description && (
-                <p className="text-sm text-muted-foreground">{location.description}</p>
-              )}
-
-              {(location.notableTrainers ?? []).length > 0 && (
-                <div>
-                  <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
-                    <Swords className="h-3.5 w-3.5 text-pokebrand-red" />
-                    Notable Trainers
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {location.notableTrainers!.map((trainer) => (
-                      <Badge key={trainer} variant="secondary">
-                        {trainer}
-                      </Badge>
-                    ))}
+            <div className="space-y-5 px-6 pb-6">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {location.image ? (
+                  <img
+                    src={resolveAsset(location.image)}
+                    alt={location.displayName}
+                    className="aspect-video w-full rounded-md border object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = resolveAsset('placeholder.svg');
+                    }}
+                  />
+                ) : (
+                  <div className="flex aspect-video w-full items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
+                    No art for this location
                   </div>
-                </div>
-              )}
+                )}
 
-              {location.neighbors.length > 0 && (
-                <div>
-                  <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
-                    <MapIcon className="h-3.5 w-3.5 text-pokebrand-red" />
-                    Neighboring Locations
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {location.neighbors.map((neighbor) => (
-                      <button key={neighbor.id} type="button" onClick={() => onSelectNeighbor(neighbor.id)}>
-                        <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                          {neighbor.displayName}
-                        </Badge>
-                      </button>
-                    ))}
-                  </div>
+                <div className="space-y-4">
+                  {location.description && <p className="text-sm text-muted-foreground">{location.description}</p>}
+
+                  {(location.notableTrainers ?? []).length > 0 && (
+                    <div>
+                      <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
+                        <Swords className="h-3.5 w-3.5 text-pokebrand-red" />
+                        Notable Trainers
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {location.notableTrainers!.map((trainer) => (
+                          <Badge key={trainer} variant="secondary">
+                            {trainer}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {location.neighbors.length > 0 && (
+                    <div>
+                      <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
+                        <MapIcon className="h-3.5 w-3.5 text-pokebrand-red" />
+                        Neighboring Locations
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {location.neighbors.map((neighbor) => (
+                          <button key={neighbor.id} type="button" onClick={() => onSelectNeighbor(neighbor.id)}>
+                            <Badge variant="outline" className="cursor-pointer hover:bg-muted">
+                              {neighbor.displayName}
+                            </Badge>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               <div>
                 <h3 className="mb-1.5 text-sm font-semibold">Pokémon Encounters</h3>

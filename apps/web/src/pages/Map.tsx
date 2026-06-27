@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { List } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
 import { useRegions } from '@/hooks/api/world';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -64,11 +65,24 @@ const Map = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>{region.displayName} Region</CardTitle>
-                  <CardDescription>
-                    {region.description}
-                    {region.description ? ' · ' : ''}
-                    {region.locationCount} known locations
-                  </CardDescription>
+                  {region.description && <CardDescription>{region.description}</CardDescription>}
+                  {/* Counts as chips rather than a run-on sentence — three
+                      numbers separated by middots read as one long caption. */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Badge variant="secondary" className="font-normal">
+                      {region.locationCount} locations
+                    </Badge>
+                    {region.areaCount > 0 && (
+                      <Badge variant="secondary" className="font-normal">
+                        {region.areaCount} areas
+                      </Badge>
+                    )}
+                    {region.speciesCount > 0 && (
+                      <Badge variant="secondary" className="font-normal">
+                        {region.speciesCount} Pokémon found here
+                      </Badge>
+                    )}
+                  </div>
                 </CardHeader>
               </Card>
               <PokemonMap region={region} />

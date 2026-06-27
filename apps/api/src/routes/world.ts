@@ -61,7 +61,18 @@ export const worldRoutes = new Hono<AppBindings>()
         r.display_name AS "displayName",
         r.description,
         r.map_image    AS "mapImage",
-        (SELECT count(*) FROM dex.locations l WHERE l.region_id = r.id)::int AS "locationCount"
+        (SELECT count(*) FROM dex.locations l WHERE l.region_id = r.id)::int AS "locationCount",
+        (
+          SELECT count(*) FROM dex.location_areas la
+          JOIN dex.locations l ON l.id = la.location_id
+          WHERE l.region_id = r.id
+        )::int AS "areaCount",
+        (
+          SELECT count(DISTINCT e.pokemon_id) FROM dex.encounters e
+          JOIN dex.location_areas la ON la.id = e.location_area_id
+          JOIN dex.locations l ON l.id = la.location_id
+          WHERE l.region_id = r.id
+        )::int AS "speciesCount"
       FROM dex.regions r
       ORDER BY r.id
     `);
@@ -91,6 +102,8 @@ export const worldRoutes = new Hono<AppBindings>()
         lm.image,
         lm.description,
         lm.kind,
+        COALESCE(lm.notable, false) AS notable,
+        COALESCE(lm.notable_trainers, '{}') AS "notableTrainers",
         (SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)::int AS "areaCount"
       FROM dex.locations l
       JOIN dex.regions r ON r.id = l.region_id
@@ -110,9 +123,9 @@ export const worldRoutes = new Hono<AppBindings>()
   .get('/locations', async (c) => {
     const rows = (await c.var.db.execute(sql`
       SELECT
-        r.id            AS "regionId",
-        r.name          AS "regionName",
-        COALESCE(r.display_name, r.name) AS "regionDisplayName",
+        COALESCE(r.id, 0)      AS "regionId",
+        COALESCE(r.name, 'other') AS "regionName",
+        COALESCE(r.display_name, r.name, 'Other & event locations') AS "regionDisplayName",
         l.id,
         l.name,
         l.display_name  AS "displayName",
@@ -124,9 +137,12 @@ export const worldRoutes = new Hono<AppBindings>()
           WHERE la.location_id = l.id
         ) AS "hasEncounters"
       FROM dex.locations l
-      JOIN dex.regions r ON r.id = l.region_id
+      -- LEFT, not INNER: 91 rows have no region (link-trade meeting points,
+      -- event distributions, side games). Joining them away made them
+      -- unreachable from the catalog while still being reachable by id.
+      LEFT JOIN dex.regions r ON r.id = l.region_id
       LEFT JOIN dex.location_meta lm ON lm.location_id = l.id
-      ORDER BY r.id, l.display_name
+      ORDER BY (l.region_id IS NULL), r.id, l.display_name
     `)) as unknown as {
       regionId: number;
       regionName: string;
