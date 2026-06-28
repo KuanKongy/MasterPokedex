@@ -1,13 +1,16 @@
-// Draws the favicon set (./favicon) and the Open Graph card (./public/og-image.png)
-// as pixel art. Every sprite is authored on a small grid and only ever scaled by
-// whole numbers, so each output size stays pixel-sharp. No dependencies.
+// Draws the favicon set (./favicon), the ten Poké Ball logos (./public/logo) and
+// the Open Graph card (./public/og-image.png) as pixel art. Every sprite is
+// authored on a small grid and only ever scaled by whole numbers, so each output
+// size stays pixel-sharp. It also cuts the original game icons for the same ten
+// balls (./public/logo/original) out of the copies in ./scripts/ball-originals.
+// No dependencies, no network.
 //
 //   node apps/web/scripts/generate-brand-assets.mjs
 
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deflateSync } from 'node:zlib';
+import { deflateSync, inflateSync } from 'node:zlib';
 
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -70,6 +73,33 @@ class Canvas {
         if (palette[ch]) this.rect(x + rx * scale, y + ry * scale, scale, scale, palette[ch]);
       });
     });
+  }
+
+  // The smallest box holding every pixel that isn't fully transparent.
+  bounds() {
+    let x0 = this.width, y0 = this.height, x1 = -1, y1 = -1;
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.data[(y * this.width + x) * 4 + 3] === 0) continue;
+        x0 = Math.min(x0, x); y0 = Math.min(y0, y);
+        x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+      }
+    }
+    return { x0, y0, x1, y1 };
+  }
+
+  // A w×h window starting at (x, y); anything it takes from off the canvas is transparent.
+  crop(x, y, w, h) {
+    const out = new Canvas(w, h);
+    for (let py = 0; py < h; py++) {
+      for (let px = 0; px < w; px++) {
+        const sx = x + px, sy = y + py;
+        if (sx < 0 || sy < 0 || sx >= this.width || sy >= this.height) continue;
+        const i = (sy * this.width + sx) * 4;
+        out.data.set(this.data.subarray(i, i + 4), (py * w + px) * 4);
+      }
+    }
+    return out;
   }
 
   // Nearest-neighbour upscale: each source pixel becomes a scale×scale block.
@@ -157,6 +187,56 @@ function encodeIco(canvases) {
   return Buffer.concat([header, ...pngs]);
 }
 
+// Just enough of a decoder for the original icons: palette or RGBA, eight bits
+// or fewer a sample, not interlaced. Anything else is refused rather than guessed.
+function decodePng(buf) {
+  const chunks = {};
+  const idat = [];
+  for (let at = 8; at < buf.length; ) {
+    const length = buf.readUInt32BE(at);
+    const type = buf.toString('ascii', at + 4, at + 8);
+    const data = buf.subarray(at + 8, at + 8 + length);
+    if (type === 'IDAT') idat.push(data);
+    else chunks[type] = data;
+    at += length + 12;
+  }
+  const { IHDR: ihdr, PLTE: plte, tRNS: trns } = chunks;
+  const width = ihdr.readUInt32BE(0), height = ihdr.readUInt32BE(4);
+  const depth = ihdr[8], colorType = ihdr[9];
+  const channels = { 3: 1, 6: 4 }[colorType];
+  if (!channels || depth > 8 || (colorType === 6 && depth !== 8) || ihdr[12] !== 0) {
+    throw new Error(`unsupported PNG: colour type ${colorType}, depth ${depth}, interlace ${ihdr[12]}`);
+  }
+  const bpp = Math.max(1, (channels * depth) >> 3);
+  const stride = Math.ceil((width * channels * depth) / 8);
+  const raw = inflateSync(Buffer.concat(idat));
+  const canvas = new Canvas(width, height);
+  let prev = Buffer.alloc(stride);
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)];
+    const line = Buffer.from(raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1)));
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? line[x - bpp] : 0, b = prev[x], c = x >= bpp ? prev[x - bpp] : 0;
+      const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+      const paeth = pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      line[x] = (line[x] + [0, a, b, (a + b) >> 1, paeth][filter]) & 0xff;
+    }
+    for (let x = 0; x < width; x++) {
+      let rgba;
+      if (colorType === 6) {
+        rgba = line.subarray(x * 4, x * 4 + 4);
+      } else {
+        const bit = x * depth;
+        const i = (line[bit >> 3] >> (8 - depth - (bit & 7))) & ((1 << depth) - 1);
+        rgba = [plte[i * 3], plte[i * 3 + 1], plte[i * 3 + 2], trns && i < trns.length ? trns[i] : 255];
+      }
+      canvas.data.set(rgba, (y * width + x) * 4);
+    }
+    prev = line;
+  }
+  return canvas;
+}
+
 // ---------------------------------------------------------------------------
 // Sprites
 // ---------------------------------------------------------------------------
@@ -166,11 +246,25 @@ function encodeIco(canvases) {
  *
  * The geometry below (BALL_16 by hand, computeBall(32) procedurally) is written
  * in characters, not colours: `K` outline, `R/h/r` the top shell's mid/light/
- * dark, `H` its specular, `W/w/g` the bottom shell. So a colourway is just a
- * palette — and the four balls whose identity is a marking rather than a hue
- * (Ultra's band, Master's M, Timer's rings, Net's mesh) add a *decal*: a grid
- * of the same size painted over the ball afterwards, clipped to the silhouette
- * so it can never leak past the outline.
+ * dark, `H` its specular, `W/w/g` the bottom shell. A palette colours the two
+ * halves; everything else a ball wears is a *coat* painted over the result.
+ *
+ * Each coat was traced from reference art mapped back onto a face-on sphere and
+ * sampled on this grid: the Sword and Shield model renders Bulbapedia hosts,
+ * which look down on the ball from about 26°, and for the Ultra and Net Balls
+ * the bag icons PokeAPI serves (kept in scripts/ball-originals), which look
+ * down from the same height with the ball turned 18° to the left. The samples
+ * were then finished by hand where the button, far bigger here than on the
+ * real thing, covers a marking — the Master Ball's M sits higher for that.
+ *
+ * Several balls are not spheres: fins, domes, blades, rims and a crest stand
+ * proud of the shell, so the logos carry a two-pixel margin round the 32-grid
+ * ball for them to stand in. A coat is the left half of that 36-grid, top row
+ * first; the right half is its mirror image, since every one of these balls is
+ * symmetric face-on, and rows past the last one listed are left alone. `.`
+ * means "leave the ball as drawn", `K` is ink and every other letter names a
+ * paint. Paint may cover the band or the button (the Luxury, Dusk and Beast
+ * Balls recolour both) and may stand in the margin, outlined in ink.
  */
 
 /** Builds the eight base keys from a top colour and a bottom colour. */
@@ -187,234 +281,306 @@ function shell(top, bottom, { ink = C.ink } = {}) {
   };
 }
 
-const ACCENT = {
-  gold: hex('#F7D02C'),
-  goldDeep: hex('#B8860B'),
-  pink: hex('#E75BA8'),
-  crimson: hex('#CE2020'),
-  ink: hex('#17171C'),
-  sky: hex('#5BC8F5'),
-  navy: hex('#123C86'),
-  teal: hex('#0E6F77'),
-  ember: hex('#F0761E'),
-};
+const paints = (named) =>
+  Object.fromEntries(Object.entries(named).map(([key, color]) => [key, typeof color === 'string' ? hex(color) : color]));
 
-const BALL_PALETTES = {
-  'poke-ball': shell(C.red, C.shell),
-  'great-ball': { ...shell(hex('#2064C8'), C.shell), A: C.red, a: WHITE },
-  'ultra-ball': { ...shell(hex('#27272E'), C.shell), A: ACCENT.gold, a: ACCENT.goldDeep },
-  'master-ball': { ...shell(hex('#7A34B0'), C.shell), A: ACCENT.pink, a: WHITE },
-  'beast-ball': { ...shell(hex('#3E47A0'), hex('#DFE3F7')), A: ACCENT.gold, a: ACCENT.sky },
-  'luxury-ball': { ...shell(hex('#232326'), hex('#1A1A1D'), { ink: hex('#050507') }), A: ACCENT.gold, a: ACCENT.crimson },
-  'quick-ball': { ...shell(hex('#F2C230'), C.shell), A: ACCENT.navy, a: ACCENT.sky },
-  'dusk-ball': { ...shell(hex('#1E6B45'), hex('#26262B')), A: ACCENT.ember, a: hex('#3FD98A') },
-  'timer-ball': { ...shell(C.shell, C.shell), A: ACCENT.crimson, a: ACCENT.ink },
-  'net-ball': { ...shell(hex('#17919B'), C.shell), A: ACCENT.navy, a: ACCENT.teal },
+const BALLS = {
+  'poke-ball': { palette: shell(C.red, C.shell) },
+  'great-ball': {
+    // Two red fins on the shoulders, lit along their upper edge, with blue
+    // between them and the band; each stands a pixel proud of the outline.
+    palette: shell(hex('#2A7FC4'), C.shell),
+    paint: paints({ A: '#D8453F', a: '#F08A80' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '........KK........',
+      '.......KAK........',
+      '.....KKAAAA.......',
+      '.....KAAAAa.......',
+      '....KAAAAa........',
+      '...KAAAAAa........',
+      '..KKAAAAaa........',
+      '..KAAAAAa.........',
+      '..KAAAAAa.........',
+      '.KKAAAAaa.........',
+      '...AAAAa..........',
+    ],
+  },
+  'ultra-ball': {
+    // Two yellow stripes rising either side of the button and leaning in over
+    // the top; the slate shows through down the middle and at the flanks.
+    palette: shell(hex('#677280'), C.shell),
+    paint: paints({ A: '#FDD23C' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '............A.....',
+      '..........AAA.....',
+      '.........AAAA.....',
+      '........AAAAA.....',
+      '........AAAAA.....',
+      '........AAAAA.....',
+      '........AAAAA.....',
+      '........AAAAA.....',
+      '........AAAAA.....',
+      '.........AAA......',
+      '.........AAA......',
+    ],
+  },
+  'master-ball': {
+    // A bold white M over the button, a pink dome with a gloss spot on each
+    // shoulder bulging past the outline, and the paler dimple on the crown.
+    palette: shell(hex('#6A42A0'), C.shell),
+    paint: paints({ A: '#D63C8C', a: '#FFFFFF', B: '#8D6CB8' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '........KK........',
+      '.......KAA......BB',
+      '......KAAA....aa..',
+      '.....KAaaAA...aaa.',
+      '....KAAaaAA...aaaa',
+      '...KAAAAAAA...aa.a',
+      '...KAAAAAAA...aa..',
+      '..KAAAAAAA....aa..',
+      '..KAAAAAAA........',
+      '......AA..........',
+    ],
+  },
+  'beast-ball': {
+    // No black band: blue over violet, a glowing cyan grid of meridians and
+    // parallels, a cyan ring inside the button's, and four pale gold blades
+    // curving out from beside the button well past the outline. The button is
+    // painted white, since it takes the lower half's colour.
+    palette: shell(hex('#1D5DB8'), hex('#2E2E96')),
+    paint: paints({
+      P: C.shell,
+      G: '#F2EAB0',
+      E: '#C9B870',
+      L: '#6AD8F6',
+      S: '#1D5DB8',
+      D: '#2E2E96',
+    }),
+    coat: [
+      '..................',
+      '....KK............',
+      '....KK............',
+      '.....EK...........',
+      '....KEEK.......L.L',
+      '....KEGEK.....L..L',
+      '....KEGGEE...L...L',
+      '....KEGGGEE.L....L',
+      '....KEGGGGEL.....L',
+      '....KEGGGGGE.....L',
+      '......EGGGGE.....L',
+      '......EEGGGGLLLLL.',
+      '.......EEGGGE....L',
+      '.........EEGE..LLP',
+      '.........L.E..LPPP',
+      '.........L...LPPPP',
+      '....SSSSSSSS.LPPPP',
+      '....LLLLLLL.LPPPPP',
+      '....LLLLLLL.LPPPPP',
+      '....DDDDDDDD.LPPPP',
+      '.........L...LPPPP',
+      '.........L.EE.LPPP',
+      '.........EEGE..LLP',
+      '........EGGGE....L',
+      '......EEGGGGELLLL.',
+      '......EGGGGE.....L',
+      '....KEGGGGGE.....L',
+      '....KEGGGGEE.....L',
+      '....KEGGGGE.L....L',
+      '....KGGGGE...L...L',
+      '....KGGEE.....L..L',
+      '....KEEKK......L.L',
+      '...KKKK...........',
+      '...KK.............',
+    ],
+  },
+  'luxury-ball': {
+    // Black, with a red ring edged in gold round the crown, a gold band between
+    // silver rims that wrap its ends and stand proud there, and a gold button
+    // set in the same silver.
+    palette: shell(hex('#343536'), hex('#2A2B2C')),
+    paint: paints({ A: '#C8302A', G: '#D6A11E', T: '#E4E4E6', Y: '#F6DA5A', Q: '#9C7212' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..........GGGGGGGG',
+      '.........AAAAAAAAA',
+      '........AAAAAAAAAA',
+      '.......GGGGGGGGGGG',
+      '..................',
+      '.................T',
+      '..............TTTQ',
+      '.............TTQQG',
+      '............TTQGGG',
+      '....TTTTTTTTTQGGGG',
+      'KTTTTTTTTTTTTQGGGG',
+      'KTTTGGGGGGGTQGGGGY',
+      'KTTTGGGGGGGTQGGGGY',
+      'KTTTTTTTTTTTTQGGGG',
+      '....TTTTTTTTTQGGGG',
+      '............TTQGGG',
+      '.............TTQQG',
+      '..............TTTQ',
+      '.................T',
+    ],
+  },
+  'quick-ball': {
+    // Yellow, under a blue crown whose hem zigzags up the middle, blue flanks
+    // each notched like a bolt, and a blue base with teeth rising into the
+    // yellow. The button is painted back to white.
+    palette: shell(hex('#E8C520'), hex('#E8C520')),
+    paint: paints({ A: '#2C54B4', P: C.shell }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '...............AAA',
+      '............AAAAAA',
+      '..........AAAAAAAA',
+      '.........AAAAAAAA.',
+      '..........AAAAAAA.',
+      '...........AAAAA..',
+      '......A.....AAA...',
+      '......AA....AA....',
+      '.....AAAA.........',
+      '.....AAAA........P',
+      '.....AAA.......PPP',
+      '....AAA.......PPPP',
+      '..............PPPP',
+      '.............PPPPP',
+      '.............PPPPP',
+      '..............PPPP',
+      '....AAA.......PPPP',
+      '.....AAA.......PPP',
+      '.....AAAA........P',
+      '.....AAAA.........',
+      '......AA..........',
+      '......A...........',
+      '..................',
+      '.................A',
+      '..........AAA...AA',
+      '..........AAAA.AAA',
+      '............AAAAAA',
+      '...............AAA',
+    ],
+  },
+  'dusk-ball': {
+    // Green panels between black ridges — crown, base, flanks, and the glowing
+    // one behind the button — with a thin orange band and an orange button.
+    palette: shell(hex('#1E2A21'), hex('#1E2A21')),
+    paint: paints({ A: '#2E9A38', B: '#62D86C', O: '#E0661A', D: '#8A3A10', Q: '#F4944A' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '...............BBB',
+      '............AAAAAA',
+      '..................',
+      '..................',
+      '..........AAAAAAAA',
+      '..........AAAAAAAA',
+      '......B...AABBBBBB',
+      '......B...AABBBBBD',
+      '.....AB...AABBDDDO',
+      '.....AB...AABDDOOO',
+      '.....AB...AADDOOOO',
+      '....AAB...AADOOOOO',
+      '....AAB...AADOOOOO',
+      '....OOOOOOODOOOOOQ',
+      '....OOOOOOODOOOOOQ',
+      '....AAB...AADOOOOO',
+      '....AAB...AADOOOOO',
+      '.....AB...AADDOOOO',
+      '.....AB...AABDDOOO',
+      '.....AB...AABBDDDO',
+      '......B...AABBBBBD',
+      '......B...AABBBBBB',
+      '..........AAAAAAAA',
+      '..........AAAAAAAA',
+      '..................',
+      '..................',
+      '............AAAAAA',
+      '...............BBB',
+    ],
+  },
+  'timer-ball': {
+    // White, with a dark cap, red flanks, and the red crest running over the
+    // crown, which stands a pixel above the outline.
+    palette: shell(C.shell, C.shell),
+    paint: paints({ C: '#3A2E2C', A: '#E0443E' }),
+    coat: [
+      '..................',
+      '..............KKKK',
+      '..............KAAA',
+      '...............AAA',
+      '...............AAA',
+      '............CCCAAA',
+      '..........CCCCCAAA',
+      '.........CCCCCCCAA',
+      '........CCCCCCCCAA',
+      '.................A',
+      '......A..........A',
+      '......A...........',
+      '.....AA...........',
+      '.....AA...........',
+      '.....AA...........',
+      '....AAA...........',
+    ],
+  },
+  'net-ball': {
+    // A dark cage over the teal: bars round the crown, one across the shoulders,
+    // and the front bars closing in on the button.
+    palette: shell(hex('#0998B4'), C.shell),
+    paint: paints({ N: '#292D31', n: '#595656' }),
+    coat: [
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '...............NNN',
+      '............NNNNNN',
+      '..........NNNN....',
+      '.........NNN......',
+      '........NN........',
+      '.......NNnnnnnnnnn',
+      '......NNNNNNNNNNNN',
+      '......NN.....NN...',
+      '.....NN.....NN....',
+      '.....NN....NN.....',
+      '.....N.....N......',
+      '....NN....NN......',
+    ],
+  },
 };
 
 /**
- * Decals, authored on the 16-grid and scaled up for the 32. `.` means "leave
- * the ball alone"; every other character is a palette key.
+ * Paint takes the light the base drawing puts under it, but less of the gloss
+ * than bare shell does, so a stripe inside the specular patch still reads as
+ * its own colour. Band, button and anything outside the ball stay flat.
  */
-const BALL_DECALS = {
-  // Red shoulders sweeping up from the band, the way the Great Ball's caps read.
-  'great-ball': [
-    '................',
-    '...AA......AA...',
-    '..AAA......AAA..',
-    '.AAA........AAA.',
-    '.AAa........aAA.',
-    '.AAA........AAA.',
-    '.AAA........AAA.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // The Ultra Ball's gold H.
-  'ultra-ball': [
-    '................',
-    '................',
-    '....A......A....',
-    '....A......A....',
-    '....AAAAAAAA....',
-    '....A......A....',
-    '....A......A....',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Master Ball: the M between two studs.
-  'master-ball': [
-    '................',
-    '................',
-    '.....A....A.....',
-    '..aa.AA..AA.aa..',
-    '..aa.A.AA.A.aa..',
-    '.....A....A.....',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Beast Ball: concentric bands, gold over sky.
-  'beast-ball': [
-    '................',
-    '....AAAAAAAA....',
-    '..aa........aa..',
-    '..AAAA....AAAA..',
-    '.aa..........aa.',
-    '.AAAA......AAAA.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Luxury Ball: gold trim hugging the band, a crimson crown on top.
-  'luxury-ball': [
-    '................',
-    '.....aaaaaa.....',
-    '....aa....aa....',
-    '................',
-    '................',
-    '.AAAAAA..AAAAAA.',
-    '.AAAAA....AAAAA.',
-    '................',
-    '................',
-    '.AAAAA....AAAAA.',
-    '.AAAAAA..AAAAAA.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Quick Ball: blue speed lines raking up the sides, yellow crown left showing.
-  'quick-ball': [
-    '................',
-    '................',
-    '...AA......AA...',
-    '..AA........AA..',
-    '..A..........A..',
-    '.AA..........AA.',
-    '.A............A.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Dusk Ball: the ember ring, and a pale green glow under the crown.
-  'dusk-ball': [
-    '................',
-    '................',
-    '.....aaaaaa.....',
-    '................',
-    '.AAAAAA..AAAAAA.',
-    '.AAAAAA..AAAAAA.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Timer Ball: the red rings over black, on a silver shell.
-  'timer-ball': [
-    '................',
-    '...aaaaaaaaaa...',
-    '..AAAAAAAAAAAA..',
-    '.aaaaaaaaaaaaaa.',
-    '.AAAAAAAAAAAAAA.',
-    '.aaaaaa..aaaaaa.',
-    '.AAAAA....AAAAA.',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
-  // Net Ball: a sparse lattice, so the teal still reads through the mesh.
-  'net-ball': [
-    '................',
-    '................',
-    '....A..A..A.....',
-    '....A..A..A.....',
-    '..AAAAAAAAAAAA..',
-    '....A.....A.....',
-    '....A.....A.....',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-  ],
+const PAINT_LIGHT = {
+  H: [WHITE, 0.3],
+  h: [WHITE, 0.14],
+  r: [BLACK, 0.3],
+  w: [BLACK, 0.2],
+  g: [BLACK, 0.38],
 };
-
-/**
- * Paints a decal onto a ball grid. Cells outside the silhouette and the ink
- * outline are left alone, so a decal can be drawn loosely and still land
- * inside the ball at any size.
- */
-function applyDecal(rows, decal) {
-  if (!decal) return rows;
-  return rows.map((row, y) =>
-    [...row]
-      .map((ch, x) => {
-        const mark = decal[y]?.[x];
-        if (!mark || mark === '.' || ch === '.' || ch === 'K') return ch;
-        return mark;
-      })
-      .join(''),
-  );
-}
-
-/** Nearest-neighbour upscale of a character grid, for the 32px ball. */
-function scaleGrid(rows, factor) {
-  return rows.flatMap((row) => {
-    const wide = [...row].flatMap((ch) => Array(factor).fill(ch)).join('');
-    return Array(factor).fill(wide);
-  });
-}
 
 // Hand-placed for 16px, where a computed circle turns to mush.
 const BALL_16 = [
@@ -472,10 +638,42 @@ function computeBall(n) {
 
 const BALL_32 = computeBall(32);
 
-function ballCanvas(rows, palette = BALL_PALETTES['poke-ball']) {
+function ballCanvas(rows, palette = BALLS['poke-ball'].palette) {
   const canvas = new Canvas(rows.length, rows.length);
   canvas.sprite(rows, palette, 0, 0, 1);
   return canvas;
+}
+
+const LOGO_MARGIN = 2;
+
+/** A logo: the ball in its palette, inset by the margin, with its coat mirrored over it. */
+function coatedBall(rows, { palette, paint = {}, coat = [] }) {
+  const size = rows.length + 2 * LOGO_MARGIN;
+  const canvas = new Canvas(size, size);
+  canvas.sprite(rows, palette, LOGO_MARGIN, LOGO_MARGIN, 1);
+  coat.forEach((half, y) => {
+    [...half, ...[...half].reverse()].forEach((key, x) => {
+      if (key === '.') return;
+      if (key === 'K') return canvas.rect(x, y, 1, 1, palette.K);
+      const light = PAINT_LIGHT[rows[y - LOGO_MARGIN]?.[x - LOGO_MARGIN]];
+      canvas.rect(x, y, 1, 1, light ? mix(paint[key], ...light) : paint[key]);
+    });
+  });
+  return canvas;
+}
+
+/**
+ * The game's own icon, for anyone who would rather have it: the 30px PokeAPI
+ * bag sprite, cut to a 20px square around the ball so every ball keeps the same
+ * scale and sits in its box like the drawn logos do (an 18px ball with a pixel
+ * either side, against their 32 with two), then blown up by whole pixels so it
+ * stays sharp wherever CSS can't be told to.
+ */
+function originalIcon(ball) {
+  const icon = decodePng(readFileSync(join(webRoot, 'scripts', 'ball-originals', `${ball}.png`)));
+  const { x0, y0, x1, y1 } = icon.bounds();
+  const side = 20;
+  return icon.crop(Math.floor((x0 + x1 + 1 - side) / 2), Math.floor((y0 + y1 + 1 - side) / 2), side, side).scaled(6);
 }
 
 // ---------------------------------------------------------------------------
@@ -692,7 +890,7 @@ function ogImage() {
     }
   }
 
-  for (const [bx, by] of balls) art.sprite(BALL_16, BALL_PALETTES['poke-ball'], bx * TILE + 1, by * TILE + 1, 1);
+  for (const [bx, by] of balls) art.sprite(BALL_16, BALLS['poke-ball'].palette, bx * TILE + 1, by * TILE + 1, 1);
 
   const out = art.scaled(UNIT);
 
@@ -728,7 +926,7 @@ const logoDir = join(webRoot, 'public', 'logo');
 rmSync(faviconDir, { recursive: true, force: true });
 rmSync(logoDir, { recursive: true, force: true });
 mkdirSync(faviconDir, { recursive: true });
-mkdirSync(logoDir, { recursive: true });
+mkdirSync(join(logoDir, 'original'), { recursive: true });
 
 const outputs = {};
 
@@ -736,23 +934,21 @@ const outputs = {};
 // runtime from the stored preference, so they need stable unhashed URLs. The
 // header, the spinner, the Settings tiles and the browser tab all read them,
 // which is what makes the ball a site theme rather than a spinner skin.
-for (const [ball, palette] of Object.entries(BALL_PALETTES)) {
-  const decal = BALL_DECALS[ball] ?? null;
-  const small = ballCanvas(applyDecal(BALL_16, decal), palette);
-  const large = ballCanvas(applyDecal(BALL_32, decal && scaleGrid(decal, 2)), palette);
-
-  outputs[`public/logo/${ball}-64.png`] = encodePng(large.scaled(2));
-  outputs[`public/logo/${ball}-128.png`] = encodePng(large.scaled(4));
-
-  // index.html's tags resolve before any preference is known, so the default
-  // ball keeps the fingerprinted favicon set it has always had.
-  if (ball === 'poke-ball') {
-    outputs['favicon/favicon.ico'] = encodeIco([small, large, small.scaled(3)]);
-    outputs['favicon/favicon-192x192.png'] = encodePng(large.scaled(6));
-    // iOS paints transparency black, so the touch icon gets a solid backdrop.
-    outputs['favicon/apple-touch-icon.png'] = encodePng(large.scaled(5, 10, C.bg));
-  }
+// Settings can swap the drawings for the game's own icons, which sit beside
+// them for the same reason.
+for (const [ball, spec] of Object.entries(BALLS)) {
+  outputs[`public/logo/${ball}.png`] = encodePng(coatedBall(BALL_32, spec).scaled(4));
+  outputs[`public/logo/original/${ball}.png`] = encodePng(originalIcon(ball));
 }
+
+// index.html's tags resolve before any preference is known, so the default
+// ball keeps the fingerprinted favicon set it has always had.
+const small = ballCanvas(BALL_16);
+const large = ballCanvas(BALL_32);
+outputs['favicon/favicon.ico'] = encodeIco([small, large, small.scaled(3)]);
+outputs['favicon/favicon-192x192.png'] = encodePng(large.scaled(6));
+// iOS paints transparency black, so the touch icon gets a solid backdrop.
+outputs['favicon/apple-touch-icon.png'] = encodePng(large.scaled(5, 10, C.bg));
 
 outputs['public/og-image.png'] = encodePng(ogImage());
 
@@ -762,4 +958,4 @@ for (const [file, bytes] of Object.entries(outputs)) {
   total += bytes.length;
 }
 console.log(`${Object.keys(outputs).length} files, ${(total / 1024).toFixed(1)} KB total`);
-for (const ball of Object.keys(BALL_PALETTES)) console.log(`  ${ball}`);
+for (const ball of Object.keys(BALLS)) console.log(`  ${ball}`);

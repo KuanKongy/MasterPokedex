@@ -77,7 +77,7 @@ export function spriteFallback(
   img.title = 'No artwork available for this form yet';
   // The chrome's own ball, matching whichever colourway is on <html>.
   const ball = document.documentElement.dataset.ball ?? 'poke-ball';
-  img.src = `${import.meta.env.BASE_URL}logo/${ball}-128.png`;
+  img.src = `${import.meta.env.BASE_URL}logo/${ball}.png`;
 }
 
 type SpritePrefState = {

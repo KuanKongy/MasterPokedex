@@ -110,7 +110,7 @@ upstream data moves, and commit what they produce.
 
 | Command | What it does |
 | --- | --- |
-| `npm run brand --workspace=@masterpokedex/web` | draws the favicon set and one pixel-art logo per Poké Ball colourway into `public/logo/` |
+| `npm run brand --workspace=@masterpokedex/web` | draws the favicon set and one pixel-art logo per Poké Ball colourway into `public/logo/`, and cuts the original bag icons in `scripts/ball-originals/` into `public/logo/original/` |
 | `npm run assets --workspace=@masterpokedex/web` | downloads the region maps and demo avatars (Bulbagarden's Cloudflare blocks browser hotlinks, so they are self-hosted) |
 | `node apps/web/scripts/fetch-item-sprites.mjs` | item art and effect text from Bulbapedia and PokémonDB → `public/items/` + `src/data/item-sprites.json`; takes item art coverage to 99.7% |
 | `node packages/db/scripts/fetch-location-data.mjs` | every location's artwork, description, neighbours and notable trainers from Bulbapedia → `public/locations/` + `data/locations.generated.ts`. One request per second, backs off on 429/5xx, and checkpoints every page, so an interrupted run resumes instead of re-crawling |

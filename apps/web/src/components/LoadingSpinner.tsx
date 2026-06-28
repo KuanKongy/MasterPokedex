@@ -3,11 +3,12 @@ import { ballSprite, useBallPref } from '@/prefs/BallPrefContext';
 
 /**
  * The app-wide loading state: the user's chosen Poké Ball, rocking like one
- * that is about to click shut. The art is our own, generated per colourway
- * into public/logo; if it ever 404s the CSS fallback ball takes over.
+ * that is about to click shut. The art is self-hosted in public/logo — our
+ * drawing or the game icon, per Settings; if it ever 404s the CSS fallback
+ * ball takes over.
  */
 const LoadingSpinner: React.FC = () => {
-  const { ballStyle } = useBallPref();
+  const { ballStyle, ballArt } = useBallPref();
   const [broken, setBroken] = React.useState(false);
 
   return (
@@ -19,9 +20,9 @@ const LoadingSpinner: React.FC = () => {
         </div>
       ) : (
         <img
-          src={ballSprite(ballStyle)}
+          src={ballSprite(ballStyle, ballArt)}
           alt=""
-          className="h-12 w-12 pixelated animate-pokeball-shake"
+          className="h-14 w-14 pixelated animate-pokeball-shake"
           onError={() => setBroken(true)}
         />
       )}

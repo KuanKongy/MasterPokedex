@@ -28,7 +28,7 @@ const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-poke
  */
 const Settings: React.FC = () => {
   const { spriteStyle, setSpriteStyle } = useSpritePref();
-  const { ballStyle, setBallStyle } = useBallPref();
+  const { ballStyle, setBallStyle, ballArt, setBallArt } = useBallPref();
   const { resolvedTheme } = useTheme();
   const { toast } = useToast();
   const [alwaysShowMegas, setAlwaysShowMegas] = useBooleanPref(ALWAYS_SHOW_MEGAS);
@@ -93,7 +93,7 @@ const Settings: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <img src={ballSprite(ballStyle)} alt="" className="h-5 w-5 pixelated" />
+              <img src={ballSprite(ballStyle, ballArt)} alt="" className="h-6 w-6 pixelated" />
               Poké Ball style
             </CardTitle>
             <CardDescription>
@@ -101,7 +101,23 @@ const Settings: React.FC = () => {
               loading spinner — with its own light and dark look.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <Label
+              htmlFor="ball-original-art"
+              className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
+            >
+              <span className="space-y-0.5">
+                <span className="block text-sm font-medium">Original game sprites</span>
+                <span className="block text-xs font-normal text-muted-foreground">
+                  The bag icons from PokeAPI, instead of MasterPokédex's own pixel art
+                </span>
+              </span>
+              <Switch
+                id="ball-original-art"
+                checked={ballArt === 'original'}
+                onCheckedChange={(on) => setBallArt(on ? 'original' : 'drawn')}
+              />
+            </Label>
             <RadioGroup
               value={ballStyle}
               onValueChange={(value) => setBallStyle(value as BallStyle)}
@@ -117,7 +133,7 @@ const Settings: React.FC = () => {
                   )}
                 >
                   <RadioGroupItem id={`ball-${ball.value}`} value={ball.value} className="sr-only" />
-                  <img src={ballSprite(ball.value)} alt="" className="h-10 w-10 pixelated" />
+                  <img src={ballSprite(ball.value, ballArt)} alt="" className="h-11 w-11 pixelated" />
                   <span className="text-xs font-medium text-center">{ball.label}</span>
                   <span className="flex gap-1">
                     {BALL_SWATCHES[ball.value][swatchMode].map((hex, index) => (

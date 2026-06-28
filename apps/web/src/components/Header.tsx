@@ -67,7 +67,7 @@ const Header: React.FC = () => {
   const { session, signOut } = useAuth();
   const { data: me } = useMe();
   const { resolvedTheme, setTheme } = useTheme();
-  const { ballStyle } = useBallPref();
+  const { ballStyle, ballArt } = useBallPref();
 
   const dataActive = dataMenu.some((item) => isNavActive(location.pathname, item.href));
 
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
     <header className="bg-pokebrand-band border-b dark:border-gray-800">
       <div className="container mx-auto px-4 flex h-16 items-center gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={ballSprite(ballStyle)} alt="" className="h-8 w-8 pixelated" />
+          <img src={ballSprite(ballStyle, ballArt)} alt="" className="h-9 w-9 pixelated" />
           <span className="text-xl font-bold text-pokebrand-foreground">MasterPokédex</span>
         </Link>
 
