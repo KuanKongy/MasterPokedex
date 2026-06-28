@@ -30,11 +30,12 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 |---|---|---|---|---|
 | GET | `/v1/pokemon` | — | `limit` (1–200, default 50), `cursor`, `q` (name search), `type`, `generation` (1–9), `sort` (`id`, `name`, `total`, `hp`, `attack`, `defense`, `specialAttack`, `specialDefense`, `speed`, `height`, `weight`, `baseExperience`), `dir` (`asc`/`desc`), `filter` (encoded whitelist grammar, below) | Cursor-paged dex list. |
 | GET | `/v1/pokemon/:idOrName` | — | dex id or name (`25` or `pikachu`) | Full detail: stats, types, abilities, species text, dimensions, rates. `not_found` otherwise. |
-| GET | `/v1/pokemon/:id/evolution` | — | | Whole evolution chain from the species root — branching-safe, ordered by depth. |
+| GET | `/v1/pokemon/:id/evolution` | — | | Whole evolution chain from the species root — branching-safe, ordered by depth. Each node carries `methods`: **every** `dex.evolution` row for that species, ids resolved to names, not just the oldest. A species has one row per method (Leafeon has six), and taking the first is what used to caption Sylveon as a bare "Level Up". |
 | GET | `/v1/pokemon/:id/encounters` | — | | Every encounter: region, location, area, method, level range, rarity, conditions, versions. |
 | GET | `/v1/pokemon/:id/moves` | — | | Learnset grouped by method (level-up / machine / egg / tutor), each row carrying the move's `slug` for linking. Implemented in `routes/reference.ts`. |
 | GET | `/v1/pokemon/megas` | — | | All 97 Mega forms with `formLabel`, stats, and the base species (`baseName`, `basePokemonId`). |
-| GET | `/v1/pokemon/:id/forms` | — | | Every variety of the same species (base, Megas, regionals, Gigantamax), labeled and flagged (`isMega`/`isGmax`/`isRegional`). |
+| GET | `/v1/pokemon/gmax` | — | | The same, for the 34 Gigantamax forms. Registered before `/:idOrName` for the same reason `/megas` is. |
+| GET | `/v1/pokemon/:id/forms` | — | `scope` (`family`) | Every variety of the same species (base, Megas, regionals, Gigantamax), labeled and flagged (`isMega`/`isGmax`/`isRegional`). `scope=family` widens it to every species in the evolution chain and adds `speciesId`/`speciesName` for grouping — Megas and Gigantamax forms belong to one stage, so a species-scoped answer can only ever show them on the last one. |
 
 **Filter grammar.** `filter` is a JSON condition tree serialized by the helpers in `packages/shared/src/filters.ts` and validated with Zod enums on both field and operator — no request string ever reaches an identifier or operator position in SQL. Fields: `name`, `type`, `generation`, `total`, `hp`, `attack`, `defense`, `specialAttack`, `specialDefense`, `speed`, `height`, `weight`, `baseExperience`, `captureRate`, `growthRate`, `color`, `habitat`, `isLegendary`, `isMythical`, plus relation-backed fields `ability` (matches identifier or display name), `evolutionTrigger`, and the species-level booleans `hasMega`, `hasGmax`, `isFullyEvolved`. Operators: strings `eq|neq|contains|startsWith|endsWith`, numbers `eq|neq|gt|gte|lt|lte`, booleans `eq`, enums `eq|neq|in`; conditions combine under `all` (AND) or `any` (OR).
 
@@ -73,9 +74,9 @@ Base URL: `http://localhost:8787` in development, the Railway service URL in pro
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/v1/regions` | — | All regions: display name, description, map image (a path into the web app's self-hosted `public/maps/`), location count. |
-| GET | `/v1/regions/:id/locations` | — | Locations in a region, including curated `mapX`/`mapY` pin coordinates (nullable). |
-| GET | `/v1/locations` | — | The global catalog: every region with its locations (`kind`, `areaCount`, `hasEncounters`). |
+| GET | `/v1/regions` | — | All regions: display name, description, map image (a path into the web app's self-hosted `public/maps/`), plus `locationCount`, `areaCount` and `speciesCount`. |
+| GET | `/v1/regions/:id/locations` | — | Locations in a region, including `mapX`/`mapY` pin coordinates (nullable), `notable` and `notableTrainers` for the map's side panel. |
+| GET | `/v1/locations` | — | The global catalog: every region with its locations (`kind`, `areaCount`, `hasEncounters`). The 91 rows with no region are grouped under a synthetic region `0`, "Other & event locations" — an inner join used to drop them. |
 | GET | `/v1/locations/search` | — | Flat filterable rows for the advanced-search Locations entity (`filter` grammar: name/region/kind/areaCount/hasEncounters; integer-keyset `cursor`). |
 | GET | `/v1/locations/:id` | — | One location: areas, per-area encounter tables, map neighbours, curated `notableTrainers`. |
 

@@ -101,6 +101,21 @@ See `.env.example` for the annotated template.
 | `npm run db:migrate` / `db:generate` / `db:studio` | drizzle-kit against `DIRECT_DATABASE_URL` |
 | `npm run db:seed` / `db:seed:auth` / `db:seed:demo` / `db:verify` | dex ETL / demo auth users / demo cast / SQL assertions |
 
+### One-shot content scripts
+
+PokeAPI has no cartography, no artwork for places, and a sprite repo that covers
+fewer than half the dex's items. These four fill that in, write their results to
+generated files the seed reads, and are not part of any build — run them when the
+upstream data moves, and commit what they produce.
+
+| Command | What it does |
+| --- | --- |
+| `npm run brand --workspace=@masterpokedex/web` | draws the favicon set and one pixel-art logo per Poké Ball colourway into `public/logo/` |
+| `npm run assets --workspace=@masterpokedex/web` | downloads the region maps and demo avatars (Bulbagarden's Cloudflare blocks browser hotlinks, so they are self-hosted) |
+| `node apps/web/scripts/fetch-item-sprites.mjs` | item art and effect text from Bulbapedia and PokémonDB → `public/items/` + `src/data/item-sprites.json`; takes item art coverage to 99.7% |
+| `node packages/db/scripts/fetch-location-data.mjs` | every location's artwork, description, neighbours and notable trainers from Bulbapedia → `public/locations/` + `data/locations.generated.ts`. One request per second, backs off on 429/5xx, and checkpoints every page, so an interrupted run resumes instead of re-crawling |
+| `node packages/db/scripts/fetch-map-pins.mjs` | map pin coordinates, read out of Bulbapedia's Town Map images by diffing each location's against the region's median → `data/map-pins.generated.ts` |
+
 ## API surface
 
 Public reference: `/v1/pokemon` (cursor-paged, whitelisted filter grammar), `/v1/pokemon/:id`

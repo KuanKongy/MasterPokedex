@@ -4,37 +4,20 @@ import { useTheme } from 'next-themes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import {
-  ArrowRight,
-  BookOpen,
-  FileText,
-  Github,
-  Image as ImageIcon,
-  Linkedin,
-  Mail,
-  Monitor,
-  Moon,
-  Shield,
-  Sun,
-} from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, Github, Image as ImageIcon, Linkedin, Mail, Shield, Sparkles } from 'lucide-react';
 import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/prefs/SpritePrefContext';
 import { BALL_STYLES, ballSprite, useBallPref, type BallStyle } from '@/prefs/BallPrefContext';
 import { BALL_SWATCHES } from '@/prefs/ballTheme';
 import { CONTACT } from '@/lib/contact';
 import { copyToClipboard } from '@/lib/clipboard';
 import { useToast } from '@/hooks/use-toast';
+import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { cn } from '@/lib/utils';
 
 /** Pikachu previews the sprite styles; nobody needs a caption to recognise it. */
 const PREVIEW_ID = 25;
-
-const THEME_OPTIONS = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-] as const;
 
 const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline';
 
@@ -46,8 +29,11 @@ const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-poke
 const Settings: React.FC = () => {
   const { spriteStyle, setSpriteStyle } = useSpritePref();
   const { ballStyle, setBallStyle } = useBallPref();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const { toast } = useToast();
+  const [alwaysShowMegas, setAlwaysShowMegas] = useBooleanPref(ALWAYS_SHOW_MEGAS);
+  // Dark mode itself lives on the header's sun/moon button; only the swatch
+  // preview needs to know which set of palettes is currently on screen.
   const swatchMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   const sendEmail = async () => {
@@ -151,32 +137,26 @@ const Settings: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sun className="h-5 w-5 dark:hidden" />
-              <Moon className="h-5 w-5 hidden dark:block" />
-              Theme
+              <Sparkles className="h-5 w-5 text-pokebrand-red" />
+              Mega Evolutions
             </CardTitle>
-            <CardDescription>Light, dark, or follow this device's setting.</CardDescription>
+            <CardDescription>
+              Show Megas, Gigantamax and regional forms expanded by default, on every stage of a
+              family rather than only the one that owns them.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="inline-flex items-center gap-1 rounded-lg border p-1" role="group" aria-label="Theme">
-              {THEME_OPTIONS.map((option) => (
-                <Button
-                  key={option.value}
-                  type="button"
-                  size="sm"
-                  variant={(theme ?? 'system') === option.value ? 'default' : 'ghost'}
-                  aria-pressed={(theme ?? 'system') === option.value}
-                  onClick={() => setTheme(option.value)}
-                >
-                  <option.icon className="mr-1.5 h-4 w-4" />
-                  {option.label}
-                </Button>
-              ))}
-            </div>
+            <Label
+              htmlFor="always-show-megas"
+              className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
+            >
+              <span className="text-sm font-medium">Always show alternate forms</span>
+              <Switch id="always-show-megas" checked={alwaysShowMegas} onCheckedChange={setAlwaysShowMegas} />
+            </Label>
           </CardContent>
         </Card>
 
-<Card>
+        <Card>
           <CardHeader>
             <CardTitle>About this Pokédex</CardTitle>
             <CardDescription>How the world works, and the fine print.</CardDescription>
