@@ -8,6 +8,7 @@ import {
 } from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
+import { evolutionMethods } from '../lib/evolution';
 import { decodeCursor, encodeCursor, type Cursor } from '../lib/pagination';
 import { POKEMON_COLUMNS, buildMatchups, toPokemonSummary, type PokemonRow } from '../lib/serialize';
 
@@ -298,21 +299,100 @@ export const pokemonRoutes = new Hono<AppBindings>()
     });
   })
 
-  /** GET /v1/pokemon/:id/forms — every variety of the same species, default first. */
+  /**
+   * GET /v1/pokemon/gmax — every Gigantamax form. Same shape and the same
+   * registration-order caveat as /megas above.
+   */
+  .get('/gmax', async (c) => {
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        ${sql.raw(POKEMON_COLUMNS)},
+        p.is_mega    AS "isMega",
+        p.is_gmax    AS "isGmax",
+        p.is_regional AS "isRegional",
+        p.species_id AS "speciesId",
+        COALESCE(s.display_name, s.name) AS "baseName",
+        base.id      AS "basePokemonId"
+      FROM dex.pokemon p
+      JOIN dex.species s ON s.id = p.species_id
+      JOIN LATERAL (
+        SELECT b.id FROM dex.pokemon b
+        WHERE b.species_id = p.species_id AND b.is_default
+        LIMIT 1
+      ) base ON true
+      WHERE p.is_gmax
+      ORDER BY p.species_id, p.id
+    `)) as unknown as (PokemonRow & {
+      isMega: boolean;
+      isGmax: boolean;
+      isRegional: boolean;
+      speciesId: number;
+      baseName: string;
+      basePokemonId: number;
+    })[];
+
+    return c.json({
+      items: rows.map((row) => ({
+        ...toPokemonSummary(row),
+        isMega: row.isMega,
+        isGmax: row.isGmax,
+        isRegional: row.isRegional,
+        speciesId: row.speciesId,
+        baseName: row.baseName,
+        basePokemonId: row.basePokemonId,
+      })),
+    });
+  })
+
+  /**
+   * GET /v1/pokemon/:id/forms — every variety of a species, default first.
+   *
+   * `?scope=family` widens it to the whole evolution chain. Megas and
+   * Gigantamax forms belong to one stage — Venusaur's, never Bulbasaur's — so
+   * a species-scoped answer means the detail page can only ever show them on
+   * the last stage, which is exactly where nobody is looking for them.
+   * Rows carry their own species so the client can group.
+   */
   .get('/:id/forms', async (c) => {
     const id = Number(c.req.param('id'));
     if (!Number.isInteger(id)) throw ApiError.badRequest('Pokémon id must be an integer');
+    const family = c.req.query('scope') === 'family';
+
+    const scope = family
+      ? sql`p.species_id IN (
+          SELECT s.id FROM dex.species s
+          WHERE s.evolution_chain_id IS NOT NULL
+            AND s.evolution_chain_id = (
+              SELECT sp.evolution_chain_id FROM dex.pokemon dp
+              JOIN dex.species sp ON sp.id = dp.species_id
+              WHERE dp.id = ${id}
+            )
+          UNION
+          SELECT species_id FROM dex.pokemon WHERE id = ${id}
+        )`
+      : sql`p.species_id = (SELECT species_id FROM dex.pokemon WHERE id = ${id})`;
 
     const rows = (await c.var.db.execute(sql`
       SELECT
         ${sql.raw(POKEMON_COLUMNS)},
         p.is_mega     AS "isMega",
         p.is_gmax     AS "isGmax",
-        p.is_regional AS "isRegional"
+        p.is_regional AS "isRegional",
+        p.species_id  AS "speciesId",
+        COALESCE(s.display_name, s.name) AS "speciesName"
       FROM dex.pokemon p
-      WHERE p.species_id = (SELECT species_id FROM dex.pokemon WHERE id = ${id})
-      ORDER BY p.is_default DESC, p.id
-    `)) as unknown as (PokemonRow & { isMega: boolean; isGmax: boolean; isRegional: boolean })[];
+      JOIN dex.species s ON s.id = p.species_id
+      WHERE ${scope}
+      -- Species ids ascend with evolution order inside a family, which is the
+      -- order the chain itself renders in.
+      ORDER BY p.species_id, p.is_default DESC, p.id
+    `)) as unknown as (PokemonRow & {
+      isMega: boolean;
+      isGmax: boolean;
+      isRegional: boolean;
+      speciesId: number;
+      speciesName: string;
+    })[];
 
     if (rows.length === 0) throw ApiError.notFound('Pokémon');
 
@@ -322,6 +402,8 @@ export const pokemonRoutes = new Hono<AppBindings>()
         isMega: row.isMega,
         isGmax: row.isGmax,
         isRegional: row.isRegional,
+        speciesId: row.speciesId,
+        speciesName: row.speciesName,
       })),
     });
   })
@@ -334,6 +416,10 @@ export const pokemonRoutes = new Hono<AppBindings>()
 
     type DetailRow = PokemonRow & {
       speciesId: number;
+      speciesName: string;
+      isMega: boolean;
+      isGmax: boolean;
+      isRegional: boolean;
       genus: string | null;
       description: string | null;
       color: string | null;
@@ -348,6 +434,10 @@ export const pokemonRoutes = new Hono<AppBindings>()
       SELECT
         ${sql.raw(POKEMON_COLUMNS)},
         p.species_id       AS "speciesId",
+        COALESCE(s.display_name, s.name) AS "speciesName",
+        p.is_mega          AS "isMega",
+        p.is_gmax          AS "isGmax",
+        p.is_regional      AS "isRegional",
         s.genus,
         s.description,
         s.color,
@@ -385,6 +475,10 @@ export const pokemonRoutes = new Hono<AppBindings>()
     return c.json({
       ...toPokemonSummary(row),
       speciesId: row.speciesId,
+      speciesName: row.speciesName,
+      isMega: row.isMega,
+      isGmax: row.isGmax,
+      isRegional: row.isRegional,
       species: {
         genus: row.genus ?? null,
         description: row.description ?? null,
@@ -445,7 +539,8 @@ export const pokemonRoutes = new Hono<AppBindings>()
         ev.held_item          AS "heldItem",
         ev.minimum_happiness  AS "minHappiness",
         ev.time_of_day        AS "timeOfDay",
-        ev.known_move         AS "knownMove"
+        ev.known_move         AS "knownMove",
+        ${evolutionMethods(sql`tree.id`)} AS methods
       FROM tree
       LEFT JOIN LATERAL (
         SELECT * FROM dex.pokemon dp

@@ -12,6 +12,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import MovesTable from '../components/pokemon/MovesTable';
 import FormsSection from '../components/pokemon/FormsSection';
 import EvolutionChainCard from '../components/pokemon/EvolutionChainCard';
+import HowToGet from '../components/pokemon/HowToGet';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,17 @@ const PokemonDetail: React.FC = () => {
       entry.methods.add(row.method);
     }
     return [...seen.entries()].slice(0, 12);
+  }, [encounters]);
+
+  // The list above is capped for the tab; "how to get one" wants the totals.
+  const encounterSummary = useMemo(() => {
+    const locations = new Set<number>();
+    const regions = new Set<string>();
+    for (const row of encounters ?? []) {
+      locations.add(row.locationId);
+      if (row.regionName) regions.add(row.regionName);
+    }
+    return { locations: locations.size, regions: [...regions] };
   }, [encounters]);
 
   if (isLoading) return <LoadingSpinner />;
@@ -172,7 +184,9 @@ const PokemonDetail: React.FC = () => {
             <img
               src={pokemonImage(pokemon.id, spriteStyle)}
               alt={pokemon.name}
-              onError={(e) => spriteFallback(e, pokemon.id)}
+              // A form with no art of its own borrows the species' — the Koraidon
+              // and Miraidon ride builds are states of one design, not designs.
+              onError={(e) => spriteFallback(e, pokemon.id, pokemon.speciesId)}
               className={cn(
                 'object-contain animate-fade-in',
                 spriteStyle === 'sprite' ? 'h-48 w-48 pixelated' : 'h-64 w-64',
@@ -305,8 +319,17 @@ const PokemonDetail: React.FC = () => {
         </Card>
       </div>
 
-      {/* Evolution chain */}
-      {evolution && evolution.length > 1 && (
+      <HowToGet
+        pokemon={pokemon}
+        evolution={evolution}
+        encounterLocations={encounterSummary.locations}
+        encounterRegions={encounterSummary.regions}
+      />
+
+      {/* Evolution chain. Single-species families still render it: the card is
+          also where the Mega switch lives, and Absol and Tatsugiri have Megas
+          without having evolutions. */}
+      {evolution && evolution.length > 0 && (
         <EvolutionChainCard evolution={evolution} pokemonId={pokemon.id} speciesId={pokemon.speciesId} />
       )}
 

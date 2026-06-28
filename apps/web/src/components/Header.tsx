@@ -49,6 +49,7 @@ const dataMenu = [
   { name: 'Type chart', href: '/types' },
   { name: 'Evolution chains', href: '/evolutions' },
   { name: 'Mega Evolutions', href: '/mega-evolutions' },
+  { name: 'Gigantamax', href: '/gigantamax' },
   { name: 'Advanced search', href: '/pokemon-filter' },
 ];
 

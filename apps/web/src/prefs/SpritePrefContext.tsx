@@ -28,11 +28,56 @@ export function pokemonImage(pokemonId: number, style: SpriteStyle): string {
   }
 }
 
-/** Not every form exists in every set; fall back pixel → artwork on 404. */
-export function spriteFallback(e: React.SyntheticEvent<HTMLImageElement>, pokemonId: number) {
+/** The style a PokeAPI sprite URL belongs to, read back off the URL. */
+function styleOf(url: string): SpriteStyle {
+  if (url.includes('/other/home/')) return 'home';
+  if (url.includes('/other/official-artwork/')) return 'artwork';
+  return 'sprite';
+}
+
+const STYLE_ORDER: Record<SpriteStyle, SpriteStyle[]> = {
+  artwork: ['artwork', 'home', 'sprite'],
+  home: ['home', 'artwork', 'sprite'],
+  sprite: ['sprite', 'artwork', 'home'],
+};
+
+/**
+ * Walk every rendition before giving up, then show a Poké Ball rather than the
+ * browser's broken-image glyph.
+ *
+ * PokeAPI's sprite repo is not uniform. Of our 1,351 rows, twelve have no
+ * official artwork; four of those (both busted Mimikyu, Mega Curly and Mega
+ * Droopy Tatsugiri) do have pixel and HOME art, so simply trying the other
+ * sets finds them. The eight Koraidon and Miraidon ride builds have nothing
+ * anywhere, because they are gameplay states of one design — passing `baseId`
+ * lets them borrow the species' own artwork, which is the honest picture.
+ *
+ * This used to reassign the artwork URL once and clear the handler, which on
+ * the default style re-requested the URL that had just 404'd and then stopped
+ * — the broken glyph was the end state.
+ */
+export function spriteFallback(
+  e: React.SyntheticEvent<HTMLImageElement>,
+  pokemonId: number,
+  baseId?: number,
+) {
   const img = e.currentTarget;
+  const styles = STYLE_ORDER[styleOf(img.src)];
+  const chain = styles.map((style) => pokemonImage(pokemonId, style));
+  if (baseId && baseId !== pokemonId) chain.push(...styles.map((style) => pokemonImage(baseId, style)));
+
+  const next = Number(img.dataset.spriteStage ?? '0') + 1;
+  img.dataset.spriteStage = String(next);
+  if (next < chain.length) {
+    img.src = chain[next];
+    return;
+  }
   img.onerror = null;
-  img.src = pokemonImage(pokemonId, 'artwork');
+  img.classList.add('opacity-40');
+  img.title = 'No artwork available for this form yet';
+  // The chrome's own ball, matching whichever colourway is on <html>.
+  const ball = document.documentElement.dataset.ball ?? 'poke-ball';
+  img.src = `${import.meta.env.BASE_URL}logo/${ball}-128.png`;
 }
 
 type SpritePrefState = {

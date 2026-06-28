@@ -9,29 +9,48 @@ import { TypeBadge } from '../ui/type-badge';
 import LoadingSpinner from '../LoadingSpinner';
 import { capitalize } from '../../utils/helpers';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
+import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { cn } from '@/lib/utils';
 
 /**
- * Mega Evolutions, regional forms and Gigantamax variants of the current
- * species. Hidden behind a toggle by default — most visits are about the
- * base form — and only fetched once opened.
+ * Mega Evolutions, regional forms and Gigantamax variants for the whole
+ * evolution family, grouped by species.
+ *
+ * Family, not species, is the point. Megas and Gigantamax forms belong to one
+ * stage — Venusaur's, never Bulbasaur's — so a species-scoped section is blank
+ * on every page except the last, which is the one page where nobody needs
+ * telling that Venusaur has a Mega. Opening Bulbasaur and seeing what the line
+ * eventually becomes is the question being asked.
  */
 const FormsSection: React.FC<{ pokemonId: number; currentId: number }> = ({ pokemonId, currentId }) => {
-  const [open, setOpen] = useState(false);
-  const { data, isLoading } = usePokemonForms(pokemonId, { enabled: open });
+  const [alwaysShow] = useBooleanPref(ALWAYS_SHOW_MEGAS);
+  const [override, setOverride] = useState<boolean | null>(null);
+  const open = override ?? alwaysShow;
+  const { data, isLoading } = usePokemonForms(pokemonId, { enabled: open, family: true });
   const { spriteStyle } = useSpritePref();
 
   const forms = data?.items ?? [];
-  // With only the default form there is nothing to show — but that is only
-  // knowable after opening; the button stays honest either way.
-  if (open && !isLoading && forms.length <= 1) return null;
+  // Only the base form of a single-species family is no forms at all.
+  const interesting = forms.filter((form) => !form.isDefault);
+  if (open && !isLoading && interesting.length === 0) return null;
+
+  // One block per species, in evolution order, so a family reads top to bottom.
+  const groups: Array<{ speciesId: number; speciesName: string; forms: typeof forms }> = [];
+  for (const form of forms) {
+    const speciesId = form.speciesId ?? form.id;
+    const last = groups[groups.length - 1];
+    if (last && last.speciesId === speciesId) last.forms.push(form);
+    else groups.push({ speciesId, speciesName: form.speciesName ?? capitalize(form.name), forms: [form] });
+  }
+  // A species with nothing but its default form adds a heading and no news.
+  const shown = groups.filter((group) => group.forms.some((form) => !form.isDefault));
 
   return (
     <Card className="mt-6">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Forms &amp; Mega Evolutions</h2>
-          <Button variant="ghost" size="sm" onClick={() => setOpen((v) => !v)}>
+          <Button variant="ghost" size="sm" onClick={() => setOverride(!open)}>
             {open ? (
               <>
                 Hide <ChevronUp className="ml-1 h-4 w-4" />
@@ -48,47 +67,58 @@ const FormsSection: React.FC<{ pokemonId: number; currentId: number }> = ({ poke
           (isLoading ? (
             <LoadingSpinner />
           ) : (
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {forms.map((form) => (
-                <Link
-                  key={form.id}
-                  to={`/pokemon/${form.id}`}
-                  className={cn(
-                    'flex flex-col items-center rounded-lg border p-4 transition-colors hover:border-pokebrand-red/60',
-                    form.id === currentId && 'bg-muted',
+            <div className="mt-4 space-y-5">
+              {shown.map((group) => (
+                <div key={group.speciesId}>
+                  {shown.length > 1 && (
+                    <h3 className="mb-2 text-sm font-semibold text-muted-foreground">{group.speciesName}</h3>
                   )}
-                >
-                  <img
-                    src={pokemonImage(form.id, spriteStyle)}
-                    alt={form.formLabel ?? form.name}
-                    loading="lazy"
-                    onError={(e) => spriteFallback(e, form.id)}
-                    className={cn('h-20 w-20 object-contain', spriteStyle === 'sprite' && 'pixelated')}
-                  />
-                  <p className="mt-2 text-center text-sm font-medium">
-                    {form.formLabel ?? capitalize(form.name)}
-                  </p>
-                  <div className="mt-1 flex gap-1">
-                    {form.types.map((type) => (
-                      <TypeBadge key={type} type={type} size="sm" />
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {group.forms.map((form) => (
+                      <Link
+                        key={form.id}
+                        to={`/pokemon/${form.id}`}
+                        className={cn(
+                          'flex flex-col items-center rounded-lg border p-4 transition-colors hover:border-pokebrand-red/60',
+                          form.id === currentId && 'bg-muted',
+                        )}
+                      >
+                        <img
+                          src={pokemonImage(form.id, spriteStyle)}
+                          alt={form.formLabel ?? form.name}
+                          loading="lazy"
+                          onError={(e) => spriteFallback(e, form.id, form.speciesId)}
+                          className={cn('h-20 w-20 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                        />
+                        <p className="mt-2 text-center text-sm font-medium">
+                          {form.formLabel ?? capitalize(form.name)}
+                        </p>
+                        <div className="mt-1 flex gap-1">
+                          {form.types.map((type) => (
+                            <TypeBadge key={type} type={type} size="sm" />
+                          ))}
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap justify-center gap-1">
+                          {form.isDefault && (
+                            <Badge variant="outline" className="text-[0.6875rem]">
+                              Base
+                            </Badge>
+                          )}
+                          {form.isMega && <Badge className="bg-poketype-dragon text-[0.6875rem] text-white">Mega</Badge>}
+                          {form.isGmax && (
+                            <Badge className="bg-poketype-fighting text-[0.6875rem] text-white">Gigantamax</Badge>
+                          )}
+                          {form.isRegional && (
+                            <Badge variant="secondary" className="text-[0.6875rem]">
+                              Regional
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">BST {form.stats.total}</span>
+                        </div>
+                      </Link>
                     ))}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap justify-center gap-1">
-                    {form.isDefault && (
-                      <Badge variant="outline" className="text-[0.6875rem]">
-                        Base
-                      </Badge>
-                    )}
-                    {form.isMega && <Badge className="bg-poketype-dragon text-[0.6875rem] text-white">Mega</Badge>}
-                    {form.isGmax && <Badge className="bg-poketype-fighting text-[0.6875rem] text-white">Gigantamax</Badge>}
-                    {form.isRegional && (
-                      <Badge variant="secondary" className="text-[0.6875rem]">
-                        Regional
-                      </Badge>
-                    )}
-                    <span className="text-xs text-muted-foreground">BST {form.stats.total}</span>
-                  </div>
-                </Link>
+                </div>
               ))}
             </div>
           ))}

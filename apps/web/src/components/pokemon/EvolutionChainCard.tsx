@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { evolutionCondition } from './evolution-utils';
 import { capitalize } from '../../utils/helpers';
+import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
 
@@ -17,12 +18,18 @@ type ChainNode = {
   caption: string | null;
   highlighted: boolean;
   isMega?: boolean;
+  /** The species' default form, for varieties PokeAPI has no art for. */
+  baseId?: number;
 };
 
 /**
  * The species' evolution line, with an opt-in extra hop: Mega Evolutions
- * append after the final stage with how to reach them in one line. The
- * forms are only fetched when the switch is flipped.
+ * append after the final stage with how to reach them in one line.
+ *
+ * The Megas are fetched for the whole *family*, not the current species —
+ * Charmander's page should be able to show Mega Charizard, and a
+ * species-scoped request can only ever find forms on the stage that owns
+ * them. Settings' "always show alternate forms" seeds the switch.
  */
 const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: number; speciesId: number }> = ({
   evolution,
@@ -30,8 +37,11 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
   speciesId,
 }) => {
   const { spriteStyle } = useSpritePref();
-  const [showMegas, setShowMegas] = useState(false);
-  const { data: forms } = usePokemonForms(pokemonId, { enabled: showMegas });
+  const [alwaysShowMegas] = useBooleanPref(ALWAYS_SHOW_MEGAS);
+  const [override, setOverride] = useState<boolean | null>(null);
+  // The preference is the default; flipping the switch wins for this visit.
+  const showMegas = override ?? alwaysShowMegas;
+  const { data: forms } = usePokemonForms(pokemonId, { enabled: showMegas, family: true });
 
   const megas = showMegas ? (forms?.items ?? []).filter((form) => form.isMega) : [];
 
@@ -52,6 +62,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
           : `Mega Stone${mega.name.endsWith('-x') ? ' X' : mega.name.endsWith('-y') ? ' Y' : ''}`,
       highlighted: mega.id === pokemonId,
       isMega: true,
+      baseId: mega.speciesId,
     });
   }
 
@@ -61,7 +72,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Evolution Chain</h2>
           <div className="flex items-center gap-2">
-            <Switch id="show-megas" checked={showMegas} onCheckedChange={setShowMegas} />
+            <Switch id="show-megas" checked={showMegas} onCheckedChange={setOverride} />
             <Label htmlFor="show-megas" className="cursor-pointer text-sm text-muted-foreground">
               Show Mega Evolutions
             </Label>
@@ -89,7 +100,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
                     <img
                       src={pokemonImage(node.id, spriteStyle)}
                       alt={node.name}
-                      onError={(e) => spriteFallback(e, node.id)}
+                      onError={(e) => spriteFallback(e, node.id, node.baseId)}
                       className={cn('max-w-full max-h-full object-contain', spriteStyle === 'sprite' && 'pixelated')}
                     />
                   </div>

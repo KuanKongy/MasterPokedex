@@ -79,6 +79,9 @@ export const PokemonFormSchema = PokemonSummarySchema.extend({
   isMega: z.boolean(),
   isGmax: z.boolean(),
   isRegional: z.boolean(),
+  /** Present when the forms were fetched for a whole family, for grouping. */
+  speciesId: z.number().int().positive().optional(),
+  speciesName: z.string().optional(),
 });
 export type PokemonForm = z.infer<typeof PokemonFormSchema>;
 
@@ -134,12 +137,50 @@ export type SpeciesInfo = z.infer<typeof SpeciesInfoSchema>;
  * `from` is null for the base form. Branching chains (Eevee) simply produce
  * several nodes sharing the same `from`.
  */
+/**
+ * One way a species can be reached. A species usually has several — the games
+ * have changed their minds about Leafeon four times — so the chain carries
+ * every row and the client renders the distinct ones.
+ */
+export const EvolutionMethodSchema = z.object({
+  trigger: z.string().nullable(),
+  minLevel: z.number().int().nullable(),
+  item: z.string().nullable(),
+  heldItem: z.string().nullable(),
+  knownMove: z.string().nullable(),
+  knownMoveType: z.string().nullable(),
+  minHappiness: z.number().int().nullable(),
+  minAffection: z.number().int().nullable(),
+  minBeauty: z.number().int().nullable(),
+  timeOfDay: z.string().nullable(),
+  gender: z.string().nullable(),
+  location: z.string().nullable(),
+  nearSpecialRock: z.boolean().nullable(),
+  relativePhysicalStats: z.string().nullable(),
+  partySpecies: z.string().nullable(),
+  partyType: z.string().nullable(),
+  tradeSpecies: z.string().nullable(),
+  needsMultiplayer: z.boolean().nullable(),
+  usedMove: z.string().nullable(),
+  minMoveCount: z.number().int().nullable(),
+  minSteps: z.number().int().nullable(),
+  minDamageTaken: z.number().int().nullable(),
+  region: z.string().nullable(),
+  needsOverworldRain: z.boolean().nullable(),
+  turnUpsideDown: z.boolean().nullable(),
+});
+export type EvolutionMethod = z.infer<typeof EvolutionMethodSchema>;
+
 export const EvolutionNodeSchema = z.object({
   id: z.number().int().positive(),
   name: z.string(),
   sprite: z.string().url().nullable(),
   artwork: z.string().url().nullable(),
   from: z.number().int().positive().nullable(),
+  /**
+   * The oldest single row, kept for compatibility. `methods` is the complete
+   * answer and what every caption is built from.
+   */
   trigger: z.string().nullable(),
   minLevel: z.number().int().nullable(),
   item: z.string().nullable(),
@@ -147,6 +188,7 @@ export const EvolutionNodeSchema = z.object({
   minHappiness: z.number().int().nullable(),
   timeOfDay: z.string().nullable(),
   knownMove: z.string().nullable(),
+  methods: z.array(EvolutionMethodSchema).default([]),
   depth: z.number().int().nonnegative(),
 });
 export type EvolutionNode = z.infer<typeof EvolutionNodeSchema>;
@@ -170,6 +212,10 @@ export type Matchups = z.infer<typeof MatchupsSchema>;
 
 export const PokemonDetailSchema = PokemonSummarySchema.extend({
   speciesId: z.number().int().positive(),
+  speciesName: z.string(),
+  isMega: z.boolean(),
+  isGmax: z.boolean(),
+  isRegional: z.boolean(),
   species: SpeciesInfoSchema,
   abilities: z.array(PokemonAbilitySchema),
   matchups: MatchupsSchema,

@@ -163,10 +163,28 @@ export function useMegas() {
   });
 }
 
-export function usePokemonForms(id: number | undefined, options: { enabled?: boolean } = {}) {
+export function useGmax() {
   return useQuery({
-    queryKey: ['pokemon', 'forms', id],
-    queryFn: () => apiFetch<{ items: PokemonForm[] }>(`/v1/pokemon/${id}/forms`),
+    queryKey: ['gmax'],
+    queryFn: () => apiFetch<{ items: MegaSummary[] }>('/v1/pokemon/gmax'),
+    staleTime: Infinity,
+  });
+}
+
+/**
+ * `family` widens the request to every species in the evolution chain, which
+ * is the only way a Mega or Gigantamax shows up on the stage people actually
+ * open — nobody looks for Gigantamax Venusaur on Venusaur's page.
+ */
+export function usePokemonForms(
+  id: number | undefined,
+  options: { enabled?: boolean; family?: boolean } = {},
+) {
+  const family = options.family ?? false;
+  return useQuery({
+    queryKey: ['pokemon', 'forms', id, family ? 'family' : 'species'],
+    queryFn: () =>
+      apiFetch<{ items: PokemonForm[] }>(`/v1/pokemon/${id}/forms${family ? '?scope=family' : ''}`),
     enabled: (options.enabled ?? true) && id !== undefined,
   });
 }

@@ -32,6 +32,7 @@ import TypeChart from "./pages/TypeChart";
 import TypeDetail from "./pages/TypeDetail";
 import Evolutions from "./pages/Evolutions";
 import MegaEvolutions from "./pages/MegaEvolutions";
+import Gigantamax from "./pages/Gigantamax";
 import Locations from "./pages/Locations";
 import LocationDetailPage from "./pages/LocationDetailPage";
 import SearchResults from "./pages/SearchResults";
@@ -73,6 +74,7 @@ const App = () => {
                     <Route path="/types/:name" element={<TypeDetail />} />
                     <Route path="/evolutions" element={<Evolutions />} />
                     <Route path="/mega-evolutions" element={<MegaEvolutions />} />
+                    <Route path="/gigantamax" element={<Gigantamax />} />
                     <Route path="/search" element={<SearchResults />} />
                     <Route element={<RequireAuth />}>
                       <Route path="/trainer" element={<Trainer />} />

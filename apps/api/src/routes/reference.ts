@@ -9,6 +9,7 @@ import {
 } from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
+import { evolutionMethods } from '../lib/evolution';
 import { decodeCursor, encodeCursor, type Cursor } from '../lib/pagination';
 
 /** Same whitelist discipline as routes/pokemon.ts — see the comment there. */
@@ -232,7 +233,8 @@ export const referenceRoutes = new Hono<AppBindings>()
         ev.held_item         AS "heldItem",
         ev.minimum_happiness AS "minHappiness",
         ev.time_of_day       AS "timeOfDay",
-        ev.known_move        AS "knownMove"
+        ev.known_move        AS "knownMove",
+        ${evolutionMethods(sql`s.id`)} AS methods
       FROM dex.species s
       LEFT JOIN LATERAL (
         SELECT * FROM dex.pokemon dp
