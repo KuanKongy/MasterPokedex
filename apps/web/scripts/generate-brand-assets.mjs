@@ -249,32 +249,35 @@ function decodePng(buf) {
  * dark, `H` its specular, `W/w/g` the bottom shell. A palette colours the two
  * halves; everything else a ball wears is a *coat* painted over the result.
  *
- * Each coat was traced from reference art mapped back onto a face-on sphere and
- * sampled on this grid: the Sword and Shield model renders Bulbapedia hosts,
- * which look down on the ball from about 26°, and for the Ultra and Net Balls
- * the bag icons PokeAPI serves (kept in scripts/ball-originals), which look
- * down from the same height with the ball turned 18° to the left. The samples
- * were then finished by hand where the button, far bigger here than on the
- * real thing, covers a marking — the Master Ball's M sits higher for that.
+ * Each coat was traced from a straight-on photo of the real object — the Wand
+ * Company replicas, 3D prints and a render — one ball at a time: the photo's
+ * silhouette is fitted with a circle, its tilt read off the band, and every
+ * cell of this grid sampled from it; the result was then redrawn by hand where
+ * a shape stepped badly and compared against the photo side by side. Colours
+ * are the photos' medians. The coats are drawn for LOGO_BALL's button.
  *
  * Several balls are not spheres: fins, domes, blades, rims and a crest stand
  * proud of the shell, so the logos carry a two-pixel margin round the 32-grid
- * ball for them to stand in. A coat is the left half of that 36-grid, top row
- * first; the right half is its mirror image, since every one of these balls is
- * symmetric face-on, and rows past the last one listed are left alone. `.`
- * means "leave the ball as drawn", `K` is ink and every other letter names a
- * paint. Paint may cover the band or the button (the Luxury, Dusk and Beast
- * Balls recolour both) and may stand in the margin, outlined in ink.
+ * ball for them to stand in, outlined in ink. A coat is that whole 36-grid, top
+ * row first; rows past the last one listed are left alone. It is not mirrored:
+ * the shapes are symmetric, but their light is not. `.` means "leave the ball
+ * as drawn", `K` is ink and every other letter names a colour from the ball's
+ * `paint` or `flat` set. A coat may cover the band or the button (the Luxury,
+ * Dusk, Quick and Beast Balls recolour one or both).
  */
 
-/** Builds the eight base keys from a top colour and a bottom colour. */
-function shell(top, bottom, { ink = C.ink } = {}) {
+/**
+ * Builds the eight base keys from a top colour and a bottom colour. `gloss` and
+ * `spec` are how far the lit patch and the specular spot go towards white; the
+ * black balls turn them down so they read as black with a sheen, not grey.
+ */
+function shell(top, bottom, { ink = C.ink, gloss = 0.4, spec = 0.85 } = {}) {
   return {
     K: ink,
     R: top,
-    h: mix(top, WHITE, 0.4),
+    h: mix(top, WHITE, gloss),
     r: mix(top, BLACK, 0.35),
-    H: mix(top, WHITE, 0.85),
+    H: mix(top, WHITE, spec),
     W: bottom,
     w: mix(bottom, BLACK, 0.2),
     g: mix(bottom, BLACK, 0.38),
@@ -287,292 +290,311 @@ const paints = (named) =>
 const BALLS = {
   'poke-ball': { palette: shell(C.red, C.shell) },
   'great-ball': {
-    // Two red fins on the shoulders, lit along their upper edge, with blue
-    // between them and the band; each stands a pixel proud of the outline.
-    palette: shell(hex('#2A7FC4'), C.shell),
-    paint: paints({ A: '#D8453F', a: '#F08A80' }),
+    // Two red blocks on the shoulders, square to the ball and rounded at the
+    // corners, straddling the outline; lit along the top edge, shadowed along the
+    // edge facing the band. Traced from the Wand Company replica, front on.
+    palette: shell(hex('#1D6CC3'), C.shell),
+    flat: paints({ A: '#EE2A22', a: '#FF6A5E', z: '#B0170F' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '........KK........',
-      '.......KAK........',
-      '.....KKAAAA.......',
-      '.....KAAAAa.......',
-      '....KAAAAa........',
-      '...KAAAAAa........',
-      '..KKAAAAaa........',
-      '..KAAAAAa.........',
-      '..KAAAAAa.........',
-      '.KKAAAAaa.........',
-      '...AAAAa..........',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '.......KK..................KK.......',
+      '......Kaa..................aaK......',
+      '.....KaAAa................aAAaK.....',
+      '....KaAAAAa..............aAAAAaK....',
+      '....KAAAAAAa............aAAAAAAK....',
+      '.....zAAAAAz............zAAAAAz.....',
+      '......zAAAz..............zAAAz......',
+      '.......zzz................zzz.......',
     ],
   },
   'ultra-ball': {
-    // Two yellow stripes rising either side of the button and leaning in over
-    // the top; the slate shows through down the middle and at the flanks.
-    palette: shell(hex('#677280'), C.shell),
-    paint: paints({ A: '#FDD23C' }),
+    // Two yellow stripes, each a slice of the shell between two planes x = const,
+    // so from the front they run straight up from the band to the outline: 0.49
+    // to 0.78 radii out on both the replica and a 3D print.
+    palette: shell(hex('#232326'), C.shell, { gloss: 0.14, spec: 0.34 }),
+    paint: paints({ A: '#F8D23A' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '............A.....',
-      '..........AAA.....',
-      '.........AAAA.....',
-      '........AAAAA.....',
-      '........AAAAA.....',
-      '........AAAAA.....',
-      '........AAAAA.....',
-      '........AAAAA.....',
-      '........AAAAA.....',
-      '.........AAA......',
-      '.........AAA......',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '..........A..............A..........',
+      '.........AA..............AA.........',
+      '........AAA..............AAA........',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
+      '.......AAAA..............AAAA.......',
     ],
   },
   'master-ball': {
-    // A bold white M over the button, a pink dome with a gloss spot on each
-    // shoulder bulging past the outline, and the paler dimple on the crown.
-    palette: shell(hex('#6A42A0'), C.shell),
-    paint: paints({ A: '#D63C8C', a: '#FFFFFF', B: '#8D6CB8' }),
+    // Hot pink caps on both shoulders, their inner edge a straight diagonal, and
+    // along their arc they stand a pixel proud of the outline; a bold white M
+    // between them. Traced from a straight-on 3D print.
+    palette: shell(hex('#7240C0'), C.shell),
+    paint: paints({ P: '#DC3F95' }),
+    flat: paints({ m: '#FFFFFF', p: '#EE67B0' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '........KK........',
-      '.......KAA......BB',
-      '......KAAA....aa..',
-      '.....KAaaAA...aaa.',
-      '....KAAaaAA...aaaa',
-      '...KAAAAAAA...aa.a',
-      '...KAAAAAAA...aa..',
-      '..KAAAAAAA....aa..',
-      '..KAAAAAAA........',
-      '......AA..........',
+      '....................................',
+      '....................................',
+      '....................................',
+      '..........KKp..........PKK..........',
+      '........KKppp..........PPPKK........',
+      '.......KKpppPP........PPPPPKK.......',
+      '......KpppPPP.mm....mm.PPPPPPK......',
+      '.....KpppPPP..mmm..mmm..PPPPPPK.....',
+      '....KKppPPP..mm.mmmm.mm..PPPPPKK....',
+      '....KppPPP...mm..mm..mm...PPPPPK....',
+      '...KppPPP....mm......mm....PPPPPK...',
+      '...KppPP....mm........mm....PPPPK...',
+      '..KppPP.....mm........mm.....PPPPK..',
+      '..KppP........................PPPK..',
+      '..Kpp..........................PPK..',
     ],
   },
   'beast-ball': {
-    // No black band: blue over violet, a glowing cyan grid of meridians and
-    // parallels, a cyan ring inside the button's, and four pale gold blades
-    // curving out from beside the button well past the outline. The button is
-    // painted white, since it takes the lower half's colour.
-    palette: shell(hex('#1D5DB8'), hex('#2E2E96')),
-    paint: paints({
-      P: C.shell,
-      G: '#F2EAB0',
-      E: '#C9B870',
-      L: '#6AD8F6',
-      S: '#1D5DB8',
-      D: '#2E2E96',
-    }),
+    // Blue over violet, with a light polar grid: a ring round the dark grey
+    // housing, a middle ring, the vertical line and the equator. Four lime spikes
+    // on the diagonals run from the ring to three cells past the outline, widest
+    // three-quarters of the way out. Traced from the front render.
+    palette: shell(hex('#1A3AA0'), hex('#553496')),
+    paint: paints({ L: '#A9D2E8', P: C.shell }),
+    flat: paints({ k: '#3C3F40', y: '#FBFF9C', Y: '#E3EB3E', e: '#A6AE1E' }),
     coat: [
-      '..................',
-      '....KK............',
-      '....KK............',
-      '.....EK...........',
-      '....KEEK.......L.L',
-      '....KEGEK.....L..L',
-      '....KEGGEE...L...L',
-      '....KEGGGEE.L....L',
-      '....KEGGGGEL.....L',
-      '....KEGGGGGE.....L',
-      '......EGGGGE.....L',
-      '......EEGGGGLLLLL.',
-      '.......EEGGGE....L',
-      '.........EEGE..LLP',
-      '.........L.E..LPPP',
-      '.........L...LPPPP',
-      '....SSSSSSSS.LPPPP',
-      '....LLLLLLL.LPPPPP',
-      '....LLLLLLL.LPPPPP',
-      '....DDDDDDDD.LPPPP',
-      '.........L...LPPPP',
-      '.........L.EE.LPPP',
-      '.........EEGE..LLP',
-      '........EGGGE....L',
-      '......EEGGGGELLLL.',
-      '......EGGGGE.....L',
-      '....KEGGGGGE.....L',
-      '....KEGGGGEE.....L',
-      '....KEGGGGE.L....L',
-      '....KGGGGE...L...L',
-      '....KGGEE.....L..L',
-      '....KEEKK......L.L',
-      '...KKKK...........',
-      '...KK.............',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '.....KKK.........LL.........KKK.....',
+      '....KYeeK........LL........KeeYK....',
+      '....KyYYee.....LLLLLL.....eeYYyK....',
+      '....KyYYYee..LL..LL..LL..eeYYYyK....',
+      '.....KyYYYeLL....LL....LLeYYYyK.....',
+      '......yyYYYe.....LL.....eYYYyy......',
+      '.......yyYYe.....LL.....eYYyy.......',
+      '........LyyYe....LL....eYyyL........',
+      '........L..yY...LLLL...Yy..L........',
+      '.......L.....YLLkkkkLLY.....L.......',
+      '.......L.....LLkkkkkkLL.....L.......',
+      '......L......LkkPPPPkkL......L......',
+      '............LkkPPPPPPkkL............',
+      '....LLLLLLLLLkkPPPPPPkkLLLLLLLLL....',
+      '....LLLLLLLLLkkPPPPPPkkLLLLLLLLL....',
+      '............LkkPPPPPPkkL............',
+      '......L......LkkPPPPkkL......L......',
+      '.......L.....LLkkkkkkLL.....L.......',
+      '.......L.....YLLkkkkLLY.....L.......',
+      '........L..eY...LLLL...Ye..L........',
+      '........LeeYy....LL....yYeeL........',
+      '.......eeYYy.....LL.....yYYee.......',
+      '......eeYYYy.....LL.....yYYYee......',
+      '.....KeYYYyLL....LL....LLyYYYeK.....',
+      '....KeYYYyy..LL..LL..LL..yyYYYeK....',
+      '....KeYYyy.....LLLLLL.....yyYYeK....',
+      '....KYyyK........LL........KyyYK....',
+      '.....KKK.........LL.........KKK.....',
     ],
   },
   'luxury-ball': {
-    // Black, with a red ring edged in gold round the crown, a gold band between
-    // silver rims that wrap its ends and stand proud there, and a gold button
-    // set in the same silver.
-    palette: shell(hex('#343536'), hex('#2A2B2C')),
-    paint: paints({ A: '#C8302A', G: '#D6A11E', T: '#E4E4E6', Y: '#F6DA5A', Q: '#9C7212' }),
+    // Black, with a gold, red, gold ring round the crown; the band is gold between
+    // silver trims that stand a pixel proud at the sides and wrap the gold button
+    // housing. Traced from the Wand Company replica.
+    palette: shell(hex('#1A191D'), hex('#1A191D'), { gloss: 0.12, spec: 0.3 }),
+    paint: paints({ R: '#C42A42', G: '#D6A544', T: '#D6D7DC' }),
+    flat: paints({ Y: '#E9C56A', y: '#FBE7B0', b: '#8A6418', t: '#C9CACF' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '..........GGGGGGGG',
-      '.........AAAAAAAAA',
-      '........AAAAAAAAAA',
-      '.......GGGGGGGGGGG',
-      '..................',
-      '.................T',
-      '..............TTTQ',
-      '.............TTQQG',
-      '............TTQGGG',
-      '....TTTTTTTTTQGGGG',
-      'KTTTTTTTTTTTTQGGGG',
-      'KTTTGGGGGGGTQGGGGY',
-      'KTTTGGGGGGGTQGGGGY',
-      'KTTTTTTTTTTTTQGGGG',
-      '....TTTTTTTTTQGGGG',
-      '............TTQGGG',
-      '.............TTQQG',
-      '..............TTTQ',
-      '.................T',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '..........GGGGGGGGGGGGGGGG..........',
+      '.........RRRRRRRRRRRRRRRRRR.........',
+      '........GGGGGGGGGGGGGGGGGGGG........',
+      '....................................',
+      '....................................',
+      '....................................',
+      '................TTTT................',
+      '..............TTGGGGTT..............',
+      '.............TTGGGGGGTT.............',
+      '.............TGGYYYYGGT.............',
+      '.KttTTTTTTTTTGGYyyYYYGGTTTTTTTTTttK.',
+      '....GGGGGGGGTGGYyyYYbGGTGGGGGGGG....',
+      '....GGGGGGGGTGGYYYYbbGGTGGGGGGGG....',
+      '.KttTTTTTTTTTGGYYYbbbGGTTTTTTTTTttK.',
+      '.............TGGYbbbGGT.............',
+      '.............TTGGGGGGTT.............',
+      '..............TTGGGGTT..............',
+      '................TTTT................',
     ],
   },
   'quick-ball': {
-    // Yellow, under a blue crown whose hem zigzags up the middle, blue flanks
-    // each notched like a bolt, and a blue base with teeth rising into the
-    // yellow. The button is painted back to white.
-    palette: shell(hex('#E8C520'), hex('#E8C520')),
-    paint: paints({ A: '#2C54B4', P: C.shell }),
+    // Blue, with a yellow starburst traced cell by cell from the replica: broad
+    // diagonal arms, a spike up and down the middle, and blue wedges in from each
+    // side. The button is painted back to white.
+    palette: shell(hex('#1F7EBF'), hex('#1F7EBF')),
+    paint: paints({ Y: '#F4C914', P: C.shell }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '...............AAA',
-      '............AAAAAA',
-      '..........AAAAAAAA',
-      '.........AAAAAAAA.',
-      '..........AAAAAAA.',
-      '...........AAAAA..',
-      '......A.....AAA...',
-      '......AA....AA....',
-      '.....AAAA.........',
-      '.....AAAA........P',
-      '.....AAA.......PPP',
-      '....AAA.......PPPP',
-      '..............PPPP',
-      '.............PPPPP',
-      '.............PPPPP',
-      '..............PPPP',
-      '....AAA.......PPPP',
-      '.....AAA.......PPP',
-      '.....AAAA........P',
-      '.....AAAA.........',
-      '......AA..........',
-      '......A...........',
-      '..................',
-      '.................A',
-      '..........AAA...AA',
-      '..........AAAA.AAA',
-      '............AAAAAA',
-      '...............AAA',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '..........Y..............Y..........',
+      '.........YYY.....YY.....YYY.........',
+      '........YYYYY....YY....YYYYY........',
+      '.......YYYYYY...YYYY...YYYYYY.......',
+      '......YYYYYYYY..YYYY..YYYYYYYY......',
+      '.......YYYYYYYYYYYYYYYYYYYYYY.......',
+      '........YYYYYYYYYYYYYYYYYYYY........',
+      '.........YYYYYYY....YYYYYYY.........',
+      '..........YYYYY......YYYYY..........',
+      '..........YYYY..PPPP..YYYY..........',
+      '...............PPPPPP...............',
+      '...............PPPPPP...............',
+      '...............PPPPPP...............',
+      '...............PPPPPP...............',
+      '..........YYYY..PPPP..YYYY..........',
+      '..........YYYYY......YYYYY..........',
+      '.........YYYYYYY....YYYYYYY.........',
+      '........YYYYYYYYYYYYYYYYYYYY........',
+      '.......YYYYYYYYYYYYYYYYYYYYYY.......',
+      '......YYYYYYYY..YYYY..YYYYYYYY......',
+      '.......YYYYYY...YYYY...YYYYYY.......',
+      '........YYYYY....YY....YYYYY........',
+      '.........YYY.....YY.....YYY.........',
+      '..........Y..............Y..........',
     ],
   },
   'dusk-ball': {
-    // Green panels between black ridges — crown, base, flanks, and the glowing
-    // one behind the button — with a thin orange band and an orange button.
-    palette: shell(hex('#1E2A21'), hex('#1E2A21')),
-    paint: paints({ A: '#2E9A38', B: '#62D86C', O: '#E0661A', D: '#8A3A10', Q: '#F4944A' }),
+    // Black, with green caps top and bottom, green slivers at the sides and a
+    // green disc round the orange housing; an orange band. Traced from the Wand
+    // Company replica.
+    palette: shell(hex('#1F1F22'), hex('#1F1F22'), { gloss: 0.12, spec: 0.3 }),
+    paint: paints({ G: '#3B9230' }),
+    flat: paints({ O: '#DC6222', D: '#8E3510', Q: '#EF8438', q: '#FFB27A' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '...............BBB',
-      '............AAAAAA',
-      '..................',
-      '..................',
-      '..........AAAAAAAA',
-      '..........AAAAAAAA',
-      '......B...AABBBBBB',
-      '......B...AABBBBBD',
-      '.....AB...AABBDDDO',
-      '.....AB...AABDDOOO',
-      '.....AB...AADDOOOO',
-      '....AAB...AADOOOOO',
-      '....AAB...AADOOOOO',
-      '....OOOOOOODOOOOOQ',
-      '....OOOOOOODOOOOOQ',
-      '....AAB...AADOOOOO',
-      '....AAB...AADOOOOO',
-      '.....AB...AADDOOOO',
-      '.....AB...AABDDOOO',
-      '.....AB...AABBDDDO',
-      '......B...AABBBBBD',
-      '......B...AABBBBBB',
-      '..........AAAAAAAA',
-      '..........AAAAAAAA',
-      '..................',
-      '..................',
-      '............AAAAAA',
-      '...............BBB',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '...............GGGGGG...............',
+      '............GGGGGGGGGGGG............',
+      '...........GGGGGGGGGGGGGG...........',
+      '....................................',
+      '....................................',
+      '...............GGGGGG...............',
+      '......G......GGGGGGGGGG......G......',
+      '......G.....GGGGGGGGGGGG.....G......',
+      '.....GG....GGGGGGOOGGGGGG....GG.....',
+      '.....GG...GGGGGOOOOOOGGGGG...GG.....',
+      '.....GG...GGGGOODDDDOOGGGG...GG.....',
+      '....GGG..GGGGOODQQQQDOOGGGG..GGG....',
+      '....KKKKKKKKKODQqqQQQDOKKKKKKKKK....',
+      '....OOOOOOOOOODQqqQQQDOOOOOOOOOO....',
+      '....OOOOOOOOOODQQQQQQDOOOOOOOOOO....',
+      '....KKKKKKKKKODQQQQQQDOKKKKKKKKK....',
+      '....GGG..GGGGOODQQQQDOOGGGG..GGG....',
+      '.....GG...GGGGOODDDDOOGGGG...GG.....',
+      '.....GG...GGGGGOOOOOOGGGGG...GG.....',
+      '.....GG....GGGGGGOOGGGGGG....GG.....',
+      '......G.....GGGGGGGGGGGG.....G......',
+      '......G......GGGGGGGGGG......G......',
+      '...............GGGGGG...............',
+      '....................................',
+      '....................................',
+      '...........GGGGGGGGGGGGGG...........',
+      '............GGGGGGGGGGGG............',
+      '...............GGGGGG...............',
     ],
   },
   'timer-ball': {
-    // White, with a dark cap, red flanks, and the red crest running over the
-    // crown, which stands a pixel above the outline.
+    // White, with a black cap over the crown, a red wedge crest standing a pixel
+    // proud of the top, red crescents down the upper sides and a red rim below
+    // the band. Traced from a straight-on 3D print.
     palette: shell(C.shell, C.shell),
-    paint: paints({ C: '#3A2E2C', A: '#E0443E' }),
+    flat: paints({
+      A: '#E3403A',
+      a: '#EE5A52',
+      d: '#B22A25',
+      c: '#F7776E',
+      k: '#1E1D1D',
+      j: '#3B3A3A',
+    }),
     coat: [
-      '..................',
-      '..............KKKK',
-      '..............KAAA',
-      '...............AAA',
-      '...............AAA',
-      '............CCCAAA',
-      '..........CCCCCAAA',
-      '.........CCCCCCCAA',
-      '........CCCCCCCCAA',
-      '.................A',
-      '......A..........A',
-      '......A...........',
-      '.....AA...........',
-      '.....AA...........',
-      '.....AA...........',
-      '....AAA...........',
+      '....................................',
+      '................KKKK................',
+      '...............KccccK...............',
+      '...............cAAAAd...............',
+      '...............cAAAAd...............',
+      '............jkkkcAAdkkkj............',
+      '..........jjjjkkcAAdkkjjjj..........',
+      '.........jjjjjkkkcdkkkjjjjj.........',
+      '........aaaa.....cd.....AAAA........',
+      '.......aaaa..............AAAd.......',
+      '......aaaa................AAdd......',
+      '......aaa..................Add......',
+      '.....aaa....................ddd.....',
+      '.....aa......................dd.....',
+      '.....AA......................dd.....',
+      '....AA........................dd....',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....................................',
+      '....AA........................dd....',
+      '.....A........................d.....',
+      '.....A........................d.....',
+      '.....A........................d.....',
+      '......A......................d......',
+      '......A......................d......',
+      '.......A....................d.......',
     ],
   },
   'net-ball': {
-    // A dark cage over the teal: bars round the crown, one across the shoulders,
-    // and the front bars closing in on the button.
-    palette: shell(hex('#0998B4'), C.shell),
-    paint: paints({ N: '#292D31', n: '#595656' }),
+    // A grey cage on teal: an arch over the crown, a V of 45° bars from the button
+    // ring, straight side bars, and knobs where they cross that stand past the
+    // outline. Traced from the Wand Company replica.
+    palette: shell(hex('#0FA3A8'), C.shell),
+    paint: paints({ n: '#5A5E68' }),
     coat: [
-      '..................',
-      '..................',
-      '..................',
-      '..................',
-      '...............NNN',
-      '............NNNNNN',
-      '..........NNNN....',
-      '.........NNN......',
-      '........NN........',
-      '.......NNnnnnnnnnn',
-      '......NNNNNNNNNNNN',
-      '......NN.....NN...',
-      '.....NN.....NN....',
-      '.....NN....NN.....',
-      '.....N.....N......',
-      '....NN....NN......',
+      '....................................',
+      '....................................',
+      '....................................',
+      '...............nnnnnn...............',
+      '............nnnnnnnnnnnn............',
+      '.....KKK..nnnnn......nnnnn..KKK.....',
+      '.....Kn..nnn............nnn..nK.....',
+      '.....Knnnnn..............nnnnnK.....',
+      '.......nnn................nnn.......',
+      '.......nnnn..............nnnn.......',
+      '......nn.nnn............nnn.nn......',
+      '......nn..nnn..........nnn..nn......',
+      '......nn...nnn........nnn...nn......',
+      '......nn....nnn......nnn....nn......',
+      '......nn.....nn......nn.....nn......',
+      '......nn....................nn......',
     ],
   },
 };
 
 /**
- * Paint takes the light the base drawing puts under it, but less of the gloss
- * than bare shell does, so a stripe inside the specular patch still reads as
- * its own colour. Band, button and anything outside the ball stay flat.
+ * `paint` takes the light the base drawing puts under it, but less of the
+ * gloss than bare shell does, so a stripe inside the specular patch still reads
+ * as its own colour; on the band, the button or outside the ball it stays flat.
+ * `flat` colours are used as they are: the domes, blades and crests that are
+ * shaded from their own shape rather than the ball's.
  */
 const PAINT_LIGHT = {
   H: [WHITE, 0.3],
@@ -602,8 +624,9 @@ const BALL_16 = [
   '.....KKKKKK.....',
 ];
 
-// Larger sizes get a 32-grid ball lit from the top-left.
-function computeBall(n) {
+// Larger sizes get a 32-grid ball lit from the top-left. The button's white
+// disc and ink ring are radii in sixteenths of the ball.
+function computeBall(n, { button = 2.3, ring = 3.3 } = {}) {
   const s = n / 16;
   const c = n / 2;
   const light = [-0.5, -0.62, 0.6];
@@ -622,8 +645,8 @@ function computeBall(n) {
       let ch;
       if (d > c - 0.3) ch = '.';
       else if (d > inner) ch = 'K';
-      else if (d <= 2.3 * s) ch = dx + dy > 1.5 * s ? 'w' : 'W';
-      else if (d <= 3.3 * s) ch = 'K';
+      else if (d <= button * s) ch = dx + dy > (button / 2.3) * 1.5 * s ? 'w' : 'W';
+      else if (d <= ring * s) ch = 'K';
       else if (Math.abs(dy) <= s) ch = 'K';
       else if (dy < 0) ch = lambert > 0.97 ? 'H' : lambert > 0.9 ? 'h' : lambert > 0.35 ? 'R' : 'r';
       // The shell is shaded with crescents: pixels outside a disc nudged towards the light.
@@ -638,6 +661,11 @@ function computeBall(n) {
 
 const BALL_32 = computeBall(32);
 
+// The logos draw the button nearer the real thing's size, which leaves room
+// round it for the markings; the favicon keeps the bold one, which is what
+// still reads as a Poké Ball at 16px.
+const LOGO_BALL = computeBall(32, { button: 1.5, ring: 2.4 });
+
 function ballCanvas(rows, palette = BALLS['poke-ball'].palette) {
   const canvas = new Canvas(rows.length, rows.length);
   canvas.sprite(rows, palette, 0, 0, 1);
@@ -646,15 +674,16 @@ function ballCanvas(rows, palette = BALLS['poke-ball'].palette) {
 
 const LOGO_MARGIN = 2;
 
-/** A logo: the ball in its palette, inset by the margin, with its coat mirrored over it. */
-function coatedBall(rows, { palette, paint = {}, coat = [] }) {
+/** A logo: the ball in its palette, inset by the margin, with its coat painted over it. */
+function coatedBall(rows, { palette, paint = {}, flat = {}, coat = [] }) {
   const size = rows.length + 2 * LOGO_MARGIN;
   const canvas = new Canvas(size, size);
   canvas.sprite(rows, palette, LOGO_MARGIN, LOGO_MARGIN, 1);
-  coat.forEach((half, y) => {
-    [...half, ...[...half].reverse()].forEach((key, x) => {
+  coat.forEach((row, y) => {
+    [...row].forEach((key, x) => {
       if (key === '.') return;
       if (key === 'K') return canvas.rect(x, y, 1, 1, palette.K);
+      if (key in flat) return canvas.rect(x, y, 1, 1, flat[key]);
       const light = PAINT_LIGHT[rows[y - LOGO_MARGIN]?.[x - LOGO_MARGIN]];
       canvas.rect(x, y, 1, 1, light ? mix(paint[key], ...light) : paint[key]);
     });
@@ -937,7 +966,7 @@ const outputs = {};
 // Settings can swap the drawings for the game's own icons, which sit beside
 // them for the same reason.
 for (const [ball, spec] of Object.entries(BALLS)) {
-  outputs[`public/logo/${ball}.png`] = encodePng(coatedBall(BALL_32, spec).scaled(4));
+  outputs[`public/logo/${ball}.png`] = encodePng(coatedBall(LOGO_BALL, spec).scaled(4));
   outputs[`public/logo/original/${ball}.png`] = encodePng(originalIcon(ball));
 }
 
