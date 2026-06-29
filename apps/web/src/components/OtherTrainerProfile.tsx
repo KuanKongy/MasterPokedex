@@ -157,7 +157,7 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
                     <Badge variant="secondary" className="capitalize">
                       {trainer.rank}
                     </Badge>
-                    {trainer.isGuest && <Badge variant="outline">Demo trainer</Badge>}
+                    {trainer.isGuest && <Badge variant="outline">Resident trainer</Badge>}
                   </h3>
                   <p className="text-muted-foreground">
                     @{trainer.username}

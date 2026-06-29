@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { ballSprite, type BallArt, type BallStyle } from './BallPrefContext';
 
 /**
  * Which rendition of a Pokémon the app shows everywhere an image appears:
@@ -8,8 +9,8 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 export type SpriteStyle = 'artwork' | 'sprite' | 'home';
 
 export const SPRITE_STYLES: Array<{ value: SpriteStyle; label: string; description: string }> = [
-  { value: 'artwork', label: 'Official artwork', description: 'High-resolution illustrations (default)' },
-  { value: 'sprite', label: 'Pixel sprite', description: 'Classic game sprites, crisp and nostalgic' },
+  { value: 'sprite', label: 'Pixel sprite', description: "The games' own pixel art, straight from the handhelds" },
+  { value: 'artwork', label: 'Official artwork', description: 'The official high-resolution illustrations (default)' },
   { value: 'home', label: 'HOME render', description: '3D model renders from Pokémon HOME' },
 ];
 
@@ -75,9 +76,10 @@ export function spriteFallback(
   img.onerror = null;
   img.classList.add('opacity-40');
   img.title = 'No artwork available for this form yet';
-  // The chrome's own ball, matching whichever colourway is on <html>.
-  const ball = document.documentElement.dataset.ball ?? 'poke-ball';
-  img.src = `${import.meta.env.BASE_URL}logo/${ball}.png`;
+  // The chrome's own ball, matching whichever colourway and art are on <html>.
+  const ball = (document.documentElement.dataset.ball ?? 'poke-ball') as BallStyle;
+  const art = (document.documentElement.dataset.ballArt ?? 'fine') as BallArt;
+  img.src = ballSprite(ball, art);
 }
 
 type SpritePrefState = {

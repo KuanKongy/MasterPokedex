@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ArrowRight, BookOpen, FileText, Github, Image as ImageIcon, Linkedin, Mail, Shield, Sparkles } from 'lucide-react';
 import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/prefs/SpritePrefContext';
-import { BALL_STYLES, ballSprite, useBallPref, type BallStyle } from '@/prefs/BallPrefContext';
+import { BALL_ARTS, BALL_STYLES, ballSprite, useBallPref, type BallArt, type BallStyle } from '@/prefs/BallPrefContext';
 import { BALL_SWATCHES } from '@/prefs/ballTheme';
 import { CONTACT } from '@/lib/contact';
 import { copyToClipboard } from '@/lib/clipboard';
@@ -57,8 +57,8 @@ const Settings: React.FC = () => {
               Pokémon images
             </CardTitle>
             <CardDescription>
-              Choose which rendition is shown everywhere a Pokémon appears — cards, teams, search
-              and encounters.
+              Which rendition of a Pokémon is drawn everywhere one appears — cards, teams, search,
+              encounters. Remembered on this device.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -97,27 +97,35 @@ const Settings: React.FC = () => {
               Poké Ball style
             </CardTitle>
             <CardDescription>
-              Your ball recolors the whole site — header, accents, buttons, the logo, and the
-              loading spinner — with its own light and dark look.
+              Pick a ball and the whole site wears it — header, footer, buttons, links and spinner
+              take their colors from that ball's shell and markings. The art style picks how the
+              ball itself is drawn, matching the Pokémon image styles above.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Label
-              htmlFor="ball-original-art"
-              className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
+            <RadioGroup
+              value={ballArt}
+              onValueChange={(value) => setBallArt(value as BallArt)}
+              className="grid grid-cols-3 gap-3"
             >
-              <span className="space-y-0.5">
-                <span className="block text-sm font-medium">Original game sprites</span>
-                <span className="block text-xs font-normal text-muted-foreground">
-                  The bag icons from PokeAPI, instead of MasterPokédex's own pixel art
-                </span>
-              </span>
-              <Switch
-                id="ball-original-art"
-                checked={ballArt === 'original'}
-                onCheckedChange={(on) => setBallArt(on ? 'original' : 'drawn')}
-              />
-            </Label>
+              {BALL_ARTS.map((art) => (
+                <Label
+                  key={art.value}
+                  htmlFor={`ball-art-${art.value}`}
+                  className={cn(
+                    'border rounded-lg p-3 cursor-pointer flex flex-col items-center gap-1.5 transition-colors',
+                    ballArt === art.value ? 'border-primary ring-2 ring-primary/30' : 'hover:bg-muted/50',
+                  )}
+                >
+                  <RadioGroupItem id={`ball-art-${art.value}`} value={art.value} className="sr-only" />
+                  <img src={ballSprite(ballStyle, art.value)} alt="" className="h-11 w-11 pixelated" />
+                  <span className="text-xs font-medium text-center">{art.label}</span>
+                  <span className="text-[0.7rem] font-normal leading-tight text-center text-muted-foreground">
+                    {art.description}
+                  </span>
+                </Label>
+              ))}
+            </RadioGroup>
             <RadioGroup
               value={ballStyle}
               onValueChange={(value) => setBallStyle(value as BallStyle)}
@@ -215,7 +223,7 @@ const Settings: React.FC = () => {
           </CardContent>
         </Card>
 
-                <Card>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5" />
@@ -265,7 +273,7 @@ const Settings: React.FC = () => {
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-center text-xs text-muted-foreground">
+            <p className="mt-6 text-center text-xs text-muted-foreground">
               An independent fan project, maintained by Nam Le.
             </p>
           </CardContent>

@@ -223,9 +223,10 @@ BEGIN
   JOIN dex.locations l ON l.id = lm.location_id
   WHERE l.name = 'pallet-town';
 
-  -- These are the exact values harvested from the old MOCK_LOCATIONS.
-  IF v_x IS DISTINCT FROM 16 OR v_y IS DISTINCT FROM 72 THEN
-    RAISE EXCEPTION 'FAIL[curated-coords]: pallet-town should be (16,72), got (%,%)', v_x, v_y;
+  -- The pin is derived from Bulbapedia's Town Map by fetch-map-pins.mjs, so
+  -- the exact value moves with upstream; assert it is placed and on the map.
+  IF v_x IS NULL OR v_y IS NULL OR v_x NOT BETWEEN 0 AND 100 OR v_y NOT BETWEEN 0 AND 100 THEN
+    RAISE EXCEPTION 'FAIL[curated-coords]: pallet-town pin missing or off-map, got (%,%)', v_x, v_y;
   END IF;
   IF v_neighbors < 2 THEN
     RAISE EXCEPTION 'FAIL[curated-neighbors]: pallet-town has % neighbours', v_neighbors;

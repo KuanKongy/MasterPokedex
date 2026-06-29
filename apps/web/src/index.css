@@ -117,37 +117,42 @@
    * src/prefs/ballTheme.ts (theme-color meta + Settings swatches).
    * .dark[data-ball=…] wins over [data-ball=…] by specificity — both live on
    * <html>, next-themes owns the class, BallPrefContext owns the attribute.
+   * Every colour is the ball's own, off the logo art's palette: band = shell,
+   * footer = its deeper companion or second colour, accent = the marking that
+   * most says "this ball" — distinct across all ten. Two structural
+   * exceptions are commented on their rows: Timer and Net.
    */
   [data-ball='poke-ball'] { --brand: 14 89% 47%; --brand-on: 0 0% 100%; --brand-band: 14 89% 47%; --brand-band-strong: 0 100% 40%; --brand-foreground: 0 0% 100%; }
   .dark[data-ball='poke-ball'] { --brand: 14 90% 57%; --brand-on: 0 0% 100%; --brand-band: 14 75% 42%; --brand-band-strong: 0 85% 33%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='great-ball'] { --brand: 3 65% 50%; --brand-on: 0 0% 100%; --brand-band: 211 71% 45%; --brand-band-strong: 214 73% 32%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='great-ball'] { --brand: 4 100% 69%; --brand-on: 3 87% 9%; --brand-band: 212 72% 37%; --brand-band-strong: 213 74% 24%; --brand-foreground: 0 0% 100%; }
+  [data-ball='great-ball'] { --brand: 2 79% 47%; --brand-on: 0 0% 100%; --brand-band: 212 75% 35%; --brand-band-strong: 212 75% 24%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='great-ball'] { --brand: 4 94% 63%; --brand-on: 3 81% 11%; --brand-band: 211 75% 28%; --brand-band-strong: 212 76% 18%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='ultra-ball'] { --brand: 44 100% 33%; --brand-on: 0 0% 100%; --brand-band: 240 6% 17%; --brand-band-strong: 240 7% 8%; --brand-foreground: 46 93% 55%; }
-  .dark[data-ball='ultra-ball'] { --brand: 46 93% 55%; --brand-on: 45 100% 5%; --brand-band: 240 5% 15%; --brand-band-strong: 240 6% 7%; --brand-foreground: 46 93% 55%; }
+  [data-ball='ultra-ball'] { --brand: 46 79% 30%; --brand-on: 0 0% 100%; --brand-band: 240 4% 14%; --brand-band-strong: 240 9% 6%; --brand-foreground: 48 93% 60%; }
+  .dark[data-ball='ultra-ball'] { --brand: 48 93% 60%; --brand-on: 45 84% 7%; --brand-band: 240 7% 12%; --brand-band-strong: 240 12% 5%; --brand-foreground: 48 93% 60%; }
 
-  [data-ball='master-ball'] { --brand: 328 60% 49%; --brand-on: 0 0% 100%; --brand-band: 266 47% 45%; --brand-band-strong: 263 55% 31%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='master-ball'] { --brand: 328 100% 74%; --brand-on: 332 74% 10%; --brand-band: 265 49% 34%; --brand-band-strong: 263 52% 22%; --brand-foreground: 0 0% 100%; }
+  [data-ball='master-ball'] { --brand: 333 70% 47%; --brand-on: 0 0% 100%; --brand-band: 263 50% 50%; --brand-band-strong: 264 50% 35%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='master-ball'] { --brand: 326 78% 64%; --brand-on: 331 73% 12%; --brand-band: 264 50% 38%; --brand-band-strong: 263 50% 26%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='beast-ball'] { --brand: 63 100% 22%; --brand-on: 0 0% 100%; --brand-band: 231 58% 40%; --brand-band-strong: 253 54% 36%; --brand-foreground: 63 78% 83%; }
-  .dark[data-ball='beast-ball'] { --brand: 63 83% 65%; --brand-on: 64 100% 5%; --brand-band: 231 60% 34%; --brand-band-strong: 252 55% 31%; --brand-foreground: 63 78% 83%; }
+  [data-ball='beast-ball'] { --brand: 203 52% 38%; --brand-on: 0 0% 100%; --brand-band: 231 64% 38%; --brand-band-strong: 260 49% 40%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='beast-ball'] { --brand: 201 58% 79%; --brand-on: 203 55% 13%; --brand-band: 231 64% 30%; --brand-band-strong: 260 48% 32%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='luxury-ball'] { --brand: 42 86% 33%; --brand-on: 0 0% 100%; --brand-band: 240 3% 12%; --brand-band-strong: 2 71% 28%; --brand-foreground: 44 76% 63%; }
-  .dark[data-ball='luxury-ball'] { --brand: 44 80% 61%; --brand-on: 42 100% 6%; --brand-band: 240 4% 11%; --brand-band-strong: 2 72% 21%; --brand-foreground: 44 76% 63%; }
+  [data-ball='luxury-ball'] { --brand: 351 65% 47%; --brand-on: 0 0% 100%; --brand-band: 255 7% 11%; --brand-band-strong: 350 65% 30%; --brand-foreground: 43 74% 66%; }
+  .dark[data-ball='luxury-ball'] { --brand: 351 72% 62%; --brand-on: 350 75% 13%; --brand-band: 255 10% 8%; --brand-band-strong: 351 65% 24%; --brand-foreground: 43 74% 66%; }
 
-  [data-ball='quick-ball'] { --brand: 43 100% 29%; --brand-on: 0 0% 100%; --brand-band: 220 64% 45%; --brand-band-strong: 221 67% 31%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='quick-ball'] { --brand: 47 100% 60%; --brand-on: 45 100% 5%; --brand-band: 220 68% 37%; --brand-band-strong: 221 69% 25%; --brand-foreground: 47 100% 60%; }
+  [data-ball='quick-ball'] { --brand: 42 100% 30%; --brand-on: 0 0% 100%; --brand-band: 204 72% 44%; --brand-band-strong: 204 72% 28%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='quick-ball'] { --brand: 48 91% 52%; --brand-on: 45 90% 8%; --brand-band: 204 72% 35%; --brand-band-strong: 205 74% 21%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='dusk-ball'] { --brand: 131 63% 33%; --brand-on: 0 0% 100%; --brand-band: 136 22% 14%; --brand-band-strong: 138 24% 8%; --brand-foreground: 127 68% 74%; }
-  .dark[data-ball='dusk-ball'] { --brand: 130 65% 57%; --brand-on: 135 78% 7%; --brand-band: 134 21% 12%; --brand-band-strong: 142 25% 6%; --brand-foreground: 127 68% 74%; }
+  [data-ball='dusk-ball'] { --brand: 113 51% 30%; --brand-on: 0 0% 100%; --brand-band: 125 16% 16%; --brand-band-strong: 20 74% 31%; --brand-foreground: 111 33% 75%; }
+  .dark[data-ball='dusk-ball'] { --brand: 110 49% 55%; --brand-on: 107 64% 9%; --brand-band: 127 14% 12%; --brand-band-strong: 21 73% 20%; --brand-foreground: 111 33% 75%; }
 
-  /* Timer is the polarity flip: a silver band with dark text in light mode. */
-  [data-ball='timer-ball'] { --brand: 2 67% 49%; --brand-on: 0 0% 100%; --brand-band: 240 13% 95%; --brand-band-strong: 230 9% 87%; --brand-foreground: 8 11% 15%; }
-  .dark[data-ball='timer-ball'] { --brand: 3 100% 66%; --brand-on: 3 87% 9%; --brand-band: 7 10% 15%; --brand-band-strong: 10 13% 9%; --brand-foreground: 240 22% 96%; }
+  /* Timer is the polarity flip: the white shell as band, dark text in light mode. */
+  [data-ball='timer-ball'] { --brand: 2 66% 42%; --brand-on: 0 0% 100%; --brand-band: 240 22% 96%; --brand-band-strong: 240 16% 81%; --brand-foreground: 30 3% 15%; }
+  .dark[data-ball='timer-ball'] { --brand: 4 90% 70%; --brand-on: 4 76% 13%; --brand-band: 30 2% 16%; --brand-band-strong: 0 2% 10%; --brand-foreground: 240 22% 96%; }
 
-  [data-ball='net-ball'] { --brand: 186 82% 30%; --brand-on: 0 0% 100%; --brand-band: 186 82% 31%; --brand-band-strong: 210 9% 18%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='net-ball'] { --brand: 185 75% 57%; --brand-on: 187 85% 8%; --brand-band: 186 77% 26%; --brand-band-strong: 210 9% 13%; --brand-foreground: 186 84% 95%; }
+  /* Net inverts band and accent: the cage is the chrome, the teal shell the accent. */
+  [data-ball='net-ball'] { --brand: 182 84% 27%; --brand-on: 0 0% 100%; --brand-band: 222 10% 33%; --brand-band-strong: 223 11% 25%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='net-ball'] { --brand: 183 58% 51%; --brand-on: 183 76% 10%; --brand-band: 220 11% 26%; --brand-band-strong: 220 12% 15%; --brand-foreground: 0 0% 100%; }
 }
 
 @layer base {

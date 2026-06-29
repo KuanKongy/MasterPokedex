@@ -138,7 +138,7 @@ const Trainer = () => {
                                   <User className="h-4 w-4" /> {trainer.displayName}
                                   {trainer.isGuest && (
                                     <Badge variant="outline" className="ml-1 text-xs">
-                                      Demo
+                                      Resident
                                     </Badge>
                                   )}
                                 </h3>

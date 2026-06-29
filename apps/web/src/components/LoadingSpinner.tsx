@@ -3,9 +3,9 @@ import { ballSprite, useBallPref } from '@/prefs/BallPrefContext';
 
 /**
  * The app-wide loading state: the user's chosen Poké Ball, rocking like one
- * that is about to click shut. The art is self-hosted in public/logo — our
- * drawing or the game icon, per Settings; if it ever 404s the CSS fallback
- * ball takes over.
+ * that is about to click shut. The art is self-hosted in public/logo — the
+ * fine or 32-grid drawing, or the game's bag icon, per Settings; if it ever
+ * 404s the CSS fallback ball takes over.
  */
 const LoadingSpinner: React.FC = () => {
   const { ballStyle, ballArt } = useBallPref();

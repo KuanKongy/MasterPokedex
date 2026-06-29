@@ -33,26 +33,39 @@ export const BALL_STYLES: Array<{ value: BallStyle; label: string }> = [
 ];
 
 /**
- * Whose art draws the ball: the site's own pixel logos, or the game's bag
- * icons as PokeAPI and PokémonDB serve them.
+ * Whose art draws the ball: the game's bag icons as PokeAPI serves them, or
+ * the site's own pixel logos on either grid. Fine, the 64-grid drawing, is
+ * the default. The order pairs with SPRITE_STYLES in Settings: the games'
+ * own pixels, then the flat drawing, then the high-fidelity take.
  */
-export type BallArt = 'drawn' | 'original';
+export type BallArt = 'drawn' | 'fine' | 'original';
+
+export const BALL_ARTS: Array<{ value: BallArt; label: string; description: string }> = [
+  { value: 'original', label: 'Game', description: "The games' own bag icons, via PokeAPI" },
+  { value: 'drawn', label: 'Pixel', description: 'Our 32-grid logos, markings traced from the real balls' },
+  { value: 'fine', label: 'Fine', description: 'The same balls on twice the grid, redrawn at full detail (default)' },
+];
 
 const BALL_VALUES = new Set<string>(BALL_STYLES.map((b) => b.value));
+const ART_VALUES = new Set<string>(BALL_ARTS.map((a) => a.value));
 const STORAGE_KEY = 'masterpokedex.ballStyle';
 const ART_STORAGE_KEY = 'masterpokedex.ballArt';
 
+const ART_PATH: Record<BallArt, string> = { drawn: '', fine: 'fine/', original: 'original/' };
+
 /**
- * Both kinds are self-hosted in public/logo and made by
+ * All three kinds are self-hosted in public/logo and made by
  * `scripts/generate-brand-assets.mjs`. The drawn logos share the favicon's grid
  * and palettes, with each ball's markings traced from the games' models, and a
- * margin round the ball for the fins, domes and blades that stand proud of it.
- * The originals are the bag icons cut square around the ball and scaled by
- * whole pixels, so both sit the same in a box; hotlinking them instead would
- * mean a 30px sprite fetched from GitHub on every page.
+ * margin round the ball for the fins, caps, blades and rims that stand proud of it.
+ * The fine ones — the default — are the same balls on a 64 grid, which lets
+ * the outline stop stepping and the measured markings land on four times as
+ * many cells. The originals are the bag icons cut square around the ball and
+ * scaled by whole pixels, so all three sit the same in a box; hotlinking those
+ * instead would mean a 30px sprite fetched from GitHub on every page.
  */
-export function ballSprite(style: BallStyle, art: BallArt = 'drawn'): string {
-  return resolveAsset(art === 'original' ? `logo/original/${style}.png` : `logo/${style}.png`);
+export function ballSprite(style: BallStyle, art: BallArt = 'fine'): string {
+  return resolveAsset(`logo/${ART_PATH[art]}${style}.png`);
 }
 
 type BallPrefState = {
@@ -76,11 +89,12 @@ function readStored(): BallStyle {
 
 function readStoredArt(): BallArt {
   try {
-    if (window.localStorage.getItem(ART_STORAGE_KEY) === 'original') return 'original';
+    const raw = window.localStorage.getItem(ART_STORAGE_KEY);
+    if (raw && ART_VALUES.has(raw)) return raw as BallArt;
   } catch {
     // Private windows can throw; the default is fine.
   }
-  return 'drawn';
+  return 'fine';
 }
 
 function store(key: string, value: string) {
@@ -93,7 +107,7 @@ function store(key: string, value: string) {
 
 export const BallPrefProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [ballStyle, setBallStyleState] = useState<BallStyle>('poke-ball');
-  const [ballArt, setBallArtState] = useState<BallArt>('drawn');
+  const [ballArt, setBallArtState] = useState<BallArt>('fine');
 
   useEffect(() => {
     setBallStyleState(readStored());
@@ -105,6 +119,8 @@ export const BallPrefProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // (index.html mirrors localStorage before hydration to avoid a flash.)
   useEffect(() => {
     document.documentElement.dataset.ball = ballStyle;
+    // The art rides along so non-React code (the sprite fallback) can read it.
+    document.documentElement.dataset.ballArt = ballArt;
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', BALL_THEME_COLOR[ballStyle]);
     // The tab icon follows too. index.html's <link>s point at the
     // fingerprinted default set; this swaps them for the chosen ball's logo,
