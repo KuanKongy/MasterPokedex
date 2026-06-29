@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import type { EvolutionNode, PokemonDetail } from '@masterpokedex/shared';
 import { Card, CardContent } from '@/components/ui/card';
 import { evolutionCondition } from './evolution-utils';
+import { FUSION_BY_FORM, fusionsOf } from './fusions';
 import { capitalize } from '../../utils/helpers';
 
 type Props = {
@@ -26,8 +27,27 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
   const node = evolution?.find((n) => n.id === pokemon.speciesId);
   const parent = node?.from ? evolution?.find((n) => n.id === node.from) : undefined;
   const methods = node?.methods ?? [];
+  const fusion = FUSION_BY_FORM.get(pokemon.name);
+  const fusions = fusion ? [] : fusionsOf(pokemon.speciesId);
 
   const lines: React.ReactNode[] = [];
+
+  if (fusion) {
+    lines.push(
+      <>
+        Fuse{' '}
+        <Link to={`/pokemon/${fusion.baseId}`} className="font-medium text-pokebrand-red hover:underline">
+          {fusion.baseName}
+        </Link>{' '}
+        with{' '}
+        <Link to={`/pokemon/${fusion.partnerId}`} className="font-medium text-pokebrand-red hover:underline">
+          {fusion.partnerName}
+        </Link>{' '}
+        using the <strong>{fusion.item}</strong> — a reversible item fusion, not an evolution;{' '}
+        {fusion.partnerName} is stored while fused.
+      </>,
+    );
+  }
 
   if (pokemon.isMega) {
     lines.push(
@@ -55,6 +75,37 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         : {evolutionCondition(node!, { limit: 6 })}.
       </>,
     );
+    if (pokemon.isRegional) {
+      lines.push(
+        <>
+          Regional form: {capitalize(parent.name)} evolves into this form in its home region — elsewhere the
+          line gives the standard {capitalize(pokemon.speciesName)}.
+        </>,
+      );
+    }
+  }
+
+  if (fusions.length > 0) {
+    lines.push(
+      <>
+        Fuses — reversibly —{' '}
+        {fusions.map((f, index) => (
+          <React.Fragment key={f.formName}>
+            {index > 0 && ' or '}
+            with{' '}
+            <Link to={`/pokemon/${f.partnerId}`} className="font-medium text-pokebrand-red hover:underline">
+              {f.partnerName}
+            </Link>{' '}
+            ({f.item} →{' '}
+            <Link to={`/pokemon/${f.formId}`} className="font-medium text-pokebrand-red hover:underline">
+              {f.formLabel}
+            </Link>
+            )
+          </React.Fragment>
+        ))}
+        ; the partner is stored while fused.
+      </>,
+    );
   }
 
   if (encounterLocations > 0) {
@@ -68,7 +119,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         {where} — see the Locations tab below.
       </>,
     );
-  } else if (!pokemon.isMega && !pokemon.isGmax) {
+  } else if (!pokemon.isMega && !pokemon.isGmax && !fusion) {
     lines.push(
       parent ? (
         <>Not found in the wild; evolution is the only route.</>
