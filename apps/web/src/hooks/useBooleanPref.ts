@@ -38,8 +38,8 @@ export function useBooleanPref(key: string, defaultValue = false) {
 }
 
 /**
- * "Always show Mega Evolutions": seeds the evolution chain's Mega switch and
- * opens the Forms section on arrival, for people who care about the whole
- * family rather than the base forms.
+ * "Always show alternate forms": seeds the evolution chain's Megas and
+ * Gigantamax switches and opens the Forms section on arrival, for people who
+ * care about the whole family rather than the base forms.
  */
 export const ALWAYS_SHOW_MEGAS = 'alwaysShowMegas';

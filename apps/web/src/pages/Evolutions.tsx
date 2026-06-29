@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronRight, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useEvolutionChains } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
+import EvolutionTree from '../components/pokemon/EvolutionTree';
 import { evolutionCondition } from '../components/pokemon/evolution-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,8 +15,8 @@ import { cn } from '@/lib/utils';
 
 /**
  * Every evolution family, one card per chain — the browsable index behind
- * the per-Pokémon chain on the detail page. Branching families (Eevee) show
- * each branch at its depth.
+ * the per-Pokémon chain on the detail page. Branching families (Eevee) fan
+ * out as a real tree via EvolutionTree, one branch per row.
  */
 const Evolutions: React.FC = () => {
   const [params, setParams] = useSearchParams();
@@ -63,18 +64,16 @@ const Evolutions: React.FC = () => {
             {chains.map((chain) => (
               <Card key={chain.chainId}>
                 <CardContent className="flex flex-wrap items-center justify-center gap-3 p-4">
-                  {chain.nodes.map((node, index) => (
-                    <React.Fragment key={node.id}>
-                      {index > 0 && (
-                        <div className="px-1 text-center">
-                          <ChevronRight className="mx-auto h-5 w-5 text-muted-foreground" />
-                          {node.depth > 0 && (
-                            <div className="mt-0.5 max-w-24 text-xs text-muted-foreground">
-                              {evolutionCondition(node)}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                  <EvolutionTree
+                    dense
+                    nodes={chain.nodes.map((node) => ({
+                      id: node.id,
+                      from: node.from ?? null,
+                      name: node.name,
+                      types: node.types,
+                      caption: node.from != null ? evolutionCondition(node) : null,
+                    }))}
+                    renderCard={(node) => (
                       <Link
                         to={`/pokemon/${node.id}`}
                         className="flex w-32 flex-col items-center rounded-lg border p-3 transition-colors hover:border-pokebrand-red/60"
@@ -95,8 +94,8 @@ const Evolutions: React.FC = () => {
                           ))}
                         </span>
                       </Link>
-                    </React.Fragment>
-                  ))}
+                    )}
+                  />
                   {chain.nodes.length === 1 && (
                     <span className="text-sm text-muted-foreground">does not evolve</span>
                   )}
