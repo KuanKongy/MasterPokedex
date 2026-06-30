@@ -159,6 +159,28 @@ BEGIN
   RAISE NOTICE 'PASS  pikachu encounters: % locations, e.g. %', v_count, v_sample;
 END $$;
 
+-- ── Encounters: the Bulbapedia-parsed games actually landed ──────────────────
+DO $$
+DECLARE
+  v_hisui integer;
+  v_paldea integer;
+  v_bdsp integer;
+BEGIN
+  SELECT count(*) INTO v_hisui FROM dex.encounters WHERE versions && ARRAY['legends-arceus'];
+  SELECT count(*) INTO v_paldea FROM dex.encounters WHERE versions && ARRAY['scarlet','violet'];
+  SELECT count(*) INTO v_bdsp FROM dex.encounters WHERE versions && ARRAY['brilliant-diamond','shining-pearl'];
+  IF v_hisui < 1000 THEN
+    RAISE EXCEPTION 'FAIL[encounters-hisui]: expected >= 1000 Legends: Arceus rows, got %', v_hisui;
+  END IF;
+  IF v_paldea < 2000 THEN
+    RAISE EXCEPTION 'FAIL[encounters-paldea]: expected >= 2000 Scarlet/Violet rows, got %', v_paldea;
+  END IF;
+  IF v_bdsp < 500 THEN
+    RAISE EXCEPTION 'FAIL[encounters-bdsp]: expected >= 500 BDSP rows, got %', v_bdsp;
+  END IF;
+  RAISE NOTICE 'PASS  parsed encounters: % hisui / % paldea / % bdsp', v_hisui, v_paldea, v_bdsp;
+END $$;
+
 DO $$
 DECLARE v_with_versions integer; v_total integer;
 BEGIN

@@ -161,9 +161,11 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                           'inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs capitalize',
                           RARITY_STYLE[encounter.rarity],
                         )}
-                        title={`${encounter.chance}% slot chance`}
+                        title={encounter.rarity === 'unknown' ? 'No published rate' : `${encounter.chance}% slot chance`}
                       >
-                        {encounter.rarity.replace('-', ' ')} · {encounter.chance}%
+                        {encounter.rarity === 'unknown'
+                          ? 'unknown'
+                          : `${encounter.rarity.replace('-', ' ')} · ${encounter.chance}%`}
                       </span>
                     </TableCell>
                     <TableCell>

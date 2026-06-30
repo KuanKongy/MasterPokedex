@@ -15,6 +15,7 @@
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
     "seed": "tsx scripts/seed-dex.ts",
+    "parse:encounters": "node scripts/parse-bulbapedia-encounters.mjs",
     "seed:auth": "tsx scripts/seed-auth-users.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "verify": "tsx scripts/verify-schema.ts",

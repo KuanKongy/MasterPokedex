@@ -7,4 +7,6 @@ export const RARITY_STYLE: Record<EncounterRarity, string> = {
   rare: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
   'very-rare': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
   legendary: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  // No published rate (Legends: Arceus) — neutral, and the UI drops the %.
+  unknown: 'bg-muted text-muted-foreground',
 };

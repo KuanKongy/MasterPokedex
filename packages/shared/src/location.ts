@@ -7,7 +7,7 @@ import { PokemonTypeSchema } from './pokemon';
  * existing web UI speaks in these five words, so the API derives the bucket
  * server-side and returns both.
  */
-export const ENCOUNTER_RARITIES = ['common', 'uncommon', 'rare', 'very-rare', 'legendary'] as const;
+export const ENCOUNTER_RARITIES = ['common', 'uncommon', 'rare', 'very-rare', 'legendary', 'unknown'] as const;
 export const EncounterRaritySchema = z.enum(ENCOUNTER_RARITIES);
 export type EncounterRarity = z.infer<typeof EncounterRaritySchema>;
 
@@ -16,6 +16,9 @@ export function rarityFromChance(chance: number): EncounterRarity {
   if (chance >= 10) return 'uncommon';
   if (chance >= 5) return 'rare';
   if (chance >= 1) return 'very-rare';
+  // PokeAPI rarities are always ≥ 1; a 0 is a Bulbapedia-parsed row whose
+  // game publishes no rates (all of Legends: Arceus).
+  if (chance === 0) return 'unknown';
   return 'legendary';
 }
 

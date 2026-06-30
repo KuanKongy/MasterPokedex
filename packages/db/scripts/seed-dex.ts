@@ -36,6 +36,11 @@ import { LOCATION_META, MANUAL_MAP_PINS, REGION_META, type LocationMetaSeed } fr
 import { GENERATED_LOCATION_META } from './data/locations.generated';
 import { GENERATED_MAP_PINS } from './data/map-pins.generated';
 import { GENERATED_ITEM_EFFECTS } from './data/item-effects.generated';
+import {
+  GENERATED_ENCOUNTERS,
+  GENERATED_ENCOUNTER_METHODS,
+  GENERATED_LOCATION_AREAS,
+} from './data/encounters.generated';
 
 /** stat_id → column. Order matters for nothing; the mapping does. */
 const STAT_COLUMN: Record<number, 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed'> =
@@ -646,6 +651,20 @@ async function main() {
           displayName: areaNameById.get(id) ?? fallback,
         };
       });
+    // Bulbapedia-parsed areas (Paldea has none upstream). Ids live at
+    // 20000 + locationId, far above PokeAPI's range; collide loudly if it
+    // ever catches up.
+    for (const area of GENERATED_LOCATION_AREAS) {
+      if (!validLocationIds.has(area.locationId)) {
+        warnings.push(`generated area ${area.name} points at unknown location ${area.locationId}`);
+        continue;
+      }
+      if (locationAreaRows.some((a) => a.id === area.id)) {
+        warnings.push(`generated area id ${area.id} collides with a PokeAPI area`);
+        continue;
+      }
+      locationAreaRows.push(area);
+    }
     const validAreaIds = new Set(locationAreaRows.map((a) => a.id));
 
     const encounterMethodRows = csvEncounterMethods.map((r) => ({
@@ -653,6 +672,13 @@ async function main() {
       name: r.identifier!,
       sortOrder: num(r.order),
     }));
+    for (const method of GENERATED_ENCOUNTER_METHODS) {
+      if (encounterMethodRows.some((m) => m.id === method.id)) {
+        warnings.push(`generated method id ${method.id} collides with a PokeAPI method`);
+        continue;
+      }
+      encounterMethodRows.push(method);
+    }
     const validMethodIds = new Set(encounterMethodRows.map((m) => m.id));
 
     // ── encounters (pre-joined and de-duplicated) ───────────────────────────
@@ -745,6 +771,31 @@ async function main() {
         versions: [...e.versions].sort(),
       };
     });
+
+    // Bulbapedia-parsed encounters for the games PokeAPI has none for
+    // (Legends: Arceus, Scarlet/Violet, BDSP), continuing the same id
+    // counter. Rarity 0 means the wiki publishes no rate; slot is unknown.
+    let droppedGenerated = 0;
+    for (const e of GENERATED_ENCOUNTERS) {
+      if (!validAreaIds.has(e.locationAreaId) || !validPokemonIds.has(e.pokemonId) || !validMethodIds.has(e.methodId)) {
+        droppedGenerated += 1;
+        continue;
+      }
+      encounterId += 1;
+      encounterRows.push({
+        id: encounterId,
+        locationAreaId: e.locationAreaId,
+        pokemonId: e.pokemonId,
+        methodId: e.methodId,
+        slot: null,
+        rarity: e.rarity,
+        minLevel: e.minLevel,
+        maxLevel: e.maxLevel,
+        conditions: e.conditions,
+        versions: e.versions,
+      });
+    }
+    if (droppedGenerated > 0) warnings.push(`${droppedGenerated} generated encounters referenced unknown ids`);
 
     // ── items ───────────────────────────────────────────────────────────────
     const itemNameById = new Map<number, string>();
