@@ -86,7 +86,7 @@ const FormsSection: React.FC<{ pokemonId: number; currentId: number }> = ({ poke
                         key={form.id}
                         to={`/pokemon/${form.id}`}
                         className={cn(
-                          'flex flex-col items-center rounded-lg border p-4 transition-colors hover:border-pokebrand-red/60',
+                          'flex flex-col items-center rounded-lg border p-4 transition-colors hover:border-pokebrand-extra/60',
                           form.id === currentId && 'bg-muted',
                         )}
                       >

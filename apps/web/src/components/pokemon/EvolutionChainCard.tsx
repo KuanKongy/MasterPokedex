@@ -125,7 +125,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
             <Link to={`/pokemon/${node.id}`}>
               <div
                 className={cn(
-                  'p-5 border rounded-lg hover:border-pokebrand-red bg-card',
+                  'p-5 border rounded-lg hover:border-pokebrand-extra bg-card',
                   node.highlighted && 'bg-muted',
                   node.formKind && 'border-dashed',
                 )}

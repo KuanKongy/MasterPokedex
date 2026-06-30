@@ -76,7 +76,7 @@ const PokemonChip: React.FC<{ pokemonId: number; pokemonName: string }> = ({ pok
   return (
     <Link
       to={`/pokemon/${pokemonId}`}
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-sm transition-colors hover:border-pokebrand-red/60"
+      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-sm transition-colors hover:border-pokebrand-extra/60"
     >
       <img
         src={pokemonImage(pokemonId, spriteStyle)}

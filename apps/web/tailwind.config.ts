@@ -88,7 +88,10 @@ export default {
 				// Brand chrome — driven by the Poké Ball theme variables in index.css.
 				// `red` kept its name so 30-odd accent call sites recolor untouched.
 				pokebrand: {
-					red: 'hsl(var(--brand))',
+					// red is the accent AS TEXT/lines (falls back to the raw accent);
+					// fills keep --brand via --primary so clean golds stay clean.
+					red: 'hsl(var(--brand-text, var(--brand)))',
+					extra: 'hsl(var(--brand-extra, var(--brand)))',
 					darkRed: 'hsl(var(--brand-band-strong))',
 					band: 'hsl(var(--brand-band))',
 					foreground: 'hsl(var(--brand-foreground))',

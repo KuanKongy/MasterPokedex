@@ -42,8 +42,8 @@ export type BallArt = 'drawn' | 'fine' | 'original';
 
 export const BALL_ARTS: Array<{ value: BallArt; label: string; description: string }> = [
   { value: 'original', label: 'Game', description: "The games' own bag icons, via PokeAPI" },
-  { value: 'drawn', label: 'Pixel', description: 'Our 32-grid logos, markings traced from the real balls' },
-  { value: 'fine', label: 'Fine', description: 'The same balls on twice the grid, redrawn at full detail (default)' },
+  { value: 'drawn', label: 'Pixel', description: 'Our logo on a 32×32 grid — chunky, whole-cell pixels' },
+  { value: 'fine', label: 'Fine', description: 'The same drawing on a 64×64 grid — four times the pixels, finer steps (default)' },
 ];
 
 const BALL_VALUES = new Set<string>(BALL_STYLES.map((b) => b.value));

@@ -19,7 +19,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
 
   return (
     <Link to={`/pokemon/${id}`} className="transition-transform hover:scale-[1.03]">
-      <Card className="overflow-hidden bg-card border hover:border-pokebrand-red/50 transition-colors">
+      <Card className="overflow-hidden bg-card border hover:border-pokebrand-extra/50 transition-colors">
         <div className="bg-gradient-to-b from-muted to-card px-3 pt-3 pb-1 flex items-center justify-center min-h-[112px]">
           <img
             src={pokemonImage(id, spriteStyle)}

@@ -76,7 +76,7 @@ const Evolutions: React.FC = () => {
                     renderCard={(node) => (
                       <Link
                         to={`/pokemon/${node.id}`}
-                        className="flex w-32 flex-col items-center rounded-lg border p-3 transition-colors hover:border-pokebrand-red/60"
+                        className="flex w-32 flex-col items-center rounded-lg border p-3 transition-colors hover:border-pokebrand-extra/60"
                       >
                         <img
                           src={pokemonImage(node.id, spriteStyle)}

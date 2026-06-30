@@ -48,8 +48,8 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
         sprites, the official artwork, or Pokémon HOME renders; the choice applies everywhere a
         Pokémon is drawn and is remembered on this device. The site's chrome is yours too: choose
         one of ten Poké Balls to recolor the whole app, and how that ball is drawn — the games'
-        own bag icon, our pixel logo, or its fine version. Dark mode is the sun-and-moon button
-        in the header.
+        own bag icon, our 32×32 pixel logo, or the same drawing on a 64×64 grid. Dark mode is
+        the sun-and-moon button in the header.
       </p>
     ),
   },

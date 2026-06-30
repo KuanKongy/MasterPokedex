@@ -15,20 +15,35 @@
 
     /*
      * Poké Ball site theming. The chosen ball (data-ball on <html>) recolors
-     * the whole chrome: --brand is the app-wide accent (links, icons,
-     * primary buttons via --primary), --brand-band/-strong are the header
-     * and footer bands, and the two foregrounds keep text readable on each.
-     * Each ball takes its own colours: the band is its shell, the footer its
-     * second colour or a deeper shade, the accent the colour of its markings,
-     * darkened or lightened only as far as contrast on the page needs.
+     * the whole chrome. What each variable paints:
+     *   --brand-band          header background — the ball's MAIN colour
+     *   --brand-band-strong   footer background — the same main, one subtle
+     *                         step deeper at most (never a contrasting hue;
+     *                         Beast alone takes its own close second colour)
+     *   --brand-foreground    text and icons ON the bands — a marking the
+     *                         real ball sets against its shell (Ultra's
+     *                         yellow, Luxury's silver, Dusk's dark stripes)
+     *   --brand               the accent: primary buttons, badges, focus —
+     *                         the SECONDARY colour, kept clean (yellows stay
+     *                         yellow; --brand-on goes near-black instead)
+     *   --brand-on            text on accent fills
+     *   --brand-text          the accent where it is TEXT on the page (links
+     *                         via the pokebrand.red token): defaults to the
+     *                         accent, overridden per ball only where a clean
+     *                         gold cannot read on the light background — the
+     *                         main colour carries links there
+     *   --brand-extra         a ball's third colour, for hover borders and
+     *                         secondary chips; falls back to the accent
      * These :root values are the Poké Ball defaults, also used before the
      * inline script in index.html has mirrored localStorage.
      */
     --brand: 14 89% 47%;
     --brand-on: 0 0% 100%;
     --brand-band: 14 89% 47%;
-    --brand-band-strong: 0 100% 40%;
+    --brand-band-strong: 14 89% 41%;
     --brand-foreground: 0 0% 100%;
+    --brand-text: var(--brand);
+    --brand-extra: var(--brand);
 
     --primary: var(--brand);
     --primary-foreground: var(--brand-on);
@@ -47,7 +62,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: var(--brand);
+    --ring: var(--brand-text, var(--brand));
 
     --radius: 0.5rem;
 
@@ -81,8 +96,10 @@
     --brand: 14 90% 57%;
     --brand-on: 0 0% 100%;
     --brand-band: 14 75% 42%;
-    --brand-band-strong: 0 85% 33%;
+    --brand-band-strong: 14 78% 36%;
     --brand-foreground: 0 0% 100%;
+    --brand-text: var(--brand);
+    --brand-extra: var(--brand);
 
     --primary: var(--brand);
     --primary-foreground: var(--brand-on);
@@ -101,7 +118,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: var(--brand);
+    --ring: var(--brand-text, var(--brand));
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -117,41 +134,57 @@
    * src/prefs/ballTheme.ts (theme-color meta + Settings swatches).
    * .dark[data-ball=…] wins over [data-ball=…] by specificity — both live on
    * <html>, next-themes owns the class, BallPrefContext owns the attribute.
-   * Every colour is the ball's own, off the logo art's palette: band = shell,
-   * footer = its deeper companion or second colour, accent = the marking that
-   * most says "this ball" — distinct across all ten. Two structural
-   * exceptions are commented on their rows: Timer and Net.
+   * Header and footer wear the ball's main colour (Poké is one red
+   * throughout); the accent is its signature marking, flat and clean; the
+   * band text is a marking the ball itself sets on its shell. A light rule
+   * that overrides --brand-text or --brand-extra must reset it in its dark
+   * rule, or the light value leaks through.
    */
-  [data-ball='poke-ball'] { --brand: 14 89% 47%; --brand-on: 0 0% 100%; --brand-band: 14 89% 47%; --brand-band-strong: 0 100% 40%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='poke-ball'] { --brand: 14 90% 57%; --brand-on: 0 0% 100%; --brand-band: 14 75% 42%; --brand-band-strong: 0 85% 33%; --brand-foreground: 0 0% 100%; }
+  [data-ball='poke-ball'] { --brand: 14 89% 47%; --brand-on: 0 0% 100%; --brand-band: 14 89% 47%; --brand-band-strong: 14 89% 41%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='poke-ball'] { --brand: 14 90% 57%; --brand-on: 0 0% 100%; --brand-band: 14 75% 42%; --brand-band-strong: 14 78% 36%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='great-ball'] { --brand: 2 79% 47%; --brand-on: 0 0% 100%; --brand-band: 212 75% 35%; --brand-band-strong: 212 75% 24%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='great-ball'] { --brand: 4 94% 63%; --brand-on: 3 81% 11%; --brand-band: 211 75% 28%; --brand-band-strong: 212 76% 18%; --brand-foreground: 0 0% 100%; }
+  [data-ball='great-ball'] { --brand: 3 65% 49%; --brand-on: 0 0% 100%; --brand-band: 209 78% 37%; --brand-band-strong: 209 78% 31%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='great-ball'] { --brand: 4 80% 62%; --brand-on: 3 81% 11%; --brand-band: 209 65% 30%; --brand-band-strong: 209 66% 24%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='ultra-ball'] { --brand: 46 79% 30%; --brand-on: 0 0% 100%; --brand-band: 240 4% 14%; --brand-band-strong: 240 9% 6%; --brand-foreground: 48 93% 60%; }
-  .dark[data-ball='ultra-ball'] { --brand: 48 93% 60%; --brand-on: 45 84% 7%; --brand-band: 240 7% 12%; --brand-band-strong: 240 12% 5%; --brand-foreground: 48 93% 60%; }
+  /* Ultra is black and YELLOW: the accent stays clean gold with near-black
+     text on it, and in light mode the main black carries link text instead. */
+  [data-ball='ultra-ball'] { --brand: 48 93% 55%; --brand-on: 45 84% 7%; --brand-band: 240 10% 10%; --brand-band-strong: 240 12% 6%; --brand-foreground: 48 93% 60%; --brand-text: 240 10% 12%; }
+  .dark[data-ball='ultra-ball'] { --brand: 48 93% 60%; --brand-on: 45 84% 7%; --brand-band: 240 10% 11%; --brand-band-strong: 240 12% 5%; --brand-foreground: 48 93% 60%; --brand-text: var(--brand); }
 
-  [data-ball='master-ball'] { --brand: 333 70% 47%; --brand-on: 0 0% 100%; --brand-band: 263 50% 50%; --brand-band-strong: 264 50% 35%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='master-ball'] { --brand: 326 78% 64%; --brand-on: 331 73% 12%; --brand-band: 264 50% 38%; --brand-band-strong: 263 50% 26%; --brand-foreground: 0 0% 100%; }
+  [data-ball='master-ball'] { --brand: 333 55% 50%; --brand-on: 0 0% 100%; --brand-band: 258 47% 51%; --brand-band-strong: 258 47% 43%; --brand-foreground: 0 0% 100%; }
+  .dark[data-ball='master-ball'] { --brand: 333 70% 66%; --brand-on: 331 73% 12%; --brand-band: 258 42% 40%; --brand-band-strong: 258 44% 32%; --brand-foreground: 0 0% 100%; }
 
-  [data-ball='beast-ball'] { --brand: 203 52% 38%; --brand-on: 0 0% 100%; --brand-band: 231 64% 38%; --brand-band-strong: 260 49% 40%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='beast-ball'] { --brand: 201 58% 79%; --brand-on: 203 55% 13%; --brand-band: 231 64% 30%; --brand-band-strong: 260 48% 32%; --brand-foreground: 0 0% 100%; }
+  /* Beast is the close-pair case: deep blue header into deep purple footer,
+     gold accent, and its cyan divider as band text and hover borders. */
+  [data-ball='beast-ball'] { --brand: 47 87% 50%; --brand-on: 45 90% 8%; --brand-band: 227 62% 41%; --brand-band-strong: 256 48% 38%; --brand-foreground: 189 73% 72%; --brand-text: 227 62% 41%; --brand-extra: 189 60% 52%; }
+  .dark[data-ball='beast-ball'] { --brand: 47 87% 58%; --brand-on: 45 90% 8%; --brand-band: 227 55% 33%; --brand-band-strong: 256 45% 31%; --brand-foreground: 189 73% 72%; --brand-text: var(--brand); --brand-extra: 189 73% 67%; }
 
-  [data-ball='luxury-ball'] { --brand: 351 65% 47%; --brand-on: 0 0% 100%; --brand-band: 255 7% 11%; --brand-band-strong: 350 65% 30%; --brand-foreground: 43 74% 66%; }
-  .dark[data-ball='luxury-ball'] { --brand: 351 72% 62%; --brand-on: 350 75% 13%; --brand-band: 255 10% 8%; --brand-band-strong: 351 65% 24%; --brand-foreground: 43 74% 66%; }
+  /* Quick is light blue and yellow: yellow band text on the shaded blue,
+     clean yellow accent, blue links in light mode. */
+  [data-ball='quick-ball'] { --brand: 50 100% 55%; --brand-on: 45 90% 8%; --brand-band: 199 74% 42%; --brand-band-strong: 199 74% 35%; --brand-foreground: 50 100% 60%; --brand-text: 199 74% 36%; }
+  .dark[data-ball='quick-ball'] { --brand: 50 100% 62%; --brand-on: 45 90% 8%; --brand-band: 199 70% 33%; --brand-band-strong: 199 72% 26%; --brand-foreground: 50 100% 62%; --brand-text: var(--brand); }
 
-  [data-ball='quick-ball'] { --brand: 42 100% 30%; --brand-on: 0 0% 100%; --brand-band: 204 72% 44%; --brand-band-strong: 204 72% 28%; --brand-foreground: 0 0% 100%; }
-  .dark[data-ball='quick-ball'] { --brand: 48 91% 52%; --brand-on: 45 90% 8%; --brand-band: 204 72% 35%; --brand-band-strong: 205 74% 21%; --brand-foreground: 0 0% 100%; }
+  /* Dusk is green with dark stripes and an orange divider: green bands, the
+     stripe dark as band text, orange accent (a step deeper as link text). */
+  [data-ball='dusk-ball'] { --brand: 22 76% 50%; --brand-on: 0 0% 100%; --brand-band: 122 40% 45%; --brand-band-strong: 122 42% 37%; --brand-foreground: 113 15% 12%; --brand-text: 22 78% 42%; }
+  .dark[data-ball='dusk-ball'] { --brand: 22 85% 60%; --brand-on: 20 80% 10%; --brand-band: 122 35% 30%; --brand-band-strong: 122 38% 23%; --brand-foreground: 113 12% 86%; --brand-text: var(--brand); }
 
-  [data-ball='dusk-ball'] { --brand: 113 51% 30%; --brand-on: 0 0% 100%; --brand-band: 125 16% 16%; --brand-band-strong: 20 74% 31%; --brand-foreground: 111 33% 75%; }
-  .dark[data-ball='dusk-ball'] { --brand: 110 49% 55%; --brand-on: 107 64% 9%; --brand-band: 127 14% 12%; --brand-band-strong: 21 73% 20%; --brand-foreground: 111 33% 75%; }
-
-  /* Timer is the polarity flip: the white shell as band, dark text in light mode. */
-  [data-ball='timer-ball'] { --brand: 2 66% 42%; --brand-on: 0 0% 100%; --brand-band: 240 22% 96%; --brand-band-strong: 240 16% 81%; --brand-foreground: 30 3% 15%; }
+  /* Timer is the polarity flip: the white shell as band, its black stripes
+     as the dark text on it, the red stripe as accent. */
+  [data-ball='timer-ball'] { --brand: 3 69% 45%; --brand-on: 0 0% 100%; --brand-band: 240 22% 96%; --brand-band-strong: 240 16% 88%; --brand-foreground: 30 3% 15%; }
   .dark[data-ball='timer-ball'] { --brand: 4 90% 70%; --brand-on: 4 76% 13%; --brand-band: 30 2% 16%; --brand-band-strong: 0 2% 10%; --brand-foreground: 240 22% 96%; }
 
-  /* Net inverts band and accent: the cage is the chrome, the teal shell the accent. */
-  [data-ball='net-ball'] { --brand: 182 84% 27%; --brand-on: 0 0% 100%; --brand-band: 222 10% 33%; --brand-band-strong: 223 11% 25%; --brand-foreground: 0 0% 100%; }
+  /* Luxury is black both halves with a gold divider, silver trim and red
+     stripes: rich gold accent (deeper than Ultra's yellow), silver band
+     text, red as the extra on hovers. */
+  [data-ball='luxury-ball'] { --brand: 46 67% 47%; --brand-on: 45 80% 8%; --brand-band: 270 8% 10%; --brand-band-strong: 270 10% 6%; --brand-foreground: 216 10% 80%; --brand-text: 270 8% 12%; --brand-extra: 352 66% 47%; }
+  .dark[data-ball='luxury-ball'] { --brand: 46 72% 58%; --brand-on: 45 80% 8%; --brand-band: 270 10% 8%; --brand-band-strong: 270 12% 5%; --brand-foreground: 216 12% 82%; --brand-text: var(--brand); --brand-extra: 352 72% 62%; }
+
+  /* Net is teal first: teal bands, deep teal accent, the dark net as band
+     text and the extra. */
+  [data-ball='net-ball'] { --brand: 183 77% 31%; --brand-on: 0 0% 100%; --brand-band: 182 84% 36%; --brand-band-strong: 182 84% 29%; --brand-foreground: 222 14% 16%; --brand-extra: 222 11% 23%; }
+  .dark[data-ball='net-ball'] { --brand: 183 58% 51%; --brand-on: 183 76% 10%; --brand-band: 182 70% 26%; --brand-band-strong: 182 74% 20%; --brand-foreground: 220 12% 88%; --brand-extra: 220 10% 62%; }
+}
   .dark[data-ball='net-ball'] { --brand: 183 58% 51%; --brand-on: 183 76% 10%; --brand-band: 220 11% 26%; --brand-band-strong: 220 12% 15%; --brand-foreground: 0 0% 100%; }
 }
 
