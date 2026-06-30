@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import type { EvolutionNode, PokemonDetail } from '@masterpokedex/shared';
 import { Card, CardContent } from '@/components/ui/card';
+import HelpTip from '../HelpTip';
 import { evolutionCondition } from './evolution-utils';
 import { FUSION_BY_FORM, fusionsOf } from './fusions';
 import { capitalize } from '../../utils/helpers';
@@ -53,14 +54,23 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
     lines.push(
       <>
         Mega Evolve <strong>{pokemon.speciesName}</strong> in battle while it holds its
-        Mega Stone. The form lasts until the battle ends.
+        Mega Stone.
+        <HelpTip title="Mega Stone" faq="mega-gigantamax">
+          A held item keyed to one species; with a bonded trainer's Key Stone it unlocks the
+          Mega form in battle.
+        </HelpTip>{' '}
+        The form lasts until the battle ends.
       </>,
     );
   } else if (pokemon.isGmax) {
     lines.push(
       <>
-        Catch one with the <strong>Gigantamax Factor</strong>, then Dynamax it in a Max Raid or a Gym battle with a
-        Dynamax Band.
+        Catch one with the <strong>Gigantamax Factor</strong>
+        <HelpTip title="Gigantamax Factor" faq="mega-gigantamax">
+          A trait some individuals carry (mostly from Max Raid Dens). With it, Dynamaxing — the
+          Dynamax Band's battle-only gigantism — takes this changed shape instead.
+        </HelpTip>
+        , then Dynamax it in a Max Raid or a Gym battle with a Dynamax Band.
       </>,
     );
   }
@@ -132,7 +142,11 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
   if (pokemon.species.isLegendary || pokemon.species.isMythical) {
     lines.push(
       <>
-        {pokemon.species.isMythical ? 'Mythical' : 'Legendary'}: one per save file in the games it appears in.
+        {pokemon.species.isMythical ? 'Mythical' : 'Legendary'}: one per save file in the games
+        it appears in.
+        <HelpTip title="One per save">
+          The games place a single one in the world per playthrough — no wild respawns.
+        </HelpTip>
       </>,
     );
   }

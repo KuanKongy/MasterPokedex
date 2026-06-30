@@ -53,6 +53,7 @@ import {
 import { isApiError } from '@/lib/api';
 import { capitalize } from '../utils/helpers';
 import LoadingSpinner from './LoadingSpinner';
+import HelpTip from './HelpTip';
 
 const CATEGORY_LABELS: Record<TeamCategory, string> = {
   party: 'Party',
@@ -151,7 +152,13 @@ const EditMemberPopover: React.FC<{ member: CaughtPokemon; teams: Team[] }> = ({
           <Input value={nickname} maxLength={24} onChange={(e) => setNickname(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Experience (level follows automatically)</Label>
+          <Label className="text-xs">
+            Experience (level follows automatically)
+            <HelpTip title="Experience" faq="levels" className="ml-1">
+              The level is derived from experience on the species' own growth curve, the same
+              way the games do it — so you set EXP, never the level.
+            </HelpTip>
+          </Label>
           <Input type="number" min={0} value={experience} onChange={(e) => setExperience(e.target.value)} />
         </div>
         <div className="space-y-1">
@@ -274,6 +281,10 @@ const TeamsPanel: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium">{CATEGORY_LABELS[team.category]}</span>
+                  <HelpTip title="Team categories" faq="teams" className="ml-1">
+                    A Party holds 6, like the games; a Box holds 30; a Showcase holds 12. When a
+                    team is full, catch into another or move someone out.
+                  </HelpTip>
                   {team.description && (
                     <span className="text-sm text-muted-foreground"> — {team.description}</span>
                   )}

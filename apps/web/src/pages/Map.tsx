@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { List } from 'lucide-react';
 import PokemonMap from '../components/PokemonMap';
+import HelpTip from '../components/HelpTip';
 import { useRegions } from '@/hooks/api/world';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,9 +74,15 @@ const Map = () => {
                       {region.locationCount} locations
                     </Badge>
                     {region.areaCount > 0 && (
-                      <Badge variant="secondary" className="font-normal">
-                        {region.areaCount} areas
-                      </Badge>
+                      <>
+                        <Badge variant="secondary" className="font-normal">
+                          {region.areaCount} areas
+                        </Badge>
+                        <HelpTip title="Areas">
+                          A location splits into areas — floors of a cave, tall grass, water —
+                          and encounters are listed per area.
+                        </HelpTip>
+                      </>
                     )}
                     {region.speciesCount > 0 && (
                       <Badge variant="secondary" className="font-normal">

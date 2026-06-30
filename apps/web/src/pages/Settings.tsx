@@ -11,6 +11,7 @@ import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/
 import { BALL_ARTS, BALL_STYLES, ballSprite, useBallPref, type BallArt, type BallStyle } from '@/prefs/BallPrefContext';
 import { BALL_SWATCHES } from '@/prefs/ballTheme';
 import { CONTACT } from '@/lib/contact';
+import HelpTip from '@/components/HelpTip';
 import { copyToClipboard } from '@/lib/clipboard';
 import { useToast } from '@/hooks/use-toast';
 import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
@@ -82,7 +83,15 @@ const Settings: React.FC = () => {
                     alt={`${style.label} preview`}
                     className={cn('h-24 w-24 object-contain', style.value === 'sprite' && 'pixelated')}
                   />
-                  <span className="font-medium">{style.label}</span>
+                  <span className="font-medium">
+                    {style.label}
+                    {style.value === 'home' && (
+                      <HelpTip title="Pokémon HOME" className="ml-1">
+                        Nintendo's cloud storage app for Pokémon — its tidy 3D renders cover
+                        every species in one style.
+                      </HelpTip>
+                    )}
+                  </span>
                   <span className="text-xs text-muted-foreground text-center">{style.description}</span>
                 </Label>
               ))}

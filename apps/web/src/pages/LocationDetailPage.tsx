@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useLocationDetail } from '@/hooks/api/world';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EncounterList from '../components/locations/EncounterList';
+import HelpTip from '../components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Map as MapIcon, MapPin, Swords } from 'lucide-react';
 import { resolveAsset } from '@/lib/assets';
@@ -100,6 +101,10 @@ const LocationDetailPage: React.FC = () => {
               <h2 className="mb-2 flex items-center gap-1.5 font-semibold">
                 <MapIcon className="h-4 w-4 text-pokebrand-red" />
                 Neighboring Locations
+                <HelpTip title="Neighbours">
+                  The places this one connects to directly in the games — walk out one side and
+                  you are there.
+                </HelpTip>
               </h2>
               <div className="flex flex-wrap gap-2">
                 {location.neighbors.map((neighbor) => (
@@ -115,7 +120,13 @@ const LocationDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <h2 className="mb-4 text-2xl font-bold">Pokémon Encounters</h2>
+      <h2 className="mb-4 text-2xl font-bold">
+        Pokémon Encounters
+        <HelpTip title="Encounters" className="ml-1">
+          Wild encounters only — gifts, trades and one-off static Pokémon are covered on each
+          Pokémon's own page under How to get one.
+        </HelpTip>
+      </h2>
       <EncounterList areas={location.areas} variant="full" />
     </div>
   );

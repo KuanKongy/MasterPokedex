@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import EvolutionTree from './EvolutionTree';
+import HelpTip from '../HelpTip';
 import { evolutionCondition } from './evolution-utils';
 import { capitalize } from '../../utils/helpers';
 import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
@@ -92,7 +93,13 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
     <Card className="mt-6">
       <CardContent className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Evolution Chain</h2>
+          <h2 className="text-lg font-semibold">
+            Evolution Chain
+            <HelpTip title="Evolution chain" faq="evolution" className="ml-1">
+              The whole family, branch by branch — each arrow states the exact in-game
+              requirement for that step.
+            </HelpTip>
+          </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-2">
               <Switch id="show-megas" checked={showMegas} onCheckedChange={setMegaOverride} />
@@ -105,6 +112,10 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
               <Label htmlFor="show-gmax" className="cursor-pointer text-sm text-muted-foreground">
                 Gigantamax
               </Label>
+              <HelpTip title="Battle-only forms" faq="mega-gigantamax">
+                Megas and Gigantamax are temporary battle transformations, not evolutions —
+                they branch off with a dashed border.
+              </HelpTip>
             </div>
           </div>
         </div>

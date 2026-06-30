@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Accordion,
   AccordionContent,
@@ -14,8 +14,9 @@ import { Card, CardContent } from '@/components/ui/card';
  * Ordered in loose groups: the app and your account, reading the dex, the
  * world and its rules, trainers and social, then data and fine print.
  */
-const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
+const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
   {
+    id: 'what-is',
     q: 'What is this app, exactly?',
     a: (
       <p>
@@ -27,6 +28,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'account',
     q: 'Do I need an account?',
     a: (
       <p>
@@ -38,6 +40,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'appearance',
     q: 'Can I change how Pokémon look?',
     a: (
       <p>
@@ -51,6 +54,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'how-to-get-one',
     q: "What does 'How to get one' on a Pokémon's page tell me?",
     a: (
       <p>
@@ -62,6 +66,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'family-forms',
     q: "Why does Bulbasaur's page show Mega Venusaur?",
     a: (
       <p>
@@ -74,6 +79,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'sprite-fallback',
     q: 'Why do I sometimes see a Poké Ball where artwork should be?',
     a: (
       <p>
@@ -85,6 +91,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'map',
     q: 'How does the map work?',
     a: (
       <p>
@@ -96,6 +103,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'types',
     q: 'What do the type badges mean?',
     a: (
       <p>
@@ -107,6 +115,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'evolution',
     q: 'How does evolution work?',
     a: (
       <p>
@@ -119,6 +128,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'mega-gigantamax',
     q: 'What are Mega Evolution and Gigantamax, exactly?',
     a: (
       <p>
@@ -133,6 +143,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'teams',
     q: "What's a team, and why won't it hold a 7th Pokémon?",
     a: (
       <p>
@@ -144,6 +155,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'levels',
     q: 'How do levels work? I never set one.',
     a: (
       <p>
@@ -155,6 +167,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'shiny',
     q: 'Can I catch a shiny?',
     a: (
       <p>
@@ -165,6 +178,20 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'ranks',
+    q: "What do the ranks next to trainers' names mean?",
+    a: (
+      <p>
+        Every trainer wears a rank: <strong>Rookie</strong>, Trainer, Ace Trainer, Veteran,
+        Elite, and Champion at the top. Everyone starts as a Rookie — the higher titles, and the
+        gym badges counted on a profile, are currently worn by the resident cast, whose careers
+        came pre-lived. Climbing the ladder yourself isn't wired up yet; the numbers that are
+        yours to grow today are your caught count, species and shinies.
+      </p>
+    ),
+  },
+  {
+    id: 'bag',
     q: 'What is the bag, and where do items come from?',
     a: (
       <p>
@@ -175,6 +202,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'friends',
     q: 'How do friends work?',
     a: (
       <p>
@@ -185,6 +213,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'privacy',
     q: 'What can other people see about me?',
     a: (
       <p>
@@ -196,6 +225,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'residents',
     q: 'Who are Ash, Misty and the other trainers already in the directory?',
     a: (
       <p>
@@ -207,6 +237,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'data-sources',
     q: 'Where does the data come from?',
     a: (
       <p>
@@ -244,6 +275,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'delete-account',
     q: 'How do I delete my account?',
     a: (
       <p>
@@ -257,6 +289,7 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
     ),
   },
   {
+    id: 'official',
     q: 'Is this an official Pokémon product?',
     a: (
       <p>
@@ -268,35 +301,52 @@ const FAQ_ITEMS: Array<{ q: string; a: React.ReactNode }> = [
   },
 ];
 
-const FAQ: React.FC = () => (
-  <div className="container mx-auto px-4 py-10 max-w-3xl">
-    <h1 className="text-3xl md:text-4xl font-extrabold mb-2">FAQ &amp; World Guide</h1>
-    <p className="text-muted-foreground mb-8">
-      How this Pokédex works — the world, the rules, and the lore behind them.
-    </p>
+const FAQ: React.FC = () => {
+  const { hash } = useLocation();
+  // Controlled so a #slug in the URL (HelpTips deep-link here) can open its
+  // item; clicking still toggles as before.
+  const [open, setOpen] = useState<string>('');
 
-    <Card>
-      <CardContent className="pt-2 pb-4">
-        <Accordion type="single" collapsible className="w-full">
-          {FAQ_ITEMS.map((item, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                {item.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </CardContent>
-    </Card>
+  useEffect(() => {
+    const id = hash.slice(1);
+    if (!FAQ_ITEMS.some((item) => item.id === id)) return;
+    setOpen(id);
+    // The item's content has to mount before there is anything to scroll to.
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }, [hash]);
 
-    <p className="text-sm text-muted-foreground mt-8">
-      Something unanswered? The Contact card in{' '}
-      <Link to="/settings" className="underline">Settings</Link> is the fastest way to reach us;
-      the <Link to="/terms" className="underline">Terms of Service</Link> and{' '}
-      <Link to="/privacy" className="underline">Privacy Policy</Link> cover the fine print.
-    </p>
-  </div>
-);
+  return (
+    <div className="container mx-auto px-4 py-10 max-w-3xl">
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">FAQ &amp; World Guide</h1>
+      <p className="text-muted-foreground mb-8">
+        How this Pokédex works — the world, the rules, and the lore behind them.
+      </p>
+
+      <Card>
+        <CardContent className="pt-2 pb-4">
+          <Accordion type="single" collapsible value={open} onValueChange={setOpen} className="w-full">
+            {FAQ_ITEMS.map((item) => (
+              <AccordionItem key={item.id} id={item.id} value={item.id} className="scroll-mt-20">
+                <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </CardContent>
+      </Card>
+
+      <p className="text-sm text-muted-foreground mt-8">
+        Something unanswered? The Contact card in{' '}
+        <Link to="/settings" className="underline">Settings</Link> is the fastest way to reach us;
+        the <Link to="/terms" className="underline">Terms of Service</Link> and{' '}
+        <Link to="/privacy" className="underline">Privacy Policy</Link> cover the fine print.
+      </p>
+    </div>
+  );
+};
 
 export default FAQ;

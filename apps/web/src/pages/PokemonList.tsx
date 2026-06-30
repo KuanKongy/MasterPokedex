@@ -11,6 +11,7 @@ import CatchPokemonDialog from '../components/CatchPokemonDialog';
 import DexViewToggle, { type DexView } from '../components/dex/DexViewToggle';
 import DexSpritesGrid from '../components/dex/DexSpritesGrid';
 import DexStatsTable from '../components/dex/DexStatsTable';
+import HelpTip from '../components/HelpTip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -85,6 +86,10 @@ const GenerationSection: React.FC<{
           {region}
           {pokemon.length > 0 && ` · ${pokemon.length} Pokémon`}
         </span>
+        <HelpTip title="Generations">
+          A generation is the set of games that introduced these Pokémon, and the region is
+          the world those games take place in.
+        </HelpTip>
       </div>
       {isLoading ? (
         <LoadingSpinner />
@@ -243,7 +248,11 @@ const PokemonList: React.FC = () => {
           </form>
         </div>
 
-        <div className="w-full md:w-48 flex-shrink-0">
+        <div className="flex w-full items-center gap-1 md:w-52 flex-shrink-0">
+          <HelpTip title="Sorting">
+            Sorts every generation's list at once. “Total Stats” is the six base stats added
+            up; Sp. Attack and Sp. Defense power and withstand special (non-physical) moves.
+          </HelpTip>
           <Select
             value={sortBy}
             onValueChange={(value) => {

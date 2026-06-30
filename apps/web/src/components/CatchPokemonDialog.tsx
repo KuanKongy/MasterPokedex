@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import HelpTip from './HelpTip';
 import {
   Select,
   SelectContent,
@@ -139,6 +140,10 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
               <Label htmlFor="shiny" className="flex items-center gap-2 cursor-pointer">
                 <Sparkles className="h-4 w-4 text-yellow-500" />
                 Shiny
+                <HelpTip title="Shiny" faq="shiny">
+                  The rare alternate colouring. Shinies wear a ✨ on their card and count toward
+                  the shiny tally on your profile.
+                </HelpTip>
               </Label>
               <Switch id="shiny" checked={isShiny} onCheckedChange={setIsShiny} />
             </div>

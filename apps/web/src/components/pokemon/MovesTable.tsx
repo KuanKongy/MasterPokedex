@@ -5,14 +5,35 @@ import type { PokemonMove } from '@masterpokedex/shared';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
+import HelpTip from '../HelpTip';
 import { capitalize } from '../../utils/helpers';
 import { cn } from '@/lib/utils';
 
-const METHOD_SECTIONS: Array<{ method: string; title: string; note: string }> = [
-  { method: 'level-up', title: 'Moves learnt by level up', note: 'in the latest games it appears in' },
-  { method: 'machine', title: 'Moves learnt by TM', note: 'taught with a Technical Machine' },
-  { method: 'egg', title: 'Egg moves', note: 'inherited through breeding' },
-  { method: 'tutor', title: 'Move Tutor moves', note: 'taught by an in-game tutor' },
+const METHOD_SECTIONS: Array<{ method: string; title: string; note: string; help: string }> = [
+  {
+    method: 'level-up',
+    title: 'Moves learnt by level up',
+    note: 'in the latest games it appears in',
+    help: 'Learned automatically on reaching each level. Learn levels differ between games; the newest game that has this Pokémon is shown.',
+  },
+  {
+    method: 'machine',
+    title: 'Moves learnt by TM',
+    note: 'taught with a Technical Machine',
+    help: 'Technical Machines are items that teach a move directly — find or buy the TM, use it, done.',
+  },
+  {
+    method: 'egg',
+    title: 'Egg moves',
+    note: 'inherited through breeding',
+    help: 'Moves a hatchling can only inherit from its parents at the day care — bred, not taught.',
+  },
+  {
+    method: 'tutor',
+    title: 'Move Tutor moves',
+    note: 'taught by an in-game tutor',
+    help: 'Taught by specific characters in the games, often for a fee of Battle Points or items.',
+  },
 ];
 
 type SortKey = 'level' | 'name' | 'power' | 'accuracy' | 'pp';
@@ -27,10 +48,11 @@ function compareNullable(a: number | null, b: number | null, dir: 1 | -1): numbe
 }
 
 /** One method's sortable table, collapsed to its first rows until expanded. */
-const MethodSection: React.FC<{ title: string; note: string; moves: PokemonMove[]; showLevel: boolean }> = ({
+const MethodSection: React.FC<{ title: string; note: string; help?: string; moves: PokemonMove[]; showLevel: boolean }> = ({
   title,
   note,
   moves,
+  help,
   showLevel,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -58,7 +80,7 @@ const MethodSection: React.FC<{ title: string; note: string; moves: PokemonMove[
 
   const shown = expanded ? sorted : sorted.slice(0, COLLAPSED_ROWS);
 
-  const header = (key: SortKey, label: string, alignRight = false) => (
+  const header = (key: SortKey, label: string, alignRight = false, help?: string) => (
     <TableHead
       onClick={() => {
         if (sortKey === key) setDir((d) => (d === 1 ? -1 : 1));
@@ -72,6 +94,7 @@ const MethodSection: React.FC<{ title: string; note: string; moves: PokemonMove[
     >
       <span className="inline-flex items-center gap-1">
         {label}
+        {help && <HelpTip title={label}>{help}</HelpTip>}
         {sortKey === key && (dir === 1 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
       </span>
     </TableHead>
@@ -84,6 +107,7 @@ const MethodSection: React.FC<{ title: string; note: string; moves: PokemonMove[
         <span className="text-xs text-muted-foreground">
           {moves.length} move{moves.length === 1 ? '' : 's'} · {note}
         </span>
+        {help && <HelpTip title={title}>{help}</HelpTip>}
       </div>
       <div className="overflow-x-auto rounded-md border">
         <Table>
@@ -92,10 +116,16 @@ const MethodSection: React.FC<{ title: string; note: string; moves: PokemonMove[
               {showLevel && header('level', 'Lv.')}
               {header('name', 'Move')}
               <TableHead>Type</TableHead>
-              <TableHead>Class</TableHead>
-              {header('power', 'Power', true)}
-              {header('accuracy', 'Acc.', true)}
-              {header('pp', 'PP', true)}
+              <TableHead>
+                Class
+                <HelpTip title="Damage class" className="ml-1">
+                  Physical moves use Attack, special moves use Sp. Attack, and status moves
+                  deal no direct damage.
+                </HelpTip>
+              </TableHead>
+              {header('power', 'Power', true, 'The move’s base damage — “—” means variable or no direct damage.')}
+              {header('accuracy', 'Acc.', true, 'Chance to hit, in percent — “—” never misses.')}
+              {header('pp', 'PP', true, 'Power Points — how many times the move can be used before resting.')}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,7 +185,7 @@ const MovesTable: React.FC<{ moves: PokemonMove[] }> = ({ moves }) => {
 
   return (
     <div>
-      {METHOD_SECTIONS.map(({ method, title, note }) => {
+      {METHOD_SECTIONS.map(({ method, title, note, help }) => {
         const sectionMoves = byMethod.get(method);
         if (!sectionMoves || sectionMoves.length === 0) return null;
         return (
@@ -163,13 +193,20 @@ const MovesTable: React.FC<{ moves: PokemonMove[] }> = ({ moves }) => {
             key={method}
             title={title}
             note={note}
+            help={help}
             moves={sectionMoves}
             showLevel={method === 'level-up'}
           />
         );
       })}
       {other.length > 0 && (
-        <MethodSection title="Other moves" note="special acquisition methods" moves={other} showLevel={false} />
+        <MethodSection
+          title="Other moves"
+          note="special acquisition methods"
+          help="Moves picked up outside the usual four routes — event distributions, form changes, or one-off teachings."
+          moves={other}
+          showLevel={false}
+        />
       )}
     </div>
   );

@@ -7,12 +7,46 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
+import HelpTip from '../HelpTip';
 import { RARITY_STYLE } from './rarity';
 import { capitalize } from '../../utils/helpers';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
 
 const prettifyIdent = (value: string) => value.split('-').map(capitalize).join(' ');
+
+/** Plain-words explanations for the encounter methods that need one. */
+const METHOD_HELP: Record<string, string> = {
+  walk: 'Walking in tall grass or on a cave floor — the ordinary random encounter.',
+  surf: 'Met while riding a Pokémon across water.',
+  'old-rod': 'Fishing with the weakest rod — mostly Magikarp country.',
+  'good-rod': 'Fishing with the mid-tier rod.',
+  'super-rod': 'Fishing with the best rod, for the rarest catches.',
+  headbutt: 'Headbutting a tree shakes a Pokémon out of it.',
+  'rock-smash': 'Smashing cracked rocks with the field move.',
+  gift: 'Handed to you by a character — not a wild encounter.',
+  'honey-tree': 'Slather a tree with Honey and come back later.',
+  overworld: 'Roams visibly in the open world — walk up to it.',
+  'space-time-distortion': 'Appears only inside Hisui’s space-time distortions.',
+  'grand-underground': 'Found in the Grand Underground’s caverns beneath Sinnoh.',
+};
+
+const MethodHeading: React.FC<{ method: string; compact?: boolean }> = ({ method, compact }) => (
+  <h4
+    className={
+      compact
+        ? 'mb-1 text-xs font-semibold capitalize text-muted-foreground'
+        : 'mb-2 text-sm font-semibold capitalize text-muted-foreground'
+    }
+  >
+    {method.replace(/-/g, ' ')}
+    {METHOD_HELP[method] && (
+      <HelpTip title={method.replace(/-/g, ' ')} className="ml-1">
+        {METHOD_HELP[method]}
+      </HelpTip>
+    )}
+  </h4>
+);
 
 /** area encounters, grouped by method, each method sorted by rarity desc. */
 function groupByMethod(encounters: AreaEncounter[]): Array<{ method: string; rows: AreaEncounter[] }> {
@@ -62,18 +96,33 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
     <div className="space-y-5">
       {groupByMethod(rows).map(({ method, rows: methodRows }) => (
         <div key={method}>
-          <h4 className="mb-2 text-sm font-semibold capitalize text-muted-foreground">
-            {method.replace(/-/g, ' ')}
-          </h4>
+          <MethodHeading method={method} />
           <div className="overflow-x-auto rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Pokémon</TableHead>
                   <TableHead>Types</TableHead>
-                  <TableHead className="text-right">Levels</TableHead>
-                  <TableHead className="text-right">Rarity</TableHead>
-                  <TableHead>Games</TableHead>
+                  <TableHead className="text-right">
+                    Levels
+                    <HelpTip title="Levels" className="ml-1">
+                      The level range it appears at here.
+                    </HelpTip>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    Rarity
+                    <HelpTip title="Rarity" className="ml-1">
+                      The chance of this encounter slot, common down to legendary — the % is
+                      per encounter rolled.
+                    </HelpTip>
+                  </TableHead>
+                  <TableHead>
+                    Games
+                    <HelpTip title="Games" className="ml-1">
+                      The game versions this row applies to — some encounters are
+                      version-exclusive.
+                    </HelpTip>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -147,9 +196,7 @@ const DetailCompact: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
     <div className="space-y-3">
       {groupByMethod(rows).map(({ method, rows: methodRows }) => (
         <div key={method}>
-          <h4 className="mb-1 text-xs font-semibold capitalize text-muted-foreground">
-            {method.replace(/-/g, ' ')}
-          </h4>
+          <MethodHeading method={method} compact />
           <ul className="space-y-1">
             {methodRows.map((encounter, index) => (
               <li key={`${encounter.pokemonId}-${index}`} className="flex items-center gap-2 text-sm">

@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TypeBadge } from '../components/ui/type-badge';
+import HelpTip from '../components/HelpTip';
 import { TypeIcon } from '../components/ui/type-icon';
 import { ChevronLeft } from 'lucide-react';
 import { capitalize } from '../utils/helpers';
@@ -62,7 +63,13 @@ const TypeDetail: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Attacking with {capitalize(type)}</CardTitle>
+            <CardTitle className="text-lg">
+              Attacking with {capitalize(type)}
+              <HelpTip title="Attacking" faq="types" className="ml-1">
+                Super effective deals ×2 damage, not very effective ×0.5, and no effect none at
+                all — doubled again or halved again when both of a defender's types agree.
+              </HelpTip>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <MatchupRow label="Super effective against" types={info.doubleDamageTo} />
@@ -72,7 +79,13 @@ const TypeDetail: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Defending as {capitalize(type)}</CardTitle>
+            <CardTitle className="text-lg">
+              Defending as {capitalize(type)}
+              <HelpTip title="Defending" faq="types" className="ml-1">
+                Weak to takes ×2 damage, resists takes ×0.5, and immune takes none — a
+                Pokémon's second type multiplies on top.
+              </HelpTip>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <MatchupRow label="Weak to" types={info.doubleDamageFrom} />

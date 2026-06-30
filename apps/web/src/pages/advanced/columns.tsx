@@ -21,6 +21,8 @@ import { capitalize } from '../../utils/helpers';
 export type ColumnDef<Row> = {
   key: string;
   label: string;
+  /** Short explainer shown as a HelpTip in the results header. */
+  help?: string;
   defaultOn?: boolean;
   render: (row: Row) => React.ReactNode;
 };
@@ -71,9 +73,14 @@ export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
   { key: 'specialAttack', label: 'Sp. Atk', render: (p) => p.stats.specialAttack },
   { key: 'specialDefense', label: 'Sp. Def', render: (p) => p.stats.specialDefense },
   { key: 'speed', label: 'Speed', defaultOn: true, render: (p) => p.stats.speed },
-  { key: 'height', label: 'Height', render: (p) => p.height },
-  { key: 'weight', label: 'Weight', render: (p) => p.weight },
-  { key: 'baseExperience', label: 'Base Exp.', render: (p) => p.baseExperience ?? '—' },
+  { key: 'height', label: 'Height', help: 'In the games\u2019 raw unit: decimetres (10 = 1 m).', render: (p) => p.height },
+  { key: 'weight', label: 'Weight', help: 'In the games\u2019 raw unit: hectograms (10 = 1 kg).', render: (p) => p.weight },
+  {
+    key: 'baseExperience',
+    label: 'Base Exp.',
+    help: 'The experience defeating one is worth, before level multipliers.',
+    render: (p) => p.baseExperience ?? '\u2014',
+  },
 ];
 
 export const MOVE_COLUMNS: ColumnDef<MoveSummary>[] = [

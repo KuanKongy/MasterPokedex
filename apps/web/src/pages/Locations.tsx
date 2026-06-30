@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocationCatalog } from '@/hooks/api/world';
 import LoadingSpinner from '../components/LoadingSpinner';
+import HelpTip from '../components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +41,13 @@ const Locations: React.FC = () => {
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Pokémon Locations</h1>
-          <p className="text-muted-foreground">Every known place in the world, region by region</p>
+          <p className="text-muted-foreground">
+            Every known place in the world, region by region
+            <HelpTip title="Greyed-out places" className="ml-1">
+              A greyed row is a real place with no wild-encounter data recorded yet — its page
+              still has the artwork and the story.
+            </HelpTip>
+          </p>
         </div>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -65,6 +72,10 @@ const Locations: React.FC = () => {
                   {region.id === OTHER_REGION_ID && (
                     <p className="mt-1 text-sm text-muted-foreground">
                       Not places in the world: trade and event venues, distribution sites and side games.
+                      <HelpTip title="Other & event" className="ml-1">
+                        Where a Pokémon's “met at” can point outside the map — link trades,
+                        real-world distributions and side-series games all land here.
+                      </HelpTip>
                     </p>
                   )}
                 </div>

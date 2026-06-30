@@ -5,19 +5,20 @@ import type { PokemonSortField, PokemonSummary, SortDir } from '@masterpokedex/s
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
 import ColumnToggle from '../ColumnToggle';
+import HelpTip from '../HelpTip';
 import { useColumnPrefs } from '@/hooks/useColumnPrefs';
 import { capitalize } from '../../utils/helpers';
 import { cn } from '@/lib/utils';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 
-const STAT_COLUMNS: Array<{ key: PokemonSortField; label: string }> = [
-  { key: 'total', label: 'Total' },
-  { key: 'hp', label: 'HP' },
-  { key: 'attack', label: 'Atk' },
-  { key: 'defense', label: 'Def' },
-  { key: 'specialAttack', label: 'Sp.A' },
-  { key: 'specialDefense', label: 'Sp.D' },
-  { key: 'speed', label: 'Spe' },
+const STAT_COLUMNS: Array<{ key: PokemonSortField; label: string; help: string }> = [
+  { key: 'total', label: 'Total', help: 'The six base stats added up (BST) — the quick read on overall strength.' },
+  { key: 'hp', label: 'HP', help: 'Hit Points — how much damage it can take.' },
+  { key: 'attack', label: 'Atk', help: 'Attack — powers physical moves.' },
+  { key: 'defense', label: 'Def', help: 'Defense — withstands physical moves.' },
+  { key: 'specialAttack', label: 'Sp.A', help: 'Special Attack — powers special moves.' },
+  { key: 'specialDefense', label: 'Sp.D', help: 'Special Defense — withstands special moves.' },
+  { key: 'speed', label: 'Spe', help: 'Speed — the faster Pokémon usually moves first.' },
 ];
 
 type DexStatsTableProps = {
@@ -35,7 +36,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
   const { visible, toggle } = useColumnPrefs('dex-stats', STAT_KEYS, STAT_KEYS);
   const shownStats = STAT_COLUMNS.filter((c) => visible.includes(c.key));
 
-  const header = (key: PokemonSortField, label: string, alignRight = false) => (
+  const header = (key: PokemonSortField, label: string, alignRight = false, help?: string) => (
     <TableHead
       key={key}
       onClick={() => onSort(key)}
@@ -44,6 +45,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
     >
       <span className="inline-flex items-center gap-1">
         {label}
+        {help && <HelpTip title={label}>{help}</HelpTip>}
         {sort === key &&
           (dir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
       </span>
@@ -62,7 +64,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
             {header('id', '#')}
             {header('name', 'Name')}
             <TableHead>Types</TableHead>
-            {shownStats.map((col) => header(col.key, col.label, true))}
+            {shownStats.map((col) => header(col.key, col.label, true, col.help))}
           </TableRow>
         </TableHeader>
         <TableBody>

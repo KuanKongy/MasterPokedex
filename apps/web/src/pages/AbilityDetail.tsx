@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../components/ui/type-badge';
+import HelpTip from '../components/HelpTip';
 import { ChevronLeft } from 'lucide-react';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
@@ -58,7 +59,13 @@ const AbilityDetail: React.FC = () => {
             <TableRow>
               <TableHead>Pokémon</TableHead>
               <TableHead>Types</TableHead>
-              <TableHead>Slot</TableHead>
+              <TableHead>
+                Slot
+                <HelpTip title="Ability slot" className="ml-1">
+                  Slots 1 and 2 are the ordinary abilities a wild Pokémon can have; Hidden is
+                  the rare extra one from special encounters and raids.
+                </HelpTip>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

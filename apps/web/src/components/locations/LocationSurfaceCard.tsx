@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '../LoadingSpinner';
 import EncounterList from './EncounterList';
+import HelpTip from '../HelpTip';
 import { resolveAsset } from '@/lib/assets';
 
 type LocationSurfaceCardProps = {
@@ -90,6 +91,9 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
                       <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
                         <Swords className="h-3.5 w-3.5 text-pokebrand-red" />
                         Notable Trainers
+                        <HelpTip title="Notable Trainers">
+                          Gym Leaders and named trainers the games place here.
+                        </HelpTip>
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {location.notableTrainers!.map((trainer) => (

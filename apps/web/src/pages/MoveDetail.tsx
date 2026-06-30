@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import type { MoveLearner } from '@masterpokedex/shared';
 import { useMove } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
+import HelpTip from '../components/HelpTip';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../components/ui/type-badge';
@@ -73,13 +74,21 @@ const MoveDetail: React.FC = () => {
     );
   }
 
-  const facts: Array<{ label: string; value: React.ReactNode }> = [
+  const facts: Array<{ label: string; value: React.ReactNode; help?: string }> = [
     { label: 'Type', value: <TypeBadge type={move.type} icon /> },
-    { label: 'Class', value: capitalize(move.damageClass) },
-    { label: 'Power', value: move.power ?? '—' },
-    { label: 'Accuracy', value: move.accuracy ?? '—' },
-    { label: 'PP', value: move.pp ?? '—' },
-    { label: 'Priority', value: move.priority },
+    {
+      label: 'Class',
+      value: capitalize(move.damageClass),
+      help: 'Physical moves use Attack, special moves use Sp. Attack, and status moves deal no direct damage.',
+    },
+    { label: 'Power', value: move.power ?? '—', help: 'Base damage — "—" means variable or no direct damage.' },
+    { label: 'Accuracy', value: move.accuracy ?? '—', help: 'Chance to hit, in percent — "—" never misses.' },
+    { label: 'PP', value: move.pp ?? '—', help: 'Power Points — how many uses before resting.' },
+    {
+      label: 'Priority',
+      value: move.priority,
+      help: 'Turn order jumper: higher priority acts first regardless of Speed; 0 is normal, negatives go last.',
+    },
     { label: 'Introduced', value: move.generation ? `Generation ${move.generation}` : '—' },
   ];
 
@@ -101,7 +110,14 @@ const MoveDetail: React.FC = () => {
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
               {facts.map((fact) => (
                 <React.Fragment key={fact.label}>
-                  <dt className="text-sm text-muted-foreground">{fact.label}</dt>
+                  <dt className="text-sm text-muted-foreground">
+                    {fact.label}
+                    {fact.help && (
+                      <HelpTip title={fact.label} className="ml-1">
+                        {fact.help}
+                      </HelpTip>
+                    )}
+                  </dt>
                   <dd className="text-sm font-medium">{fact.value}</dd>
                 </React.Fragment>
               ))}

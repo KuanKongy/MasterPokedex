@@ -21,6 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { capitalize } from '../utils/helpers';
 import LoadingSpinner from '../components/LoadingSpinner';
+import HelpTip from '../components/HelpTip';
 import { ENTITY_COLUMNS } from './advanced/columns';
 
 /**
@@ -247,6 +248,12 @@ const PokemonFilter: React.FC = () => {
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
             Conditions
+            <HelpTip title="Conditions">
+              Each row is one requirement. “Match all” needs every row to hold (AND),
+              “match any” needs one (OR). The fields are the games' own numbers —
+              Base stat total, Base experience, Capture rate, Fling power, Priority and the
+              rest are explained on the pages they come from.
+            </HelpTip>
           </CardTitle>
           <Tabs value={match} onValueChange={(value) => setMatch(value as 'all' | 'any')}>
             <TabsList>
@@ -373,7 +380,14 @@ const PokemonFilter: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   {activeColumns.map((column) => (
-                    <TableHead key={column.key}>{column.label}</TableHead>
+                    <TableHead key={column.key}>
+                      {column.label}
+                      {column.help && (
+                        <HelpTip title={column.label} className="ml-1">
+                          {column.help}
+                        </HelpTip>
+                      )}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>

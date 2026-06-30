@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { DAMAGE_CLASSES, POKEMON_TYPES, type DamageClass, type PokemonTypeName } from '@masterpokedex/shared';
 import { useMoves } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
+import HelpTip from '../components/HelpTip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -121,11 +122,47 @@ const Moves: React.FC = () => {
                 <TableRow>
                   <TableHead>Move</TableHead>
                   {visible.includes('type') && <TableHead>Type</TableHead>}
-                  {visible.includes('class') && <TableHead>Class</TableHead>}
-                  {visible.includes('power') && <TableHead className="text-right">Power</TableHead>}
-                  {visible.includes('accuracy') && <TableHead className="text-right">Acc.</TableHead>}
-                  {visible.includes('pp') && <TableHead className="text-right">PP</TableHead>}
-                  {visible.includes('gen') && <TableHead className="text-right">Gen</TableHead>}
+                  {visible.includes('class') && (
+                    <TableHead>
+                      Class
+                      <HelpTip title="Damage class" className="ml-1">
+                        Physical moves use Attack, special moves use Sp. Attack, and status
+                        moves deal no direct damage.
+                      </HelpTip>
+                    </TableHead>
+                  )}
+                  {visible.includes('power') && (
+                    <TableHead className="text-right">
+                      Power
+                      <HelpTip title="Power" className="ml-1">
+                        Base damage — "—" means variable or no direct damage.
+                      </HelpTip>
+                    </TableHead>
+                  )}
+                  {visible.includes('accuracy') && (
+                    <TableHead className="text-right">
+                      Acc.
+                      <HelpTip title="Accuracy" className="ml-1">
+                        Chance to hit, in percent — "—" never misses.
+                      </HelpTip>
+                    </TableHead>
+                  )}
+                  {visible.includes('pp') && (
+                    <TableHead className="text-right">
+                      PP
+                      <HelpTip title="PP" className="ml-1">
+                        Power Points — how many uses before resting.
+                      </HelpTip>
+                    </TableHead>
+                  )}
+                  {visible.includes('gen') && (
+                    <TableHead className="text-right">
+                      Gen
+                      <HelpTip title="Generation" className="ml-1">
+                        The generation of games that introduced the move.
+                      </HelpTip>
+                    </TableHead>
+                  )}
                   {visible.includes('effect') && <TableHead>Effect</TableHead>}
                 </TableRow>
               </TableHeader>

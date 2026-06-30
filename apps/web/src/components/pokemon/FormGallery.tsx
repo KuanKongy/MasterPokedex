@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { MegaSummary } from '@masterpokedex/shared';
 import LoadingSpinner from '../LoadingSpinner';
+import HelpTip from '../HelpTip';
 import { Card, CardContent } from '@/components/ui/card';
 import { TypeBadge } from '../ui/type-badge';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -15,15 +16,23 @@ import { cn } from '@/lib/utils';
 const FormGallery: React.FC<{
   title: string;
   blurb: (count: number) => string;
+  help?: React.ReactNode;
   forms: MegaSummary[];
   isLoading: boolean;
-}> = ({ title, blurb, forms, isLoading }) => {
+}> = ({ title, blurb, help, forms, isLoading }) => {
   const { spriteStyle } = useSpritePref();
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-2 text-3xl font-extrabold md:text-4xl">{title}</h1>
-      <p className="mb-8 text-muted-foreground">{blurb(forms.length)}</p>
+      <p className="mb-8 text-muted-foreground">
+        {blurb(forms.length)}
+        {help && (
+          <HelpTip title={title} faq="mega-gigantamax" className="ml-1">
+            {help}
+          </HelpTip>
+        )}
+      </p>
 
       {isLoading ? (
         <LoadingSpinner />
@@ -49,11 +58,17 @@ const FormGallery: React.FC<{
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">
                       BST <span className="font-semibold text-foreground">{form.stats.total}</span>
+                      <HelpTip title="BST" className="ml-1">
+                        Base Stat Total — the six base stats added up.
+                      </HelpTip>
                     </p>
                   </div>
                 </Link>
                 <p className="mt-3 border-t pt-2 text-xs text-muted-foreground">
-                  Base:{' '}
+                  Base:
+                  <HelpTip title="Base" className="mx-1">
+                    The species this form transforms from.
+                  </HelpTip>{' '}
                   <Link to={`/pokemon/${form.basePokemonId}`} className="font-medium text-foreground hover:underline">
                     {form.baseName}
                   </Link>

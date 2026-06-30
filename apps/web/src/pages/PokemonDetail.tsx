@@ -13,6 +13,7 @@ import MovesTable from '../components/pokemon/MovesTable';
 import FormsSection from '../components/pokemon/FormsSection';
 import EvolutionChainCard from '../components/pokemon/EvolutionChainCard';
 import HowToGet from '../components/pokemon/HowToGet';
+import HelpTip from '../components/HelpTip';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -148,12 +149,21 @@ const PokemonDetail: React.FC = () => {
           <div>
             <p className="text-sm text-muted-foreground">
               #{(isForm ? pokemon.speciesId : pokemon.id).toString().padStart(4, '0')}
+              <HelpTip title="Dex number" className="ml-1">
+                Its National Pokédex number, the same in every game — forms share their
+                species' number.
+              </HelpTip>
             </p>
             <h1 className="text-3xl md:text-5xl font-extrabold">
               {pokemon.formLabel ?? capitalize(pokemon.name)}
             </h1>
             {pokemon.species.genus && (
-              <p className="text-muted-foreground mt-1">{pokemon.species.genus}</p>
+              <p className="text-muted-foreground mt-1">
+                {pokemon.species.genus}
+                <HelpTip title="Category" className="ml-1">
+                  The category the Pokédex files the species under — flavour, not mechanics.
+                </HelpTip>
+              </p>
             )}
           </div>
           <Button
@@ -167,8 +177,22 @@ const PokemonDetail: React.FC = () => {
           </Button>
         </div>
         <div className="flex gap-2 mt-2">
-          {pokemon.species.isLegendary && <Badge variant="secondary">Legendary</Badge>}
-          {pokemon.species.isMythical && <Badge variant="secondary">Mythical</Badge>}
+          {pokemon.species.isLegendary && (
+            <>
+              <Badge variant="secondary">Legendary</Badge>
+              <HelpTip title="Legendary">
+                A one-of-a-kind encounter — usually a single chance per save file.
+              </HelpTip>
+            </>
+          )}
+          {pokemon.species.isMythical && (
+            <>
+              <Badge variant="secondary">Mythical</Badge>
+              <HelpTip title="Mythical">
+                Rarer than Legendary — historically given out only at events.
+              </HelpTip>
+            </>
+          )}
         </div>
       </div>
 
@@ -216,13 +240,25 @@ const PokemonDetail: React.FC = () => {
               </div>
               {pokemon.species.growthRate && (
                 <div>
-                  <h3 className="font-semibold">Growth rate</h3>
+                  <h3 className="font-semibold">
+                    Growth rate
+                    <HelpTip title="Growth rate" faq="levels" className="ml-1">
+                      The curve deciding how much experience each level costs, from fast to
+                      erratic — levels here derive from EXP on this curve.
+                    </HelpTip>
+                  </h3>
                   <p className="capitalize">{pokemon.species.growthRate.replace(/-/g, ' ')}</p>
                 </div>
               )}
               {pokemon.species.captureRate !== null && (
                 <div>
-                  <h3 className="font-semibold">Capture rate</h3>
+                  <h3 className="font-semibold">
+                    Capture rate
+                    <HelpTip title="Capture rate" className="ml-1">
+                      The games' base catch chance, 3–255 — the higher, the easier to
+                      catch (Magikarp 255, most legendaries 3).
+                    </HelpTip>
+                  </h3>
                   <p>{pokemon.species.captureRate}</p>
                 </div>
               )}
@@ -238,7 +274,13 @@ const PokemonDetail: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Abilities</h3>
+              <h3 className="font-semibold mb-2">
+                Abilities
+                <HelpTip title="Abilities" className="ml-1">
+                  A Pokémon has one of its listed abilities. “Hidden” is the rarer extra
+                  one, normally only from special encounters and raids.
+                </HelpTip>
+              </h3>
               <div className="flex gap-2 flex-wrap">
                 {pokemon.abilities.map((ability) => (
                   <Badge key={`${ability.slot}-${ability.name}`} variant={ability.isHidden ? 'outline' : 'default'}>
@@ -251,7 +293,13 @@ const PokemonDetail: React.FC = () => {
 
             {/* Type matchups from the full efficacy chart */}
             <div>
-              <h3 className="font-semibold mb-2">Matchups</h3>
+              <h3 className="font-semibold mb-2">
+                Matchups
+                <HelpTip title="Matchups" faq="types" className="ml-1">
+                  Damage multipliers with both of its types combined: ×2 or ×4 hurts,
+                  ×0.5 or ×0.25 is resisted, and immune means no damage at all.
+                </HelpTip>
+              </h3>
               <div className="space-y-2 text-sm">
                 {pokemon.matchups.weakTo.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1">
@@ -291,7 +339,14 @@ const PokemonDetail: React.FC = () => {
         {/* Right column with stats */}
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Base Stats</h2>
+            <h2 className="text-lg font-semibold mb-4">
+              Base Stats
+              <HelpTip title="Base stats" className="ml-1">
+                The species' fixed talent in each stat, 1–255; an individual Pokémon's
+                real numbers grow from these with its level. The total (BST) is the quick
+                read on overall strength.
+              </HelpTip>
+            </h2>
             <div className="space-y-4">
               {STAT_KEYS.map((key) => {
                 const value = pokemon.stats[key];
@@ -347,7 +402,12 @@ const PokemonDetail: React.FC = () => {
             <TabsContent value="locations" className="pt-4">
               {encountersByLocation.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
-                  No known wild encounters — this Pokémon may only be obtained by evolution or events.
+                  No known wild encounters — this Pokémon may only be obtained by evolution or
+                  events.
+                  <HelpTip title="Events" className="ml-1">
+                    Limited-time distributions: Pokémon handed out at shops, shows or online
+                    rather than met in the wild.
+                  </HelpTip>
                 </p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

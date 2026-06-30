@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { capitalize } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 import { TypeBadge } from './ui/type-badge';
+import HelpTip from './HelpTip';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 
 interface PokemonCardProps {
@@ -33,7 +34,12 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
         </div>
 
         <CardContent className="p-3">
-          <p className="text-xs text-muted-foreground">#{id.toString().padStart(4, '0')}</p>
+          <p className="text-xs text-muted-foreground">
+            #{id.toString().padStart(4, '0')}
+            <HelpTip title="Dex number" className="ml-1">
+              Its National Pokédex number — the same in every game.
+            </HelpTip>
+          </p>
           <h3 className="font-bold text-sm mb-1.5 truncate">{capitalize(name)}</h3>
           <div className="flex gap-1 flex-wrap">
             {types.map((type) => (

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TypeBadge } from '../ui/type-badge';
+import HelpTip from '../HelpTip';
 import LoadingSpinner from '../LoadingSpinner';
 import { capitalize } from '../../utils/helpers';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -49,7 +50,13 @@ const FormsSection: React.FC<{ pokemonId: number; currentId: number }> = ({ poke
     <Card className="mt-6">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Forms &amp; Mega Evolutions</h2>
+          <h2 className="text-lg font-semibold">
+            Forms &amp; Mega Evolutions
+            <HelpTip title="Family forms" faq="family-forms" className="ml-1">
+              Every form in the whole family — Megas, Gigantamax and regional variants on any
+              stage — which is why Bulbasaur's page shows Mega Venusaur.
+            </HelpTip>
+          </h2>
           <Button variant="ghost" size="sm" onClick={() => setOverride(!open)}>
             {open ? (
               <>
@@ -104,16 +111,41 @@ const FormsSection: React.FC<{ pokemonId: number; currentId: number }> = ({ poke
                               Base
                             </Badge>
                           )}
-                          {form.isMega && <Badge className="bg-poketype-dragon text-[0.6875rem] text-white">Mega</Badge>}
+                          {form.isMega && (
+                            <>
+                              <Badge className="bg-poketype-dragon text-[0.6875rem] text-white">Mega</Badge>
+                              <HelpTip title="Mega Evolution" faq="mega-gigantamax">
+                                A temporary battle transformation via its Mega Stone — it ends
+                                with the battle.
+                              </HelpTip>
+                            </>
+                          )}
                           {form.isGmax && (
-                            <Badge className="bg-poketype-fighting text-[0.6875rem] text-white">Gigantamax</Badge>
+                            <>
+                              <Badge className="bg-poketype-fighting text-[0.6875rem] text-white">Gigantamax</Badge>
+                              <HelpTip title="Gigantamax" faq="mega-gigantamax">
+                                Galar's battle-only gigantism for individuals with the
+                                Gigantamax Factor — colossal, reshaped, temporary.
+                              </HelpTip>
+                            </>
                           )}
                           {form.isRegional && (
-                            <Badge variant="secondary" className="text-[0.6875rem]">
-                              Regional
-                            </Badge>
+                            <>
+                              <Badge variant="secondary" className="text-[0.6875rem]">
+                                Regional
+                              </Badge>
+                              <HelpTip title="Regional form">
+                                The species as another region shaped it — different typing or
+                                look, permanent, often with its own evolution.
+                              </HelpTip>
+                            </>
                           )}
-                          <span className="text-xs text-muted-foreground">BST {form.stats.total}</span>
+                          <span className="text-xs text-muted-foreground">
+                            BST {form.stats.total}
+                            <HelpTip title="BST" className="ml-1">
+                              Base Stat Total — the six base stats added up.
+                            </HelpTip>
+                          </span>
                         </div>
                       </Link>
                     ))}

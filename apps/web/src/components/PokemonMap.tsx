@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MapPin, Compass, AlertTriangle, Search, Star } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import LocationSurfaceCard from './locations/LocationSurfaceCard';
+import HelpTip from './HelpTip';
 import { resolveAsset } from '@/lib/assets';
 import { cn } from '@/lib/utils';
 
@@ -131,6 +132,18 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 {pinned.length} of {region.locationCount} locations pinned — click a pin to preview it, or use the
                 list below for the rest
+                <HelpTip title="Pin colours" className="ml-1">
+                  A pin is coloured by what the place is:{' '}
+                  <span className="text-pokebrand-red">city</span>,{' '}
+                  <span className="text-orange-500">town</span>,{' '}
+                  <span className="text-amber-600">route</span>,{' '}
+                  <span className="text-green-600">forest</span>,{' '}
+                  <span className="text-stone-500">cave</span>,{' '}
+                  <span className="text-stone-600">mountain</span>,{' '}
+                  <span className="text-blue-500">island</span> or{' '}
+                  <span className="text-sky-500">water</span>. Only curated places carry a pin;
+                  the rest are in the list.
+                </HelpTip>
               </p>
             )}
           </CardContent>
@@ -141,6 +154,10 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
             <CardTitle className="flex items-center gap-2 text-base">
               <Star className="h-4 w-4 text-pokebrand-red" />
               Notable locations
+              <HelpTip title="Notable locations" className="ml-1">
+                Curated highlights of the region — the red names on a row are its Gym Leaders
+                and other trainers worth challenging.
+              </HelpTip>
             </CardTitle>
             <CardDescription>The places worth knowing about in {region.displayName}</CardDescription>
           </CardHeader>

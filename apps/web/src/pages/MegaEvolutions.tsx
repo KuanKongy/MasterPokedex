@@ -14,6 +14,7 @@ const MegaEvolutions: React.FC = () => {
       blurb={(count) =>
         count > 0 ? `${count} Mega forms unlocked by Mega Stones` : 'Temporary battle forms unlocked by Mega Stones'
       }
+      help="A temporary transformation in battle: a bonded trainer's Key Stone plus the species' held Mega Stone push it beyond its final stage until the battle ends."
       forms={data?.items ?? []}
       isLoading={isLoading}
     />

@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Medal, Sparkles, UserCheck, UserMinus, UserPlus, Clock, Check, X } from 'lucide-react';
+import HelpTip from './HelpTip';
 import { MemberCard } from './TeamsPanel';
 import LoadingSpinner from './LoadingSpinner';
 import { resolveAsset } from '@/lib/assets';
@@ -157,7 +158,19 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
                     <Badge variant="secondary" className="capitalize">
                       {trainer.rank}
                     </Badge>
-                    {trainer.isGuest && <Badge variant="outline">Resident trainer</Badge>}
+                    <HelpTip title="Trainer rank" faq="ranks">
+                      The ladder runs Rookie to Champion. Everyone starts as a Rookie; the
+                      higher ranks are worn by the resident cast for now.
+                    </HelpTip>
+                    {trainer.isGuest && (
+                      <>
+                        <Badge variant="outline">Resident trainer</Badge>
+                        <HelpTip title="Resident" faq="residents">
+                          A seeded character from the games and the show — nobody signs in as
+                          them, and their teams don't change.
+                        </HelpTip>
+                      </>
+                    )}
                   </h3>
                   <p className="text-muted-foreground">
                     @{trainer.username}

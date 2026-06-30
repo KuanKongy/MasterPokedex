@@ -7,6 +7,7 @@ import { Medal, Calendar, Edit, Sparkles, Users, Heart, Activity as ActivityIcon
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import HelpTip from './HelpTip';
 import UpdateTrainerForm from './UpdateTrainerForm';
 import TeamsPanel from './TeamsPanel';
 import FriendsPanel from './FriendsPanel';
@@ -137,6 +138,10 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                 <h3 className="flex items-center gap-2 text-xl font-semibold">
                   {profile.displayName}
                   <Badge variant="secondary">{RANK_LABELS[profile.rank]}</Badge>
+                  <HelpTip title="Trainer rank" faq="ranks">
+                    Your title on the ladder from Rookie to Champion. Everyone starts as a
+                    Rookie; the higher ranks are worn by the resident cast for now.
+                  </HelpTip>
                   {!profile.isPublic && <Badge variant="outline">Private</Badge>}
                 </h3>
                 <p className="text-muted-foreground">
@@ -148,22 +153,44 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Badges</div>
+                  <div className="text-muted-foreground text-sm">
+                    Badges
+                    <HelpTip title="Gym badges" faq="ranks" className="ml-1">
+                      The gym badges a trainer has earned — up to the games' 64. Residents came
+                      with theirs; earning them isn't wired up yet.
+                    </HelpTip>
+                  </div>
                   <div className="flex items-center gap-1 font-semibold">
                     <Medal className="h-4 w-4 text-yellow-500" />
                     {profile.badges}
                   </div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Caught</div>
+                  <div className="text-muted-foreground text-sm">
+                    Caught
+                    <HelpTip title="Caught" className="ml-1">
+                      Every Pokémon on your teams, duplicates included.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold">{profile.caughtCount}</div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Species</div>
+                  <div className="text-muted-foreground text-sm">
+                    Species
+                    <HelpTip title="Species" className="ml-1">
+                      How many distinct Pokémon are among your catches — six Pikachu count once.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold">{profile.uniqueSpeciesCount}</div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Shinies</div>
+                  <div className="text-muted-foreground text-sm">
+                    Shinies
+                    <HelpTip title="Shinies" faq="shiny" className="ml-1">
+                      Pokémon caught in their rare alternate colouring — flip the ✨ switch when
+                      catching.
+                    </HelpTip>
+                  </div>
                   <div className="flex items-center gap-1 font-semibold">
                     <Sparkles className="h-4 w-4 text-yellow-500" />
                     {profile.shinyCount}
