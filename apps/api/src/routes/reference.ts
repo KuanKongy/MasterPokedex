@@ -294,6 +294,7 @@ export const referenceRoutes = new Hono<AppBindings>()
       SELECT ic.id, ic.name, ic.display_name AS "displayName", ic.pocket,
              (SELECT count(*) FROM dex.items i WHERE i.category_id = ic.id)::int AS "itemCount"
       FROM dex.item_categories ic
+      WHERE EXISTS (SELECT 1 FROM dex.items i WHERE i.category_id = ic.id)
       ORDER BY ic.display_name
     `);
     return c.json({ items: rows as unknown as unknown[] });

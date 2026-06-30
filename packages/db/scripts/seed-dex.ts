@@ -767,12 +767,20 @@ async function main() {
     }));
     const validCategoryIds = new Set(itemCategoryRows.map((c) => c.id));
 
+    // Two categories are internal noise, not things a player ever holds:
+    // 49 dynamax-crystals — 300 Max Lair event tokens whose "★And15"-style
+    // names sort ahead of every real item — and 23 unused, scrapped and beta
+    // entries. Dropping them here fixes the catalogue, search and counts in
+    // one place; the categories themselves stay (the API hides empty ones).
+    const EXCLUDED_ITEM_CATEGORIES = new Set([23, 49]);
+
     // Upstream items.csv has started shipping duplicate identifiers (e.g.
     // roseli-berry as both 723 and 2279); dex.items has a unique name, so keep
     // only the lowest id per identifier — the canonical, referenced one.
     const seenItemNames = new Set<string>();
     const itemRows = csvItems
       .filter((r) => validCategoryIds.has(int(r.category_id)))
+      .filter((r) => !EXCLUDED_ITEM_CATEGORIES.has(int(r.category_id)))
       .sort((a, b) => int(a.id) - int(b.id))
       .filter((r) => {
         if (seenItemNames.has(r.identifier!)) return false;

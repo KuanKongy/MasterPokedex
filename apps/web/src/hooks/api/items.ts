@@ -1,18 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { AdjustItemInput, Item, TrainerItem } from '@masterpokedex/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AdjustItemInput, Item, Page, TrainerItem } from '@masterpokedex/shared';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/auth/AuthProvider';
 
+/**
+ * The browsable catalogue pages through the whole ~1,800-item set — the
+ * server caps a page, so without the cursor everything past the first page
+ * simply never existed as far as the grid was concerned.
+ */
 export function useItemCatalogue(params: { category?: string; q?: string } = {}) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['items', 'catalogue', params],
-    queryFn: () => {
+    queryFn: ({ pageParam }) => {
       const search = new URLSearchParams();
       if (params.category) search.set('category', params.category);
       if (params.q) search.set('q', params.q);
-      return apiFetch<{ items: Item[] }>(`/v1/items?${search}`);
+      search.set('limit', '60');
+      if (pageParam) search.set('cursor', pageParam);
+      return apiFetch<Page<Item>>(`/v1/items?${search}`);
     },
-    select: (data) => data.items,
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    select: (data) => data.pages.flatMap((page) => page.items),
   });
 }
 

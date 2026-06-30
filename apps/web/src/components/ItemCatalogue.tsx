@@ -39,7 +39,7 @@ const ItemCatalogue: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: categories } = useItemCategories();
-  const { data: items, isLoading } = useItemCatalogue({
+  const { data: items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useItemCatalogue({
     category: category === ALL ? undefined : category,
     q: search || undefined,
   });
@@ -140,6 +140,13 @@ const ItemCatalogue: React.FC = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+      {hasNextPage && (
+        <div className="mt-6 flex justify-center">
+          <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? 'Loading…' : 'Load more'}
+          </Button>
         </div>
       )}
     </div>
