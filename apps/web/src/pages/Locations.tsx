@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocationCatalog } from '@/hooks/api/world';
 import LoadingSpinner from '../components/LoadingSpinner';
-import HelpTip from '../components/HelpTip';
+import HelpTip, { HoverTip } from '../components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,7 +44,7 @@ const Locations: React.FC = () => {
           <p className="text-muted-foreground">
             Every known place in the world, region by region
             <HelpTip title="Greyed-out places" className="ml-1">
-              A greyed row is a real place with no wild-encounter data recorded yet — its page
+              A greyed row is a real place with no wild-encounter data recorded yet; its page
               still has the artwork and the story.
             </HelpTip>
           </p>
@@ -73,7 +73,7 @@ const Locations: React.FC = () => {
                     <p className="mt-1 text-sm text-muted-foreground">
                       Not places in the world: trade and event venues, distribution sites and side games.
                       <HelpTip title="Other & event" className="ml-1">
-                        Where a Pokémon's “met at” can point outside the map — link trades,
+                        Where a Pokémon's “met at” can point outside the map: link trades,
                         real-world distributions and side-series games all land here.
                       </HelpTip>
                     </p>
@@ -107,9 +107,18 @@ const Locations: React.FC = () => {
                         </Badge>
                       )}
                       {location.hasEncounters && (
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {location.areaCount} area{location.areaCount === 1 ? '' : 's'}
-                        </span>
+                        <HoverTip
+                          title="Areas"
+                          className="shrink-0 text-xs text-muted-foreground"
+                          trigger={
+                            <>
+                              {location.areaCount} area{location.areaCount === 1 ? '' : 's'}
+                            </>
+                          }
+                        >
+                          A location splits into areas (floors of a cave, tall grass, water) and
+                          encounters are listed per area.
+                        </HoverTip>
                       )}
                     </Link>
                   ))}

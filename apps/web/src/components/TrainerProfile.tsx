@@ -7,7 +7,7 @@ import { Medal, Calendar, Edit, Sparkles, Users, Heart, Activity as ActivityIcon
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import HelpTip from './HelpTip';
+import HelpTip, { HoverTip } from './HelpTip';
 import UpdateTrainerForm from './UpdateTrainerForm';
 import TeamsPanel from './TeamsPanel';
 import FriendsPanel from './FriendsPanel';
@@ -137,11 +137,14 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
               <div>
                 <h3 className="flex items-center gap-2 text-xl font-semibold">
                   {profile.displayName}
-                  <Badge variant="secondary">{RANK_LABELS[profile.rank]}</Badge>
-                  <HelpTip title="Trainer rank" faq="ranks">
+                  <HoverTip
+                    title="Trainer rank"
+                    faq="ranks"
+                    trigger={<Badge variant="secondary">{RANK_LABELS[profile.rank]}</Badge>}
+                  >
                     Your title on the ladder from Rookie to Champion. Everyone starts as a
                     Rookie; the higher ranks are worn by the resident cast for now.
-                  </HelpTip>
+                  </HoverTip>
                   {!profile.isPublic && <Badge variant="outline">Private</Badge>}
                 </h3>
                 <p className="text-muted-foreground">
@@ -156,7 +159,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                   <div className="text-muted-foreground text-sm">
                     Badges
                     <HelpTip title="Gym badges" faq="ranks" className="ml-1">
-                      The gym badges a trainer has earned — up to the games' 64. Residents came
+                      The gym badges a trainer has earned, up to the games' 64. Residents came
                       with theirs; earning them isn't wired up yet.
                     </HelpTip>
                   </div>
@@ -178,7 +181,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                   <div className="text-muted-foreground text-sm">
                     Species
                     <HelpTip title="Species" className="ml-1">
-                      How many distinct Pokémon are among your catches — six Pikachu count once.
+                      How many distinct Pokémon are among your catches; six Pikachu count once.
                     </HelpTip>
                   </div>
                   <div className="font-semibold">{profile.uniqueSpeciesCount}</div>
@@ -187,7 +190,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                   <div className="text-muted-foreground text-sm">
                     Shinies
                     <HelpTip title="Shinies" faq="shiny" className="ml-1">
-                      Pokémon caught in their rare alternate colouring — flip the ✨ switch when
+                      Pokémon caught in their rare alternate colouring; flip the ✨ switch when
                       catching.
                     </HelpTip>
                   </div>

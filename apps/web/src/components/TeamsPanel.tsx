@@ -53,7 +53,7 @@ import {
 import { isApiError } from '@/lib/api';
 import { capitalize } from '../utils/helpers';
 import LoadingSpinner from './LoadingSpinner';
-import HelpTip from './HelpTip';
+import HelpTip, { HoverTip } from './HelpTip';
 
 const CATEGORY_LABELS: Record<TeamCategory, string> = {
   party: 'Party',
@@ -156,7 +156,7 @@ const EditMemberPopover: React.FC<{ member: CaughtPokemon; teams: Team[] }> = ({
             Experience (level follows automatically)
             <HelpTip title="Experience" faq="levels" className="ml-1">
               The level is derived from experience on the species' own growth curve, the same
-              way the games do it — so you set EXP, never the level.
+              way the games do it, so you set EXP, never the level.
             </HelpTip>
           </Label>
           <Input type="number" min={0} value={experience} onChange={(e) => setExperience(e.target.value)} />
@@ -269,9 +269,17 @@ const TeamsPanel: React.FC = () => {
             {teamList.map((team) => (
               <TabsTrigger key={team.id} value={team.id} className="gap-2">
                 {team.name}
-                <Badge variant="secondary" className="text-xs">
-                  {team.members.length}/{team.capacity}
-                </Badge>
+                <HoverTip
+                  title="Capacity"
+                  faq="teams"
+                  trigger={
+                    <Badge variant="secondary" className="text-xs">
+                      {team.members.length}/{team.capacity}
+                    </Badge>
+                  }
+                >
+                  Members out of the team's limit: a Party holds 6, a Box 30, a Showcase 12.
+                </HoverTip>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -280,11 +288,15 @@ const TeamsPanel: React.FC = () => {
             <TabsContent key={team.id} value={team.id} className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium">{CATEGORY_LABELS[team.category]}</span>
-                  <HelpTip title="Team categories" faq="teams" className="ml-1">
+                  <HoverTip
+                    title="Team categories"
+                    faq="teams"
+                    className="text-sm font-medium"
+                    trigger={<>{CATEGORY_LABELS[team.category]}</>}
+                  >
                     A Party holds 6, like the games; a Box holds 30; a Showcase holds 12. When a
                     team is full, catch into another or move someone out.
-                  </HelpTip>
+                  </HoverTip>
                   {team.description && (
                     <span className="text-sm text-muted-foreground"> — {team.description}</span>
                   )}

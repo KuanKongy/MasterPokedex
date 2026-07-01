@@ -81,7 +81,7 @@ const ItemInventory: React.FC = () => {
               {pocketItems.length}
             </Badge>
             <HelpTip title="Pockets" faq="bag">
-              Your bag sorts itself into the games' pockets — each item knows which one it
+              Your bag sorts itself into the games' pockets; each item knows which one it
               belongs to.
             </HelpTip>
           </h3>

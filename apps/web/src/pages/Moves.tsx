@@ -135,7 +135,7 @@ const Moves: React.FC = () => {
                     <TableHead className="text-right">
                       Power
                       <HelpTip title="Power" className="ml-1">
-                        Base damage — "—" means variable or no direct damage.
+                        Base damage; "—" means variable or no direct damage.
                       </HelpTip>
                     </TableHead>
                   )}
@@ -143,7 +143,7 @@ const Moves: React.FC = () => {
                     <TableHead className="text-right">
                       Acc.
                       <HelpTip title="Accuracy" className="ml-1">
-                        Chance to hit, in percent — "—" never misses.
+                        Chance to hit, in percent; "—" never misses.
                       </HelpTip>
                     </TableHead>
                   )}
@@ -151,7 +151,7 @@ const Moves: React.FC = () => {
                     <TableHead className="text-right">
                       PP
                       <HelpTip title="PP" className="ml-1">
-                        Power Points — how many uses before resting.
+                        Power Points: how many uses before resting.
                       </HelpTip>
                     </TableHead>
                   )}

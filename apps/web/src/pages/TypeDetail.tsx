@@ -67,7 +67,7 @@ const TypeDetail: React.FC = () => {
               Attacking with {capitalize(type)}
               <HelpTip title="Attacking" faq="types" className="ml-1">
                 Super effective deals ×2 damage, not very effective ×0.5, and no effect none at
-                all — doubled again or halved again when both of a defender's types agree.
+                all; doubled again or halved again when both of a defender's types agree.
               </HelpTip>
             </CardTitle>
           </CardHeader>
@@ -82,7 +82,7 @@ const TypeDetail: React.FC = () => {
             <CardTitle className="text-lg">
               Defending as {capitalize(type)}
               <HelpTip title="Defending" faq="types" className="ml-1">
-                Weak to takes ×2 damage, resists takes ×0.5, and immune takes none — a
+                Weak to takes ×2 damage, resists takes ×0.5, and immune takes none; a
                 Pokémon's second type multiplies on top.
               </HelpTip>
             </CardTitle>

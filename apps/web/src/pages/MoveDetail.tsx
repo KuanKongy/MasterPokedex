@@ -81,9 +81,9 @@ const MoveDetail: React.FC = () => {
       value: capitalize(move.damageClass),
       help: 'Physical moves use Attack, special moves use Sp. Attack, and status moves deal no direct damage.',
     },
-    { label: 'Power', value: move.power ?? '—', help: 'Base damage — "—" means variable or no direct damage.' },
-    { label: 'Accuracy', value: move.accuracy ?? '—', help: 'Chance to hit, in percent — "—" never misses.' },
-    { label: 'PP', value: move.pp ?? '—', help: 'Power Points — how many uses before resting.' },
+    { label: 'Power', value: move.power ?? '—', help: 'Base damage; "—" means variable or no direct damage.' },
+    { label: 'Accuracy', value: move.accuracy ?? '—', help: 'Chance to hit, in percent; "—" never misses.' },
+    { label: 'PP', value: move.pp ?? '—', help: 'Power Points: how many uses before resting.' },
     {
       label: 'Priority',
       value: move.priority,

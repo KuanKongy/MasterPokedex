@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
-import HelpTip from '../HelpTip';
+import HelpTip, { HoverTip } from '../HelpTip';
 import { RARITY_STYLE } from './rarity';
 import { capitalize } from '../../utils/helpers';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -17,16 +17,16 @@ const prettifyIdent = (value: string) => value.split('-').map(capitalize).join('
 
 /** Plain-words explanations for the encounter methods that need one. */
 const METHOD_HELP: Record<string, string> = {
-  walk: 'Walking in tall grass or on a cave floor — the ordinary random encounter.',
+  walk: 'Walking in tall grass or on a cave floor: the ordinary random encounter.',
   surf: 'Met while riding a Pokémon across water.',
-  'old-rod': 'Fishing with the weakest rod — mostly Magikarp country.',
+  'old-rod': 'Fishing with the weakest rod; mostly Magikarp country.',
   'good-rod': 'Fishing with the mid-tier rod.',
   'super-rod': 'Fishing with the best rod, for the rarest catches.',
   headbutt: 'Headbutting a tree shakes a Pokémon out of it.',
   'rock-smash': 'Smashing cracked rocks with the field move.',
-  gift: 'Handed to you by a character — not a wild encounter.',
+  gift: 'Handed to you by a character, not a wild encounter.',
   'honey-tree': 'Slather a tree with Honey and come back later.',
-  overworld: 'Roams visibly in the open world — walk up to it.',
+  overworld: 'Roams visibly in the open world; walk up to it.',
   'space-time-distortion': 'Appears only inside Hisui’s space-time distortions.',
   'grand-underground': 'Found in the Grand Underground’s caverns beneath Sinnoh.',
 };
@@ -103,23 +103,12 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                 <TableRow>
                   <TableHead>Pokémon</TableHead>
                   <TableHead>Types</TableHead>
-                  <TableHead className="text-right">
-                    Levels
-                    <HelpTip title="Levels" className="ml-1">
-                      The level range it appears at here.
-                    </HelpTip>
-                  </TableHead>
-                  <TableHead className="text-right">
-                    Rarity
-                    <HelpTip title="Rarity" className="ml-1">
-                      The chance of this encounter slot, common down to legendary — the % is
-                      per encounter rolled.
-                    </HelpTip>
-                  </TableHead>
+                  <TableHead className="text-right">Levels</TableHead>
+                  <TableHead className="text-right">Rarity</TableHead>
                   <TableHead>
                     Games
                     <HelpTip title="Games" className="ml-1">
-                      The game versions this row applies to — some encounters are
+                      The game versions this row applies to; some encounters are
                       version-exclusive.
                     </HelpTip>
                   </TableHead>
@@ -156,17 +145,25 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                         : `${encounter.minLevel}–${encounter.maxLevel}`}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span
-                        className={cn(
-                          'inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs capitalize',
-                          RARITY_STYLE[encounter.rarity],
-                        )}
-                        title={encounter.rarity === 'unknown' ? 'No published rate' : `${encounter.chance}% slot chance`}
+                      <HoverTip
+                        title="Rarity"
+                        trigger={
+                          <span
+                            className={cn(
+                              'inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs capitalize',
+                              RARITY_STYLE[encounter.rarity],
+                            )}
+                          >
+                            {encounter.rarity === 'unknown'
+                              ? 'unknown'
+                              : `${encounter.rarity.replace('-', ' ')} · ${encounter.chance}%`}
+                          </span>
+                        }
                       >
                         {encounter.rarity === 'unknown'
-                          ? 'unknown'
-                          : `${encounter.rarity.replace('-', ' ')} · ${encounter.chance}%`}
-                      </span>
+                          ? 'This game publishes no encounter rates, so there is no % to show.'
+                          : 'The chance of this encounter slot per encounter rolled, bucketed from common down to legendary.'}
+                      </HoverTip>
                     </TableCell>
                     <TableCell>
                       <div className="flex max-w-64 flex-wrap gap-1">
@@ -216,14 +213,24 @@ const DetailCompact: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                   Lv. {encounter.minLevel}
                   {encounter.maxLevel !== encounter.minLevel && `–${encounter.maxLevel}`}
                 </span>
-                <span
-                  className={cn(
-                    'ml-auto whitespace-nowrap rounded-full px-1.5 py-0.5 text-[0.6875rem] capitalize',
-                    RARITY_STYLE[encounter.rarity],
-                  )}
+                <HoverTip
+                  className="ml-auto"
+                  title="Rarity"
+                  trigger={
+                    <span
+                      className={cn(
+                        'whitespace-nowrap rounded-full px-1.5 py-0.5 text-[0.6875rem] capitalize',
+                        RARITY_STYLE[encounter.rarity],
+                      )}
+                    >
+                      {encounter.rarity.replace('-', ' ')}
+                    </span>
+                  }
                 >
-                  {encounter.rarity.replace('-', ' ')}
-                </span>
+                  {encounter.rarity === 'unknown'
+                    ? 'This game publishes no encounter rates.'
+                    : 'How likely this encounter slot is, bucketed from common down to legendary.'}
+                </HoverTip>
               </li>
             ))}
           </ul>

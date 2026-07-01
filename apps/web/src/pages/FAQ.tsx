@@ -183,7 +183,7 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     a: (
       <p>
         Every trainer wears a rank: <strong>Rookie</strong>, Trainer, Ace Trainer, Veteran,
-        Elite, and Champion at the top. Everyone starts as a Rookie — the higher titles, and the
+        Elite, and Champion at the top. Everyone starts as a Rookie; the higher titles, and the
         gym badges counted on a profile, are currently worn by the resident cast, whose careers
         came pre-lived. Climbing the ladder yourself isn't wired up yet; the numbers that are
         yours to grow today are your caught count, species and shinies.

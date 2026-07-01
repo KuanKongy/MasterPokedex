@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import EvolutionTree from './EvolutionTree';
+import { megaCaption } from './mega-stones';
 import HelpTip from '../HelpTip';
 import { evolutionCondition } from './evolution-utils';
 import { capitalize } from '../../utils/helpers';
@@ -67,10 +68,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
       id: mega.id,
       from: mega.speciesId ?? null,
       name: mega.formLabel ?? capitalize(mega.name),
-      caption:
-        mega.name === 'rayquaza-mega'
-          ? 'Knows Dragon Ascent'
-          : `Mega Stone${mega.name.endsWith('-x') ? ' X' : mega.name.endsWith('-y') ? ' Y' : ''}`,
+      caption: megaCaption(mega.name),
       highlighted: mega.id === pokemonId,
       formKind: 'mega',
       baseId: mega.speciesId,
@@ -96,7 +94,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
           <h2 className="text-lg font-semibold">
             Evolution Chain
             <HelpTip title="Evolution chain" faq="evolution" className="ml-1">
-              The whole family, branch by branch — each arrow states the exact in-game
+              The whole family, branch by branch; each arrow states the exact in-game
               requirement for that step.
             </HelpTip>
           </h2>
@@ -113,8 +111,10 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
                 Gigantamax
               </Label>
               <HelpTip title="Battle-only forms" faq="mega-gigantamax">
-                Megas and Gigantamax are temporary battle transformations, not evolutions —
-                they branch off with a dashed border.
+                Megas and Gigantamax are temporary battle transformations, not evolutions, so
+                they branch off with a dashed border. A Mega's arrow names the exact stone it
+                must hold; Gigantamax needs the Gigantamax Factor, a trait carried home from
+                Max Raid Dens.
               </HelpTip>
             </div>
           </div>

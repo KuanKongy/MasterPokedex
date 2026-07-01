@@ -12,13 +12,13 @@ import { cn } from '@/lib/utils';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 
 const STAT_COLUMNS: Array<{ key: PokemonSortField; label: string; help: string }> = [
-  { key: 'total', label: 'Total', help: 'The six base stats added up (BST) — the quick read on overall strength.' },
-  { key: 'hp', label: 'HP', help: 'Hit Points — how much damage it can take.' },
-  { key: 'attack', label: 'Atk', help: 'Attack — powers physical moves.' },
-  { key: 'defense', label: 'Def', help: 'Defense — withstands physical moves.' },
-  { key: 'specialAttack', label: 'Sp.A', help: 'Special Attack — powers special moves.' },
-  { key: 'specialDefense', label: 'Sp.D', help: 'Special Defense — withstands special moves.' },
-  { key: 'speed', label: 'Spe', help: 'Speed — the faster Pokémon usually moves first.' },
+  { key: 'total', label: 'Total', help: 'The six base stats added up (BST): the quick read on overall strength.' },
+  { key: 'hp', label: 'HP', help: 'Hit Points: how much damage it can take.' },
+  { key: 'attack', label: 'Atk', help: 'Attack: powers physical moves.' },
+  { key: 'defense', label: 'Def', help: 'Defense: withstands physical moves.' },
+  { key: 'specialAttack', label: 'Sp.A', help: 'Special Attack: powers special moves.' },
+  { key: 'specialDefense', label: 'Sp.D', help: 'Special Defense: withstands special moves.' },
+  { key: 'speed', label: 'Spe', help: 'Speed: the faster Pokémon usually moves first.' },
 ];
 
 type DexStatsTableProps = {

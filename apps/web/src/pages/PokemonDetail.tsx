@@ -13,7 +13,7 @@ import MovesTable from '../components/pokemon/MovesTable';
 import FormsSection from '../components/pokemon/FormsSection';
 import EvolutionChainCard from '../components/pokemon/EvolutionChainCard';
 import HowToGet from '../components/pokemon/HowToGet';
-import HelpTip from '../components/HelpTip';
+import HelpTip, { HoverTip } from '../components/HelpTip';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -148,21 +148,22 @@ const PokemonDetail: React.FC = () => {
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm text-muted-foreground">
-              #{(isForm ? pokemon.speciesId : pokemon.id).toString().padStart(4, '0')}
-              <HelpTip title="Dex number" className="ml-1">
-                Its National Pokédex number, the same in every game — forms share their
+              <HoverTip
+                title="Dex number"
+                trigger={<>#{(isForm ? pokemon.speciesId : pokemon.id).toString().padStart(4, '0')}</>}
+              >
+                Its National Pokédex number, the same in every game. Forms share their
                 species' number.
-              </HelpTip>
+              </HoverTip>
             </p>
             <h1 className="text-3xl md:text-5xl font-extrabold">
               {pokemon.formLabel ?? capitalize(pokemon.name)}
             </h1>
             {pokemon.species.genus && (
               <p className="text-muted-foreground mt-1">
-                {pokemon.species.genus}
-                <HelpTip title="Category" className="ml-1">
-                  The category the Pokédex files the species under — flavour, not mechanics.
-                </HelpTip>
+                <HoverTip title="Category" trigger={<>{pokemon.species.genus}</>}>
+                  The category the Pokédex files the species under: flavour, not mechanics.
+                </HoverTip>
               </p>
             )}
           </div>
@@ -178,20 +179,14 @@ const PokemonDetail: React.FC = () => {
         </div>
         <div className="flex gap-2 mt-2">
           {pokemon.species.isLegendary && (
-            <>
-              <Badge variant="secondary">Legendary</Badge>
-              <HelpTip title="Legendary">
-                A one-of-a-kind encounter — usually a single chance per save file.
-              </HelpTip>
-            </>
+            <HoverTip title="Legendary" trigger={<Badge variant="secondary">Legendary</Badge>}>
+              A one-of-a-kind encounter, usually a single chance per save file.
+            </HoverTip>
           )}
           {pokemon.species.isMythical && (
-            <>
-              <Badge variant="secondary">Mythical</Badge>
-              <HelpTip title="Mythical">
-                Rarer than Legendary — historically given out only at events.
-              </HelpTip>
-            </>
+            <HoverTip title="Mythical" trigger={<Badge variant="secondary">Mythical</Badge>}>
+              Rarer than Legendary; historically given out only at events.
+            </HoverTip>
           )}
         </div>
       </div>
@@ -244,7 +239,7 @@ const PokemonDetail: React.FC = () => {
                     Growth rate
                     <HelpTip title="Growth rate" faq="levels" className="ml-1">
                       The curve deciding how much experience each level costs, from fast to
-                      erratic — levels here derive from EXP on this curve.
+                      erratic; levels here derive from EXP on this curve.
                     </HelpTip>
                   </h3>
                   <p className="capitalize">{pokemon.species.growthRate.replace(/-/g, ' ')}</p>
@@ -255,7 +250,7 @@ const PokemonDetail: React.FC = () => {
                   <h3 className="font-semibold">
                     Capture rate
                     <HelpTip title="Capture rate" className="ml-1">
-                      The games' base catch chance, 3–255 — the higher, the easier to
+                      The games' base catch chance, 3–255: the higher, the easier to
                       catch (Magikarp 255, most legendaries 3).
                     </HelpTip>
                   </h3>
@@ -274,20 +269,24 @@ const PokemonDetail: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">
-                Abilities
-                <HelpTip title="Abilities" className="ml-1">
-                  A Pokémon has one of its listed abilities. “Hidden” is the rarer extra
-                  one, normally only from special encounters and raids.
-                </HelpTip>
-              </h3>
+              <h3 className="font-semibold mb-2">Abilities</h3>
               <div className="flex gap-2 flex-wrap">
-                {pokemon.abilities.map((ability) => (
-                  <Badge key={`${ability.slot}-${ability.name}`} variant={ability.isHidden ? 'outline' : 'default'}>
-                    {capitalize(ability.name.replace(/-/g, ' '))}
-                    {ability.isHidden && ' (Hidden)'}
-                  </Badge>
-                ))}
+                {pokemon.abilities.map((ability) => {
+                  const badge = (
+                    <Badge variant={ability.isHidden ? 'outline' : 'default'}>
+                      {capitalize(ability.name.replace(/-/g, ' '))}
+                      {ability.isHidden && ' (Hidden)'}
+                    </Badge>
+                  );
+                  return ability.isHidden ? (
+                    <HoverTip key={`${ability.slot}-${ability.name}`} title="Hidden ability" trigger={badge}>
+                      The rarer extra ability, normally only from special encounters and
+                      raids; a wild Pokémon has one of the others.
+                    </HoverTip>
+                  ) : (
+                    <React.Fragment key={`${ability.slot}-${ability.name}`}>{badge}</React.Fragment>
+                  );
+                })}
               </div>
             </div>
 

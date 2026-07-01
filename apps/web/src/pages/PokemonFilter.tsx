@@ -250,7 +250,7 @@ const PokemonFilter: React.FC = () => {
             Conditions
             <HelpTip title="Conditions">
               Each row is one requirement. “Match all” needs every row to hold (AND),
-              “match any” needs one (OR). The fields are the games' own numbers —
+              “match any” needs one (OR). The fields are the games' own numbers:
               Base stat total, Base experience, Capture rate, Fling power, Priority and the
               rest are explained on the pages they come from.
             </HelpTip>

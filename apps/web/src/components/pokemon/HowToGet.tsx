@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import type { EvolutionNode, PokemonDetail } from '@masterpokedex/shared';
 import { Card, CardContent } from '@/components/ui/card';
-import HelpTip from '../HelpTip';
+import HelpTip, { HoverTip } from '../HelpTip';
 import { evolutionCondition } from './evolution-utils';
 import { FUSION_BY_FORM, fusionsOf } from './fusions';
+import { megaStoneOf } from './mega-stones';
 import { capitalize } from '../../utils/helpers';
 
 type Props = {
@@ -44,32 +45,48 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         <Link to={`/pokemon/${fusion.partnerId}`} className="font-medium text-pokebrand-red hover:underline">
           {fusion.partnerName}
         </Link>{' '}
-        using the <strong>{fusion.item}</strong> — a reversible item fusion, not an evolution;{' '}
+        using the <strong>{fusion.item}</strong>. A reversible item fusion, not an evolution:{' '}
         {fusion.partnerName} is stored while fused.
       </>,
     );
   }
 
   if (pokemon.isMega) {
+    const stone = megaStoneOf(pokemon.name);
     lines.push(
-      <>
-        Mega Evolve <strong>{pokemon.speciesName}</strong> in battle while it holds its
-        Mega Stone.
-        <HelpTip title="Mega Stone" faq="mega-gigantamax">
-          A held item keyed to one species; with a bonded trainer's Key Stone it unlocks the
-          Mega form in battle.
-        </HelpTip>{' '}
-        The form lasts until the battle ends.
-      </>,
+      pokemon.name === 'rayquaza-mega' ? (
+        <>
+          Mega Evolve <strong>{pokemon.speciesName}</strong> in battle while it knows{' '}
+          <strong>Dragon Ascent</strong>; it needs no stone. The form lasts until the battle
+          ends.
+        </>
+      ) : (
+        <>
+          Mega Evolve <strong>{pokemon.speciesName}</strong> in battle while it holds{' '}
+          <HoverTip
+            title={stone ?? 'Mega Stone'}
+            faq="mega-gigantamax"
+            trigger={<strong>{stone ?? 'its Mega Stone'}</strong>}
+          >
+            {pokemon.speciesName}'s own Mega Stone, a held item; with a bonded trainer's Key
+            Stone it unlocks the Mega form in battle.
+          </HoverTip>
+          . The form lasts until the battle ends.
+        </>
+      ),
     );
   } else if (pokemon.isGmax) {
     lines.push(
       <>
-        Catch one with the <strong>Gigantamax Factor</strong>
-        <HelpTip title="Gigantamax Factor" faq="mega-gigantamax">
-          A trait some individuals carry (mostly from Max Raid Dens). With it, Dynamaxing — the
-          Dynamax Band's battle-only gigantism — takes this changed shape instead.
-        </HelpTip>
+        Catch one with the{' '}
+        <HoverTip
+          title="Gigantamax Factor"
+          faq="mega-gigantamax"
+          trigger={<strong>Gigantamax Factor</strong>}
+        >
+          A trait some individuals carry, mostly from Max Raid Dens. With it, Dynamaxing takes
+          this changed shape instead of simple growth.
+        </HoverTip>
         , then Dynamax it in a Max Raid or a Gym battle with a Dynamax Band.
       </>,
     );
@@ -88,7 +105,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
     if (pokemon.isRegional) {
       lines.push(
         <>
-          Regional form: {capitalize(parent.name)} evolves into this form in its home region — elsewhere the
+          Regional form: {capitalize(parent.name)} evolves into this form in its home region; elsewhere the
           line gives the standard {capitalize(pokemon.speciesName)}.
         </>,
       );
@@ -98,7 +115,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
   if (fusions.length > 0) {
     lines.push(
       <>
-        Fuses — reversibly —{' '}
+        Fuses, reversibly,{' '}
         {fusions.map((f, index) => (
           <React.Fragment key={f.formName}>
             {index > 0 && ' or '}
@@ -126,7 +143,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
     lines.push(
       <>
         Found in the wild in <strong>{encounterLocations}</strong> location{encounterLocations === 1 ? '' : 's'}
-        {where} — see the Locations tab below.
+        {where}; see the Locations tab below.
       </>,
     );
   } else if (!pokemon.isMega && !pokemon.isGmax && !fusion) {
@@ -134,7 +151,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
       parent ? (
         <>Not found in the wild; evolution is the only route.</>
       ) : (
-        <>No wild encounters are recorded — a gift, trade, event or in-game static encounter.</>
+        <>No wild encounters are recorded: a gift, trade, event or in-game static encounter.</>
       ),
     );
   }
@@ -145,7 +162,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         {pokemon.species.isMythical ? 'Mythical' : 'Legendary'}: one per save file in the games
         it appears in.
         <HelpTip title="One per save">
-          The games place a single one in the world per playthrough — no wild respawns.
+          The games place a single one in the world per playthrough, with no wild respawns.
         </HelpTip>
       </>,
     );

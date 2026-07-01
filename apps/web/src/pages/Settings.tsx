@@ -87,7 +87,7 @@ const Settings: React.FC = () => {
                     {style.label}
                     {style.value === 'home' && (
                       <HelpTip title="Pokémon HOME" className="ml-1">
-                        Nintendo's cloud storage app for Pokémon — its tidy 3D renders cover
+                        Nintendo's cloud storage app for Pokémon; its tidy 3D renders cover
                         every species in one style.
                       </HelpTip>
                     )}

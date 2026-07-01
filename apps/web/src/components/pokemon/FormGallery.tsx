@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { MegaSummary } from '@masterpokedex/shared';
 import LoadingSpinner from '../LoadingSpinner';
-import HelpTip from '../HelpTip';
+import HelpTip, { HoverTip } from '../HelpTip';
 import { Card, CardContent } from '@/components/ui/card';
 import { TypeBadge } from '../ui/type-badge';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -57,18 +57,23 @@ const FormGallery: React.FC<{
                       ))}
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      BST <span className="font-semibold text-foreground">{form.stats.total}</span>
-                      <HelpTip title="BST" className="ml-1">
-                        Base Stat Total — the six base stats added up.
-                      </HelpTip>
+                      <HoverTip
+                        title="BST"
+                        trigger={
+                          <>
+                            BST <span className="font-semibold text-foreground">{form.stats.total}</span>
+                          </>
+                        }
+                      >
+                        Base Stat Total: the six base stats added up.
+                      </HoverTip>
                     </p>
                   </div>
                 </Link>
                 <p className="mt-3 border-t pt-2 text-xs text-muted-foreground">
-                  Base:
-                  <HelpTip title="Base" className="mx-1">
+                  <HoverTip title="Base" trigger={<>Base:</>}>
                     The species this form transforms from.
-                  </HelpTip>{' '}
+                  </HoverTip>{' '}
                   <Link to={`/pokemon/${form.basePokemonId}`} className="font-medium text-foreground hover:underline">
                     {form.baseName}
                   </Link>

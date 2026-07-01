@@ -20,13 +20,13 @@ const METHOD_SECTIONS: Array<{ method: string; title: string; note: string; help
     method: 'machine',
     title: 'Moves learnt by TM',
     note: 'taught with a Technical Machine',
-    help: 'Technical Machines are items that teach a move directly — find or buy the TM, use it, done.',
+    help: 'Technical Machines are items that teach a move directly: find or buy the TM, use it, done.',
   },
   {
     method: 'egg',
     title: 'Egg moves',
     note: 'inherited through breeding',
-    help: 'Moves a hatchling can only inherit from its parents at the day care — bred, not taught.',
+    help: 'Moves a hatchling can only inherit from its parents at the day care; bred, not taught.',
   },
   {
     method: 'tutor',
@@ -123,9 +123,9 @@ const MethodSection: React.FC<{ title: string; note: string; help?: string; move
                   deal no direct damage.
                 </HelpTip>
               </TableHead>
-              {header('power', 'Power', true, 'The move’s base damage — “—” means variable or no direct damage.')}
-              {header('accuracy', 'Acc.', true, 'Chance to hit, in percent — “—” never misses.')}
-              {header('pp', 'PP', true, 'Power Points — how many times the move can be used before resting.')}
+              {header('power', 'Power', true, 'The move’s base damage; “—” means variable or no direct damage.')}
+              {header('accuracy', 'Acc.', true, 'Chance to hit, in percent; “—” never misses.')}
+              {header('pp', 'PP', true, 'Power Points: how many times the move can be used before resting.')}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -203,7 +203,7 @@ const MovesTable: React.FC<{ moves: PokemonMove[] }> = ({ moves }) => {
         <MethodSection
           title="Other moves"
           note="special acquisition methods"
-          help="Moves picked up outside the usual four routes — event distributions, form changes, or one-off teachings."
+          help="Moves picked up outside the usual four routes: event distributions, form changes, or one-off teachings."
           moves={other}
           showLevel={false}
         />

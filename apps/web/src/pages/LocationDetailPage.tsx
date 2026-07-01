@@ -102,7 +102,7 @@ const LocationDetailPage: React.FC = () => {
                 <MapIcon className="h-4 w-4 text-pokebrand-red" />
                 Neighboring Locations
                 <HelpTip title="Neighbours">
-                  The places this one connects to directly in the games — walk out one side and
+                  The places this one connects to directly in the games: walk out one side and
                   you are there.
                 </HelpTip>
               </h2>
@@ -123,7 +123,7 @@ const LocationDetailPage: React.FC = () => {
       <h2 className="mb-4 text-2xl font-bold">
         Pokémon Encounters
         <HelpTip title="Encounters" className="ml-1">
-          Wild encounters only — gifts, trades and one-off static Pokémon are covered on each
+          Wild encounters only; gifts, trades and one-off static Pokémon are covered on each
           Pokémon's own page under How to get one.
         </HelpTip>
       </h2>

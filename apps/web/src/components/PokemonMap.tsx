@@ -155,7 +155,7 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
               <Star className="h-4 w-4 text-pokebrand-red" />
               Notable locations
               <HelpTip title="Notable locations" className="ml-1">
-                Curated highlights of the region — the red names on a row are its Gym Leaders
+                Curated highlights of the region; the red names on a row are its Gym Leaders
                 and other trainers worth challenging.
               </HelpTip>
             </CardTitle>

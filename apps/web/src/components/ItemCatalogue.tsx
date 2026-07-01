@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from './ui/select';
 import ItemSprite from './ItemSprite';
-import HelpTip from './HelpTip';
+import { HoverTip } from './HelpTip';
 import { PackagePlus, Search } from 'lucide-react';
 import { useItemCatalogue, useItemCategories, useAdjustItem } from '@/hooks/api/items';
 import { useAuth } from '@/auth/AuthProvider';
@@ -112,15 +112,17 @@ const ItemCatalogue: React.FC = () => {
                   <div className="font-medium truncate flex items-center gap-2">
                     {item.displayName}
                     {item.cost !== null && item.cost > 0 && (
-                      <>
-                        <Badge variant="outline" className="text-xs shrink-0">
-                          ₽{item.cost}
-                        </Badge>
-                        <HelpTip title="Price">
-                          What a shop charges for it in the games, in Poké Dollars — here it's
-                          just trivia; the bag is free.
-                        </HelpTip>
-                      </>
+                      <HoverTip
+                        title="Price"
+                        trigger={
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            ₽{item.cost}
+                          </Badge>
+                        }
+                      >
+                        What a shop charges for it in the games, in Poké Dollars. Here it's
+                        just trivia; the bag is free.
+                      </HoverTip>
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground line-clamp-2">
