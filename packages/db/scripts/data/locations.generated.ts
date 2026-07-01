@@ -6,7 +6,7 @@
  * residents worth a chip. `seed-dex.ts` merges `LOCATION_META` from
  * curated.ts ON TOP of this, so hand corrections and the map pins win.
  *
- * 965 locations · 842 with art · 965 with a description
+ * 1056 locations · 846 with art · 1056 with a description
  */
 import type { LocationMetaSeed } from './curated';
 
@@ -250,7 +250,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "lake-verity": {
     "image": "locations/lake-verity.webp",
-    "description": "Lake Verity and 心情湖 Lake Shinji) is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
+    "description": "Lake Verity is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -258,7 +258,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "lake-valor": {
     "image": "locations/lake-valor.webp",
-    "description": "Lake Valor and 立志湖 Lake Risshi) is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
+    "description": "Lake Valor is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -266,7 +266,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "lake-acuity": {
     "image": "locations/lake-acuity.webp",
-    "description": "Lake Acuity and 叡智湖 Lake Eichi) is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
+    "description": "Lake Acuity is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -1880,7 +1880,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "sinnoh-battle-tower": {
     "image": null,
-    "description": "If you were looking for the TV program, see Jubilife TV. Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
+    "description": "Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -1937,7 +1937,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "verity-cavern": {
     "image": "locations/verity-cavern.webp",
-    "description": "Lake Verity and 心情湖 Lake Shinji) is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
+    "description": "Lake Verity is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -1945,7 +1945,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "valor-cavern": {
     "image": "locations/valor-cavern.webp",
-    "description": "Lake Valor and 立志湖 Lake Risshi) is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
+    "description": "Lake Valor is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -1953,7 +1953,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "acuity-cavern": {
     "image": "locations/acuity-cavern.webp",
-    "description": "Lake Acuity and 叡智湖 Lake Eichi) is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
+    "description": "Lake Acuity is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -1979,7 +1979,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "trainers-school": {
     "image": null,
-    "description": "If you were looking for the book, see Pokémon Academy (book). A Pokémon academy is a school where students and Trainers can learn more about Pokémon.",
+    "description": "A Pokémon academy is a school where students and Trainers can learn more about Pokémon. Most beginning Trainers visit at least one of them, and common Trainers who study extensively at these locations are Lasses, School Kids, and Scientists.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -2173,7 +2173,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "sinnoh-global-terminal": {
     "image": "locations/sinnoh-global-terminal.webp",
-    "description": "This article is about the location in Generations IV and V. For the system that allows trading globally, see Global Trade System.",
+    "description": "The Global Terminal, known as the Global Trade Station in Pokémon Diamond and Pearl, is a location that allows players of the Generation IV and V games to interact in different ways via the Nintendo Wi-Fi Connection.",
     "kind": "building",
     "neighbors": [],
     "notableTrainers": [],
@@ -2181,7 +2181,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "sinnoh-villa": {
     "image": "locations/sinnoh-villa.webp",
-    "description": "This article is about the location in Pokémon Platinum. For the facility in Pokémon Masters EX, see Battle Villa. The Villa is a home, located in the Resort Area of the Battle Zone, that can be owned by the player exclusively in Pokémon Platinum.",
+    "description": "The Villa is a home, located in the Resort Area of the Battle Zone, that can be owned by the player exclusively in Pokémon Platinum.",
     "kind": "building",
     "neighbors": [
       "resort-area"
@@ -2341,7 +2341,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "team-rocket-hq": {
     "image": "locations/team-rocket-hq.webp",
-    "description": "This article is about the Team Rocket headquarters featured in the Johto-based core series games. For the Team Rocket headquarters in Pokémon the Series, see Team Rocket HQ (anime).",
+    "description": "The Team Rocket HQ, referred to as Team Rocket's Hideout in Generation II, is the headquarters and a hideout for Team Rocket in the Johto region, located beneath \"Just a Souvenir Shop\" in Mahogany Town.",
     "kind": "building",
     "neighbors": [],
     "notableTrainers": [],
@@ -2349,7 +2349,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "goldenrod-tunnel": {
     "image": "locations/goldenrod-tunnel.webp",
-    "description": "This article is about the location known as \"the Underground\" in Generation II. For the Underground in Sinnoh, see Underground.",
+    "description": "The Goldenrod Tunnel, known as the Underground in Generation II, is a shopping district stretching below Goldenrod City. The shops that are open in the Tunnel depend on the days of the week and, in some cases, the time of day.",
     "kind": "cave",
     "neighbors": [],
     "notableTrainers": [],
@@ -2467,9 +2467,107 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "notableTrainers": [],
     "notable": false
   },
+  "day-care-couple": {
+    "image": null,
+    "description": "A Pokémon Day Care, known as Daycare and Day-Care in early generations, is a place for Pokémon Trainers to drop off their Pokémon to be raised in the care of other people.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "distant-land": {
+    "image": null,
+    "description": "Distant land is a region placeholder found in the core series games, first used in Pokémon Colosseum and Pokémon XD: Gale of Darkness, then subsequently introduced to the core series in the Generation IV games.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "riley": {
+    "image": "locations/riley.webp",
+    "description": "Riley is a Pokémon Trainer from Sinnoh. He specializes in Pokémon with high Attack.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [
+      "no"
+    ],
+    "notable": true
+  },
+  "cynthia": {
+    "image": "locations/cynthia.webp",
+    "description": "Cynthia is an archeologist who is also the Champion of the Sinnoh region's Pokémon League in Pokémon Diamond, Pearl, Platinum, Brilliant Diamond, and Shining Pearl.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "mystery-zone": {
+    "image": null,
+    "description": "The Mystery Zone is a location header that is programmed into every core series game since Generation IV.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-ranger": {
+    "image": null,
+    "description": "Pokémon Ranger (ポケモンレンジャー) has several referrals:",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "nintendo-world": {
+    "image": null,
+    "description": "A Pokémon Center is a retail store that sells official Pokémon merchandise. Japanese stores are operated by The Pokémon Company, while mall kiosks in the Seattle, Washington, area of the United States are run by The Pokémon Company International.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "mr-pokemon": {
+    "image": "locations/mr-pokemon.webp",
+    "description": "Mr. Pokémon is a non-player character who lives in a house on Route 30 in the Johto region. He casually researches Pokémon findings as a hobby, and is old friends with Professor Oak.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "primo": {
+    "image": "locations/primo.webp",
+    "description": "Primo is a non-player character that appears in Pokémon FireRed and LeafGreen and Pokémon HeartGold and SoulSilver. In Generation III, his real name is not mentioned, and Primo is known simply as the Poké Dude.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
   "unova-mystery-zone": {
     "image": null,
-    "description": "This article is about the header. For the card of the same name from the Skyridge expansion, see Mystery Zone (Skyridge 137).",
+    "description": "The Mystery Zone is a location header that is programmed into every core series game since Generation IV.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -2477,7 +2575,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "unova-faraway-place": {
     "image": null,
-    "description": "A faraway placeい場所(ばしょ) faraway place) is a location placeholder found in the core series games, first used in the Generation IV games.",
+    "description": "A faraway place is a location placeholder found in the core series games, first used in the Generation IV games.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -4726,7 +4824,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "underwater": {
     "image": "locations/underwater.webp",
-    "description": "This article is about the Hoenn underwater. For the underwater location in Unova, see Abyssal Ruins. Underwater is the label given to special areas in Hoenn.",
+    "description": "Underwater is the label given to special areas in Hoenn.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -4822,7 +4920,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "hoenn-battle-tower": {
     "image": null,
-    "description": "If you were looking for the TV program, see Jubilife TV. Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
+    "description": "Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -5843,7 +5941,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "team-aqua-hideout": {
     "image": "locations/team-aqua-hideout.webp",
-    "description": "If you were looking for the Stadium card, see Team Aqua Hideout (EX Team Magma vs Team Aqua 78). The Team Aqua Hideout, called Aqua Hideout in the Generation III games, is the main base of Team Aqua in Pokémon Sapphire, Emerald, and Alpha Sapphire.",
+    "description": "The Team Aqua Hideout, called Aqua Hideout in the Generation III games, is the main base of Team Aqua in Pokémon Sapphire, Emerald, and Alpha Sapphire.",
     "kind": "landmark",
     "neighbors": [
       "lilycove-city"
@@ -5861,7 +5959,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "team-magma-hideout": {
     "image": "locations/team-magma-hideout.webp",
-    "description": "This article is about the hideout east of Lilycove City in Pokémon Ruby and Omega Ruby. For the hideout in the Jagged Pass, exclusive to Pokémon Emerald, see Magma Hideout (Jagged Pass).",
+    "description": "The Team Magma Hideout, called Magma Hideout in the Generation III games, is Team Magma's base of operations in the Hoenn region, located on a small island cave on the outskirts of Lilycove City.",
     "kind": "cave",
     "neighbors": [
       "lilycove-city"
@@ -5930,7 +6028,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "nameless-cavern": {
     "image": "locations/nameless-cavern.webp",
-    "description": "This article is about the location in Pokémon Omega Ruby and Alpha Sapphire. For the cave in Kanto with the Japanese name of Nameless Cave, see Cerulean Cave.",
+    "description": "The Nameless Cavern is a location in the Hoenn region, found on the northeast side of Sootopolis City in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "cave",
     "neighbors": [
       "hoenn-route-126"
@@ -5972,7 +6070,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "soaring-in-the-sky": {
     "image": "locations/soaring-in-the-sky.webp",
-    "description": "Soaring in the sky Open Sky) is a met location in Pokémon Omega Ruby and Alpha Sapphire. It is used for Pokémon encountered in the sky, which is only accessible by use of the Soar mechanic, where the player uses the Eon Flute and summons Latios or Latias.",
+    "description": "Soaring in the sky is a met location in Pokémon Omega Ruby and Alpha Sapphire. It is used for Pokémon encountered in the sky, which is only accessible by use of the Soar mechanic, where the player uses the Eon Flute and summons Latios or Latias.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -6651,7 +6749,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "alola-pokemon-league": {
     "image": null,
-    "description": "This article is about Pokémon League Championship. For the locations in Sinnoh, Unova, Kalos, Alola, or Paldea, see Pokémon League (Sinnoh), Pokémon League (Unova), Pokémon League (Kalos), Pokémon League (Alola), or Pokémon League (Paldea).",
+    "description": "It serves as an umbrella that oversees the regional Leagues.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -6833,7 +6931,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "marine-cave": {
     "image": "locations/marine-cave.webp",
-    "description": "If you were looking for the location in Pokémon Ranger: Shadows of Almia, see Marine Cave (Ranger). Marine Cave is an underwater cave in Hoenn that only appears in Pokémon Emerald.",
+    "description": "Marine Cave is an underwater cave in Hoenn that only appears in Pokémon Emerald.",
     "kind": "cave",
     "neighbors": [
       "hoenn-route-105",
@@ -6986,7 +7084,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "pokemon-league": {
     "image": null,
-    "description": "This article is about Pokémon League Championship. For the locations in Sinnoh, Unova, Kalos, Alola, or Paldea, see Pokémon League (Sinnoh), Pokémon League (Unova), Pokémon League (Kalos), Pokémon League (Alola), or Pokémon League (Paldea).",
+    "description": "It serves as an umbrella that oversees the regional Leagues.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -7128,7 +7226,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "south-paldean-sea": {
     "image": "locations/south-paldean-sea.webp",
-    "description": "The South Paldean Seaパルデア海(かい) South Paldea Sea) is the ocean adjacent to the South Province of the Paldea region. It is one of Paldea's four seas.",
+    "description": "The South Paldean Sea is the ocean adjacent to the South Province of the Paldea region. It is one of Paldea's four seas. It connects to the East Paldean Sea in the northeast and the West Paldean Sea in the northwest.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -7206,7 +7304,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "east-paldean-sea": {
     "image": "locations/east-paldean-sea.webp",
-    "description": "The East Paldean Seaパルデア海(かい) East Paldea Sea) is the ocean adjacent to the East Province of the Paldea region. It is one of Paldea's four seas.",
+    "description": "The East Paldean Sea is the ocean adjacent to the East Province of the Paldea region. It is one of Paldea's four seas. It connects to the South Paldean Sea in the south.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -7274,7 +7372,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "west-paldean-sea": {
     "image": "locations/west-paldean-sea.webp",
-    "description": "The West Paldean Seaパルデア海(かい) West Paldea Sea) is the ocean adjacent to the West Province of the Paldea region. It is one of Paldea's four seas.",
+    "description": "The West Paldean Sea is the ocean adjacent to the West Province of the Paldea region. It is one of Paldea's four seas. It connects to the South Paldean Sea in the south and the North Paldean Sea in the north.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -7382,7 +7480,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "north-paldean-sea": {
     "image": "locations/north-paldean-sea.webp",
-    "description": "The North Paldean Seaパルデア海(かい) North Paldea Sea) is the ocean adjacent to the North Province of the Paldea region. It is one of Paldea's four seas.",
+    "description": "The North Paldean Sea is the ocean adjacent to the North Province of the Paldea region. It is one of Paldea's four seas. It connects to the West Paldean Sea in the southwest.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -7410,7 +7508,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "area-zero": {
     "image": "locations/area-zero.webp",
-    "description": "If you were looking for the area in Pokémon Picross (Game Boy Color), see Puzzle (Picross GBC) → Area 0: Home. Area Zero is an area located within the Great Crater of Paldea at the center of the Paldea region.",
+    "description": "Area Zero is an area located within the Great Crater of Paldea at the center of the Paldea region. It is initially accessed from the Zero Gate.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -7565,7 +7663,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "galar-battle-tower": {
     "image": null,
-    "description": "If you were looking for the TV program, see Jubilife TV. Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
+    "description": "Battle Tower is a name shared by several battle facilities from Pokémon Crystal onwards.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -7682,7 +7780,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "freezington": {
     "image": "locations/freezington.webp",
-    "description": "Freezington Freeze Village) is a village in the Crown Tundra in the Galar region. It connects to Slippery Slope to the north and Frostpoint Field to the south.",
+    "description": "Freezington is a village in the Crown Tundra in the Galar region. It connects to Slippery Slope to the north and Frostpoint Field to the south.",
     "kind": "town",
     "neighbors": [
       "slippery-slope",
@@ -7709,7 +7807,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "galar-mine": {
     "image": "locations/galar-mine.webp",
-    "description": "If you were looking for the second Galar Mine, see Galar Mine No. 2. The Galar Mine is a mine that connects Route 3 and Route 4.",
+    "description": "2. The Galar Mine is a mine that connects Route 3 and Route 4.",
     "kind": "cave",
     "neighbors": [
       "galar-route-4"
@@ -7940,7 +8038,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "path-to-the-peak": {
     "image": "locations/path-to-the-peak.webp",
-    "description": "This article is about the location. For the animated miniseries, see Pokémon: Path to the Peak. The Path to the Peak is a location in the Galar region.",
+    "description": "The Path to the Peak is a location in the Galar region. It connects to the Tunnel to the Top to the south and the Crown Shrine to the north.",
     "kind": "mountain",
     "neighbors": [],
     "notableTrainers": [],
@@ -7991,7 +8089,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "slippery-slope": {
     "image": "locations/slippery-slope.webp",
-    "description": "If you were looking for the skill in Pokémon Masters EX, see Slippery Slope (skill). Slippery Slope is a location in the Galar region.",
+    "description": "Slippery Slope is a location in the Galar region. It connects to Freezington to the south. The Max Lair is located here, at the northeastern end.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -7999,7 +8097,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "slumbering-weald": {
     "image": "locations/slumbering-weald.webp",
-    "description": "The Slumbering Weald Slumbering Forest) is a forest in southern Galar, located west of Postwick.",
+    "description": "The Slumbering Weald is a forest in southern Galar, located west of Postwick.",
     "kind": "forest",
     "neighbors": [],
     "notableTrainers": [],
@@ -8565,7 +8663,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "hisui-lake-acuity": {
     "image": "locations/hisui-lake-acuity.webp",
-    "description": "Lake Acuity and 叡智湖 Lake Eichi) is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
+    "description": "Lake Acuity is a location in the Sinnoh region, and part of the Alabaster Icelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -8573,7 +8671,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "hisui-lake-valor": {
     "image": "locations/hisui-lake-valor.webp",
-    "description": "Lake Valor and 立志湖 Lake Risshi) is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
+    "description": "Lake Valor is a location in the Sinnoh region, and part of the Crimson Mirelands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -8581,7 +8679,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "hisui-lake-verity": {
     "image": "locations/hisui-lake-verity.webp",
-    "description": "Lake Verity and 心情湖 Lake Shinji) is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
+    "description": "Lake Verity is a location in the Sinnoh region, and part of the Obsidian Fieldlands in the Hisui region.",
     "kind": "water",
     "neighbors": [],
     "notableTrainers": [],
@@ -9220,7 +9318,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
   },
   "central-plaza": {
     "image": "locations/central-plaza.webp",
-    "description": "If you were looking for the location within Castelia City, see Castelia City → Central Plaza. The Central Plaza is a large plaza in the center of the Terarium, located within Blueberry Academy in the Unova region.",
+    "description": "The Central Plaza is a large plaza in the center of the Terarium, located within Blueberry Academy in the Unova region.",
     "kind": "landmark",
     "neighbors": [],
     "notableTrainers": [],
@@ -9456,6 +9554,638 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/meetup-spot.webp",
     "description": "Not to be confused with Meeting Place. The Meetup Spot is a part of the Wild Area in the Galar region, located in the south of the Wild Area.",
     "kind": "landmark",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "link-trade-arrive": {
+    "image": null,
+    "description": "A Pokémon that arrived through a link trade.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "link-trade-met": {
+    "image": null,
+    "description": "A Pokémon met in a link trade — the games record the trade, not a place.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "kanto": {
+    "image": null,
+    "description": "Met somewhere in Kanto — the games record only the region.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "johto": {
+    "image": null,
+    "description": "Met somewhere in Johto — the games record only the region.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "hoenn": {
+    "image": null,
+    "description": "Met somewhere in Hoenn — the games record only the region.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "sinnoh": {
+    "image": null,
+    "description": "Met somewhere in Sinnoh — the games record only the region.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "traveling-man": {
+    "image": null,
+    "description": "A gift from the traveling man, an in-game giveaway character.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "lovely-place": {
+    "image": null,
+    "description": "The \"lovely place\" certain event Pokémon name as where they were met.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "faraway-place": {
+    "image": null,
+    "description": "The \"faraway place\" certain event Pokémon name as where they were met.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-06": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-07": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-08": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-09": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-10": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-11": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-12": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-13": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-14": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-15": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-movie-16": {
+    "image": null,
+    "description": "A movie theater distribution — Pokémon handed out at showings of the Pokémon films.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-cartoon": {
+    "image": null,
+    "description": "A distribution tied to the animated series.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-06": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-07": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-08": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-09": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-10": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-11": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-12": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-13": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-14": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-15": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "space-world-16": {
+    "image": null,
+    "description": "Nintendo Space World, formerly known as Shoshinkai until 1997 and also as Famicom Space World, was an annual trade show held by Nintendo from 1989 to 2001.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-06": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-07": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-08": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-09": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-10": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-11": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-12": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-13": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-14": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-15": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-festa-16": {
+    "image": null,
+    "description": "Pokémon Festa was an annual convention held throughout various locations in Japan. It was sanctioned by Nintendo and featured events, games, shopping, and previews of upcoming games and movies.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-06": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-07": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-08": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-09": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-10": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-11": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-12": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-13": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-14": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-15": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokepark-16": {
+    "image": null,
+    "description": "PokéPark has several referrals: For the original theme park which operated in Japan and Taiwan, see PokéPark (theme park).",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-center": {
+    "image": null,
+    "description": "A Pokémon Center store — the real-world shops that distribute event Pokémon.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-tokyo": {
+    "image": null,
+    "description": "The Pokémon Center Tokyo store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-osaka": {
+    "image": null,
+    "description": "The Pokémon Center Osaka store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-fukuoka": {
+    "image": null,
+    "description": "The Pokémon Center Fukuoka store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-nagoya": {
+    "image": null,
+    "description": "The Pokémon Center Nagoya store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-sapporo": {
+    "image": null,
+    "description": "The Pokémon Center Sapporo store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pc-yokohama": {
+    "image": null,
+    "description": "The Pokémon Center Yokohama store — a real-world distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-06": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-07": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-08": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-09": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-10": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-11": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-12": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-13": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-14": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-15": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-event-16": {
+    "image": null,
+    "description": "A Pokémon event distribution.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "wi-fi-event": {
+    "image": null,
+    "description": "A Pokémon distributed over Wi-Fi.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "wi-fi-gift": {
+    "image": null,
+    "description": "A gift delivered over Wi-Fi.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "pokemon-fan-club": {
+    "image": null,
+    "description": "The Pokémon Fan Club.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "event-site": {
+    "image": null,
+    "description": "An event distribution site.",
+    "kind": "event",
+    "neighbors": [],
+    "notableTrainers": [],
+    "notable": false
+  },
+  "concert-event": {
+    "image": null,
+    "description": "A concert event distribution.",
+    "kind": "event",
     "neighbors": [],
     "notableTrainers": [],
     "notable": false

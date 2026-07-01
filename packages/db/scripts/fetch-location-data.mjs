@@ -127,7 +127,79 @@ const TITLE_ALIASES = {
 };
 
 /** `Route 4` in Kanto is `Kanto Route 4` on the wiki; everything else is itself. */
+/**
+ * The 91 region-less locations are PokeAPI's "met at" strings for things that
+ * aren't places on a map: link trades, real-world distributions, gift NPCs.
+ * A handful have a real article worth crawling; the rest synthesize a one-line
+ * entry locally (below) and never cost a request.
+ */
+const REGIONLESS_TITLES = {
+  'day-care-couple': 'Pokémon Day Care',
+  'distant-land': 'Distant Land',
+  'mystery-zone': 'Mystery Zone',
+  'pokemon-ranger': 'Pokémon Ranger',
+  'space-world': 'Nintendo Space World',
+  'pokemon-festa': 'Pokémon Festa',
+  pokepark: 'PokéPark',
+  'nintendo-world': 'Nintendo World Store',
+  'pokemon-fan-club': 'Pokémon Fan Club',
+  'mr-pokemon': 'Mr. Pokémon',
+  riley: 'Riley',
+  cynthia: 'Cynthia',
+  primo: 'Primo',
+};
+
+/** Year-suffixed met strings share their family's article and entry. */
+const REGIONLESS_FAMILY = /^(pokemon-movie|space-world|pokemon-festa|pokepark|pokemon-event)-\d+$/;
+
+/** Everything else gets a synthesized entry — kind "event", one plain line. */
+const SYNTHESIZED = [
+  [/^link-trade-arrive$/, 'A Pokémon that arrived through a link trade.'],
+  [/^link-trade-met$/, 'A Pokémon met in a link trade — the games record the trade, not a place.'],
+  [/^(kanto|johto|hoenn|sinnoh)$/, (slug) => `Met somewhere in ${slug[0].toUpperCase()}${slug.slice(1)} — the games record only the region.`],
+  [/^lovely-place$/, 'The "lovely place" certain event Pokémon name as where they were met.'],
+  [/^faraway-place$/, 'The "faraway place" certain event Pokémon name as where they were met.'],
+  [/^traveling-man$/, 'A gift from the traveling man, an in-game giveaway character.'],
+  [/^pokemon-movie(-\d+)?$/, 'A movie theater distribution — Pokémon handed out at showings of the Pokémon films.'],
+  [/^pokemon-cartoon$/, 'A distribution tied to the animated series.'],
+  [/^space-world(-\d+)?$/, 'Nintendo Space World, the trade show where early event Pokémon were distributed.'],
+  [/^pokemon-festa(-\d+)?$/, 'Pokémon Festa, a Japanese fan event that distributed Pokémon.'],
+  [/^pokepark(-\d+)?$/, 'The PokéPark theme park events in Japan and Taiwan.'],
+  [/^pokemon-center$/, 'A Pokémon Center store — the real-world shops that distribute event Pokémon.'],
+  [/^pc-([a-z]+)$/, (slug, m) => `The Pokémon Center ${m[1][0].toUpperCase()}${m[1].slice(1)} store — a real-world distribution site.`],
+  [/^nintendo-world$/, 'The Nintendo World store in New York, a real-world distribution site.'],
+  [/^wi-fi-event$/, 'A Pokémon distributed over Wi-Fi.'],
+  [/^wi-fi-gift$/, 'A gift delivered over Wi-Fi.'],
+  [/^pokemon-event(-\d+)?$/, 'A Pokémon event distribution.'],
+  [/^event-site$/, 'An event distribution site.'],
+  [/^concert-event$/, 'A concert event distribution.'],
+  [/^pokemon-fan-club$/, 'The Pokémon Fan Club.'],
+  [/^(day-care-couple)$/, 'An Egg from the Day Care Couple.'],
+  [/^(mr-pokemon)$/, 'A gift from Mr. Pokémon, the collector on Route 30.'],
+  [/^(riley)$/, 'An Egg from Riley, the Aura user of Iron Island.'],
+  [/^(cynthia)$/, 'A gift from Cynthia, Champion of Sinnoh.'],
+  [/^(primo)$/, 'A gift from Primo in the Violet City Pokémon Center.'],
+];
+
+function synthesizedEntry(slug) {
+  for (const [pattern, text] of SYNTHESIZED) {
+    const m = slug.match(pattern);
+    if (m) {
+      return {
+        image: null,
+        description: typeof text === 'function' ? text(slug, m) : text,
+        kind: 'event',
+        neighbors: [],
+        notableTrainers: [],
+        notable: false,
+      };
+    }
+  }
+  return null;
+}
+
 function bulbaTitle(slug, regionName, displayName) {
+  if (REGIONLESS_TITLES[slug]) return REGIONLESS_TITLES[slug];
   if (TITLE_ALIASES[slug]) return TITLE_ALIASES[slug];
   const name = displayName.replace(/’/g, "'").trim();
   const region = REGION_TITLE[regionName];
@@ -280,9 +352,10 @@ const LEADER_FIELDS = ['leader', 'leader2', 'leader3', 'leader4', 'kahuna', 'cap
 function extractFields(title, wikitext, extract) {
   const box = parseInfobox(wikitext);
   const fields = box?.fields ?? {};
+  const junk = (v) => (v && !/^(no|none|yes|tba)$/i.test(v) ? v : null);
   const description =
-    plain(fields.mapdesc, { firstVariant: true }) ??
-    plain(fields.slogan, { firstVariant: true }) ??
+    junk(plain(fields.mapdesc, { firstVariant: true })) ??
+    junk(plain(fields.slogan, { firstVariant: true })) ??
     firstSentences(extract);
   const neighbors = [];
   for (const key of [...NEIGHBOR_FIELDS, 'location']) {
@@ -313,9 +386,12 @@ function firstSentences(extract) {
   if (!extract) return null;
   const body = extract
     .replace(/^[^\n]*redirects here[^\n]*\n+/i, '')
+    // Hatnotes survive extraction as the lead's first sentence — "If you were
+    // looking for the area in Pokémon Picross, see…" opened Area Zero's blurb.
+    .replace(/^\s*(?:(?:If you were looking for|For the|This article is about)[^.]*\.\s*)+/i, '')
     // Every wiki lead opens with the Japanese name in parentheses. It belongs
     // on the wiki, not in a one-line caption under a photograph.
-    .replace(/\s*\((?:Japanese|Korean|Chinese):[^)]*\)/g, '')
+    .replace(/\s*\((?:Japanese|Korean|Chinese):(?:[^()]|\([^)]*\))*\)/g, '')
     .replace(/\s+/g, ' ')
     .trim();
   const sentences = body.match(/[^.!?]+[.!?]+/g);
@@ -379,9 +455,12 @@ async function main() {
       regionName: regions.get(r.region_id) ?? null,
       displayName: names.get(r.id) ?? r.identifier,
     }))
-    .filter((l) => l.regionName && (!ONLY || ONLY.has(l.regionName)));
+    .filter((l) => (l.regionName || REGIONLESS_TITLES[l.slug]) && (!ONLY || (l.regionName && ONLY.has(l.regionName))));
+  const regionless = readCsv('locations')
+    .filter((r) => !r.region_id)
+    .map((r) => ({ slug: r.identifier }));
 
-  console.log(`${locations.length} region-bearing locations to resolve.`);
+  console.log(`${locations.length} locations to resolve (incl. ${Object.keys(REGIONLESS_TITLES).length} region-less articles).`);
 
   const state = loadCheckpoint();
   const pending = locations.filter((l) => !state[l.slug]);
@@ -552,12 +631,33 @@ async function main() {
     out[loc.slug] = {
       image: imagePath,
       description: entry.description ?? null,
-      kind: entry.kind ?? null,
+      // A region-less slug is a met-string (a trade, a giveaway, a person),
+      // not a place — whatever infobox its article wears, it files as event.
+      kind: loc.regionName ? (entry.kind ?? null) : 'event',
       neighbors,
       notableTrainers: entry.notableTrainers ?? [],
       notable: Boolean(entry.notable) || entry.kind === 'city' || entry.kind === 'town',
     };
   }
+
+  // ── region-less met-strings ───────────────────────────────────────────────
+  // Whatever the crawl didn't cover: year-suffixed families reuse their base
+  // article's entry; everything else synthesizes a one-liner. No requests.
+  let synthesized = 0;
+  for (const { slug } of regionless) {
+    if (out[slug]?.description) continue;
+    const family = slug.match(REGIONLESS_FAMILY);
+    const base = family ? out[slug.replace(/-\d+$/, '')] : null;
+    const entry = base
+      ? { ...base, neighbors: [], notableTrainers: [], notable: false }
+      : synthesizedEntry(slug);
+    if (!entry) continue;
+    if (entry.image) withImage++;
+    if (entry.description) withDescription++;
+    out[slug] = entry;
+    synthesized++;
+  }
+  if (synthesized) console.log(`  ${synthesized} region-less entries filled (family reuse + synthesized)`);
 
   const header = `/**
  * Generated by scripts/fetch-location-data.mjs — do not edit by hand.

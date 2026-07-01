@@ -288,7 +288,7 @@ export const MANUAL_MAP_PINS: Record<string, [number, number]> = {
   'sacred-plaza': [46, 42],
   'temple-of-sinnoh': [42, 30],
   'hisui-snowpoint-temple': [36, 16],
-  'avalugges-legacy': [33, 12],
+  'avaluggs-legacy': [33, 12],
   'bonechill-wastes': [38, 14],
   'scarlet-bog': [58, 62],
   'golden-lowlands': [52, 62],
