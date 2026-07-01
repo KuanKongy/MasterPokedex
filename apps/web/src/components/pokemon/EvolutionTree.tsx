@@ -56,7 +56,7 @@ function EvolutionTree<N extends EvolutionTreeNode>({ nodes, renderCard, dense }
                     <div
                       className={cn(
                         'mt-1 text-xs text-muted-foreground',
-                        dense ? 'max-w-24' : 'max-w-[110px]',
+                        dense ? 'w-24' : 'w-[110px]',
                       )}
                     >
                       {child.caption}

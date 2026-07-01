@@ -161,7 +161,7 @@
 
   /* Quick is light blue and yellow: yellow band text on the shaded blue,
      clean yellow accent, blue links in light mode. */
-  [data-ball='quick-ball'] { --brand: 50 100% 55%; --brand-on: 45 90% 8%; --brand-band: 199 74% 42%; --brand-band-strong: 199 74% 35%; --brand-foreground: 50 100% 60%; --brand-text: 199 74% 36%; }
+  [data-ball='quick-ball'] { --brand: 50 100% 55%; --brand-on: 45 90% 8%; --brand-band: 199 74% 38%; --brand-band-strong: 199 74% 32%; --brand-foreground: 50 100% 60%; --brand-text: 199 74% 36%; }
   .dark[data-ball='quick-ball'] { --brand: 50 100% 62%; --brand-on: 45 90% 8%; --brand-band: 199 70% 33%; --brand-band-strong: 199 72% 26%; --brand-foreground: 50 100% 62%; --brand-text: var(--brand); }
 
   /* Dusk is green with dark stripes and an orange divider: green bands, the
@@ -184,8 +184,6 @@
      text and the extra. */
   [data-ball='net-ball'] { --brand: 183 77% 31%; --brand-on: 0 0% 100%; --brand-band: 182 84% 36%; --brand-band-strong: 182 84% 29%; --brand-foreground: 222 14% 16%; --brand-extra: 222 11% 23%; }
   .dark[data-ball='net-ball'] { --brand: 183 58% 51%; --brand-on: 183 76% 10%; --brand-band: 182 70% 26%; --brand-band-strong: 182 74% 20%; --brand-foreground: 220 12% 88%; --brand-extra: 220 10% 62%; }
-}
-  .dark[data-ball='net-ball'] { --brand: 183 58% 51%; --brand-on: 183 76% 10%; --brand-band: 220 11% 26%; --brand-band-strong: 220 12% 15%; --brand-foreground: 0 0% 100%; }
 }
 
 @layer base {

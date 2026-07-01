@@ -19,7 +19,7 @@ export const BALL_SWATCHES: Record<BallStyle, { light: string[]; dark: string[] 
   'ultra-ball': { light: ['#17171C', '#F7CC22'], dark: ['#19191F', '#F8D23A'] },
   'master-ball': { light: ['#6B47BD', '#C63978'], dark: ['#553B91', '#E56CA2'] },
   'beast-ball': { light: ['#2844A9', '#4B328F', '#EEBE11', '#3BB8CE'], dark: ['#263A82', '#3E2B73', '#F1C937', '#6DD6E8'] },
-  'quick-ball': { light: ['#1C88BA', '#FFD91A'], dark: ['#196A8F', '#FFDF3D'] },
+  'quick-ball': { light: ['#197BA9', '#FFD91A'], dark: ['#196A8F', '#FFDF3D'] },
   'dusk-ball': { light: ['#45A148', '#E0661F', '#1B231A'], dark: ['#326734', '#F08242', '#D8E0D7'] },
   'timer-ball': { light: ['#F3F3F7', '#C22B24', '#272625'], dark: ['#2A2928', '#F7776E', '#F3F3F7'] },
   'luxury-ball': { light: ['#1A171C', '#C8A328', '#C7CBD1', '#C7293E'], dark: ['#141216', '#E1BD47', '#CCD0D7', '#E4586B'] },
