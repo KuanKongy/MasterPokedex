@@ -346,8 +346,39 @@ function inferKind(template, title, fields) {
   return 'landmark';
 }
 
-const NEIGHBOR_FIELDS = ['north', 'south', 'east', 'west', 'northeast', 'northwest', 'southeast', 'southwest'];
+// Numbered variants included: Mesagoza's infobox says `north2`/`west2` for its
+// second neighbour on a side. `west2alt` and friends are display strings, and
+// the \d*$ anchor keeps them out.
+const NEIGHBOR_FIELD = /^(north|south|east|west|northeast|northwest|southeast|southwest)\d*$/;
 const LEADER_FIELDS = ['leader', 'leader2', 'leader3', 'leader4', 'kahuna', 'captain', 'warden', 'professor'];
+
+/** Adjacency words that make a lead sentence worth mining for [[links]]. */
+const DIRECTION_PROSE = /\b(north|south|east|west|northeast|northwest|southeast|southwest|borders?|adjacent|connects?|next to|between)\b/i;
+
+const REGION_NAMES = new Set(Object.values(REGION_TITLE));
+
+/**
+ * Hisui's `{{Infobox location}}` pages (and Paldea's provinces and paths)
+ * carry no direction fields at all — their adjacency lives in the lead prose:
+ * "located just to the east of the Beachside Camp and to the west of
+ * [[Ginkgo Landing]]". Mine the lead's direction-flavoured sentences for link
+ * targets; resolution at emit time drops anything that isn't a location.
+ */
+function proseNeighbors(wikitext, title) {
+  const lead = wikitext.split(/\n==/, 1)[0];
+  const out = [];
+  for (const sentence of lead.split(/(?<=[.!?])\s+/)) {
+    if (!DIRECTION_PROSE.test(sentence)) continue;
+    for (const match of sentence.matchAll(/\[\[([^\]|#]+)/g)) {
+      const target = match[1].trim();
+      if (!target || target === title || REGION_NAMES.has(target)) continue;
+      if (/^(File|Image|Category|Bulbapedia|wp):/i.test(target)) continue;
+      if (!out.includes(target)) out.push(target);
+      if (out.length >= 8) return out;
+    }
+  }
+  return out;
+}
 
 function extractFields(title, wikitext, extract) {
   const box = parseInfobox(wikitext);
@@ -358,8 +389,20 @@ function extractFields(title, wikitext, extract) {
     junk(plain(fields.slogan, { firstVariant: true })) ??
     firstSentences(extract);
   const neighbors = [];
-  for (const key of [...NEIGHBOR_FIELDS, 'location']) {
-    const value = plain(fields[key]);
+  let hasDirectionFields = false;
+  for (const [key, raw] of Object.entries(fields)) {
+    const isDirection = NEIGHBOR_FIELD.test(key);
+    if (!isDirection && key !== 'location') continue;
+    if (isDirection) hasDirectionFields = true;
+    // Link targets first: `location=West [[Cobalt Coastlands]]` must candidate
+    // the link, because the plain text "West Cobalt Coastlands" resolves to
+    // nothing. The plain split stays as a second set of candidates; emit-time
+    // resolution drops whichever of the two doesn't name a location.
+    for (const match of raw.matchAll(/\[\[([^\]|#]+)/g)) {
+      const target = match[1].trim();
+      if (target) neighbors.push(target);
+    }
+    const value = plain(raw);
     if (value) for (const part of value.split(/\s+and\s+|,\s*/)) if (part.trim()) neighbors.push(part.trim());
   }
   const notableTrainers = [];
@@ -372,6 +415,9 @@ function extractFields(title, wikitext, extract) {
     description,
     kind: inferKind(box?.template ?? '', title, fields),
     neighbors: [...new Set(neighbors)],
+    // Only pages without direction fields fall back to prose; on everything
+    // else the infobox is both more precise and already complete.
+    proseNeighbors: hasDirectionFields ? [] : proseNeighbors(wikitext, title),
     notableTrainers: [...new Set(notableTrainers)],
     // Worth surfacing beside the map rather than buried in the long list: a
     // Gym, or a resident worth naming. Settlements are added at emit time —
@@ -612,19 +658,24 @@ async function main() {
     const entry = parsed.get(loc.slug);
     if (!entry) { unresolved.push(loc.slug); continue; }
     const neighbors = [];
-    for (const name of entry.neighbors ?? []) {
-      // Infoboxes say "Route 3"; the page — and therefore the title — is
-      // "Kanto Route 3". Look inside this location's own region before
-      // falling back to the global index, or Lumiose City ends up bordering
-      // Alola's Route 14.
+    // Infoboxes say "Route 3"; the page — and therefore the title — is
+    // "Kanto Route 3". Look inside this location's own region before
+    // falling back to the global index, or Lumiose City ends up bordering
+    // Alola's Route 14.
+    const resolveNeighbor = (name, regionOnly) => {
       const region = REGION_TITLE[loc.regionName];
       const slug =
         slugByRegionTitle.get(key(loc.regionName, name)) ??
         (region ? slugByRegionTitle.get(key(loc.regionName, `${region} ${name}`)) : undefined) ??
-        (region ? slugByTitle.get(`${region} ${name}`) : undefined) ??
-        slugByTitle.get(name);
+        (regionOnly
+          ? undefined
+          : (region ? slugByTitle.get(`${region} ${name}`) : undefined) ?? slugByTitle.get(name));
       if (slug && slug !== loc.slug && !neighbors.includes(slug)) neighbors.push(slug);
-    }
+    };
+    for (const name of entry.neighbors ?? []) resolveNeighbor(name, false);
+    // Prose-derived candidates resolve region-scoped only, so a lead that
+    // name-drops another region's landmark cannot cross the map.
+    for (const name of entry.proseNeighbors ?? []) resolveNeighbor(name, true);
     const imagePath = state[loc.slug].imagePath ?? null;
     if (imagePath) withImage++;
     if (entry.description) withDescription++;
@@ -632,9 +683,11 @@ async function main() {
       image: imagePath,
       description: entry.description ?? null,
       // A region-less slug is a met-string (a trade, a giveaway, a person),
-      // not a place — whatever infobox its article wears, it files as event.
+      // not a place — whatever infobox its article wears, it files as event,
+      // and adjacency is meaningless for it (Cynthia's article has a
+      // `location` field, but she borders nothing).
       kind: loc.regionName ? (entry.kind ?? null) : 'event',
-      neighbors,
+      neighbors: loc.regionName ? neighbors : [],
       notableTrainers: entry.notableTrainers ?? [],
       notable: Boolean(entry.notable) || entry.kind === 'city' || entry.kind === 'town',
     };

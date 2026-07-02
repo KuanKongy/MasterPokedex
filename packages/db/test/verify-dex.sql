@@ -193,6 +193,46 @@ BEGIN
   RAISE NOTICE 'PASS  every encounter kept its game versions';
 END $$;
 
+-- ── Neighbours: Hisui and Paldea adjacency comes from prose and numbered
+--    fields, not just infobox directions, so a parser regression would show
+--    up here first. Floors sit ~80% under the regenerated actuals
+--    (hisui 77/89, paldea 65/84, kanto 88/96 as of 2026-09-29). ──────────────
+DO $$
+DECLARE
+  v_hisui integer;
+  v_paldea integer;
+  v_kanto integer;
+BEGIN
+  SELECT count(*) INTO v_hisui
+  FROM dex.location_meta lm
+  JOIN dex.locations l ON l.id = lm.location_id
+  JOIN dex.regions r ON r.id = l.region_id
+  WHERE r.name = 'hisui' AND cardinality(lm.neighbor_ids) > 0;
+
+  SELECT count(*) INTO v_paldea
+  FROM dex.location_meta lm
+  JOIN dex.locations l ON l.id = lm.location_id
+  JOIN dex.regions r ON r.id = l.region_id
+  WHERE r.name = 'paldea' AND cardinality(lm.neighbor_ids) > 0;
+
+  SELECT count(*) INTO v_kanto
+  FROM dex.location_meta lm
+  JOIN dex.locations l ON l.id = lm.location_id
+  JOIN dex.regions r ON r.id = l.region_id
+  WHERE r.name = 'kanto' AND cardinality(lm.neighbor_ids) > 0;
+
+  IF v_hisui < 60 THEN
+    RAISE EXCEPTION 'FAIL[neighbors-hisui]: expected >= 60 Hisui locations with neighbours, got %', v_hisui;
+  END IF;
+  IF v_paldea < 50 THEN
+    RAISE EXCEPTION 'FAIL[neighbors-paldea]: expected >= 50 Paldea locations with neighbours, got %', v_paldea;
+  END IF;
+  IF v_kanto < 70 THEN
+    RAISE EXCEPTION 'FAIL[neighbors-kanto]: expected >= 70 Kanto locations with neighbours, got %', v_kanto;
+  END IF;
+  RAISE NOTICE 'PASS  neighbours: % hisui / % paldea / % kanto locations linked', v_hisui, v_paldea, v_kanto;
+END $$;
+
 -- ── Type matchups from the full chart ────────────────────────────────────────
 -- Bulbasaur is grass/poison: grass attacks are halved twice → 0.25x. The
 -- reference schema, with one `weakness` and one `resistance` string per type,

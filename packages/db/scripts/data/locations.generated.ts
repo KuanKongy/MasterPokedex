@@ -28,9 +28,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An old city that shows fading and almost-forgotten vestiges of ancient history.",
     "kind": "city",
     "neighbors": [
-      "sinnoh-route-206",
+      "sinnoh-route-205",
       "sinnoh-route-211",
-      "sinnoh-route-205"
+      "sinnoh-route-206"
     ],
     "notableTrainers": [
       "Gardenia"
@@ -42,9 +42,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This city was originally founded to protect the Great Marsh. It has grown naturally over the years.",
     "kind": "city",
     "neighbors": [
-      "great-marsh",
+      "sinnoh-route-212",
       "sinnoh-route-213",
-      "sinnoh-route-212"
+      "great-marsh"
     ],
     "notableTrainers": [
       "Crasher Wake"
@@ -56,8 +56,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A port city that was built around the bay portion of the cape. It is criss-crossed by elevated walkways.",
     "kind": "city",
     "neighbors": [
-      "sinnoh-sea-route-223",
-      "sinnoh-route-222"
+      "sinnoh-route-222",
+      "sinnoh-sea-route-223"
     ],
     "notableTrainers": [
       "Volkner"
@@ -88,7 +88,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/valley-windworks.webp",
     "description": "Numerous wind turbines stand in the vicinity of the Valley Windworks. Winds blowing through the canyon feed the wind turbines to generate clean electricity.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "floaroma-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -97,7 +99,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A forest enveloped in chilly air. Thick stands of trees turn the forest into a natural maze.",
     "kind": "forest",
     "neighbors": [
-      "sinnoh-route-205"
+      "sinnoh-route-205",
+      "floaroma-town",
+      "eterna-city",
+      "old-chateau"
     ],
     "notableTrainers": [],
     "notable": false
@@ -106,7 +111,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/fuego-ironworks.webp",
     "description": "The sprawling ironworks is located with the forest at its back.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "floaroma-town",
+      "eterna-forest",
+      "floaroma-meadow"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -115,7 +124,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A sacred mountain that is capped the year round with snow. A gigantic maze sprawls inside it.",
     "kind": "mountain",
     "neighbors": [
-      "sinnoh-route-208"
+      "sinnoh-route-208",
+      "oreburgh-city",
+      "eterna-city",
+      "hearthome-city",
+      "celestic-town",
+      "snowpoint-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -134,7 +148,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/solaceon-ruins.webp",
     "description": "The Solaceon Ruins is a location in Sinnoh. In the past, during the region's time as Hisui, it is mapped under the Crimson Mirelands.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "solaceon-town",
+      "ruin-maniac-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -163,8 +180,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Once one gets through the tunnel, the city of Oreburgh is just a stone's throw away.",
     "kind": "cave",
     "neighbors": [
-      "oreburgh-city",
-      "sinnoh-route-203"
+      "sinnoh-route-203",
+      "oreburgh-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -182,8 +199,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The fourth lake of Sinnoh that was kept secret.",
     "kind": "route",
     "neighbors": [
-      "sendoff-spring",
-      "sinnoh-route-214"
+      "sinnoh-route-214",
+      "sendoff-spring"
     ],
     "notableTrainers": [],
     "notable": false
@@ -192,7 +209,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/turnback-cave.webp",
     "description": "Turnback Cave is a cave which is home to the Legendary Pokémon Giratina. In Sinnoh, it is located at the north-central region of Sendoff Spring, which itself may be accessed through the Spring Path.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "sendoff-spring",
+      "spring-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -200,7 +220,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/snowpoint-temple.webp",
     "description": "Snowpoint Temple is a location in Snowpoint City. It is home to the Legendary Pokémon Regigigas. The temple cannot be entered until the player has entered the Hall of Fame and obtained the National Pokédex.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "snowpoint-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -208,7 +230,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/wayward-cave.webp",
     "description": "Wayward Cave is a multi-floor cave located in western Sinnoh. It lies on Route 206, with two possible entrances hidden beneath the Cycling Road.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "sinnoh-route-206"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -244,7 +268,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/old-chateau.webp",
     "description": "Deep in the forest is the Old Chateau. It is falling into disrepair after being abandoned by its owner.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "eterna-forest",
+      "canalave-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -302,9 +329,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A small path through a lush, green, wooded area. The densely grown trees give off a thick aroma.",
     "kind": "route",
     "neighbors": [
-      "twinleaf-town",
       "sandgem-town",
-      "verity-lakefront"
+      "verity-lakefront",
+      "twinleaf-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -349,7 +376,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "eterna-forest",
       "eterna-city",
-      "fuego-ironworks"
+      "valley-windworks",
+      "fuego-ironworks",
+      "floaroma-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -360,6 +389,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "eterna-city",
+      "wayward-cave",
       "sinnoh-route-207"
     ],
     "notableTrainers": [],
@@ -370,9 +400,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Located at the foot of Mt. Coronet, this road is carved into the rugged, rocky terrain.",
     "kind": "mountain",
     "neighbors": [
+      "mt-coronet",
       "sinnoh-route-206",
-      "oreburgh-city",
-      "mt-coronet"
+      "oreburgh-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -404,7 +434,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The Lost Tower is the resting ground for deceased Pokémon in Sinnoh, as Pokémon Tower and House of Memories are for Kanto, Mt.",
     "kind": "landmark",
     "neighbors": [
-      "sinnoh-route-209"
+      "sinnoh-route-209",
+      "solaceon-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -414,8 +445,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This narrow route is lined with deep, tall grass that tickles the noses of people straying off the path.",
     "kind": "route",
     "neighbors": [
-      "solaceon-town",
       "sinnoh-route-215",
+      "solaceon-town",
       "celestic-town"
     ],
     "notableTrainers": [],
@@ -426,8 +457,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A mountain path that tunnels through Mt. Coronet, one of the tallest mountains in Sinnoh.",
     "kind": "mountain",
     "neighbors": [
-      "mt-coronet",
       "celestic-town",
+      "mt-coronet",
       "eterna-city"
     ],
     "notableTrainers": [],
@@ -438,8 +469,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A tall, sturdy wall surrounds an expansive estate that takes up nearly half of the road space.",
     "kind": "route",
     "neighbors": [
-      "hearthome-city",
-      "pastoria-city"
+      "pastoria-city",
+      "hearthome-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -462,8 +493,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "veilstone-city",
       "valor-lakefront",
-      "spring-path",
-      "ruin-maniac-cave"
+      "ruin-maniac-cave",
+      "spring-path"
     ],
     "notableTrainers": [],
     "notable": false
@@ -473,8 +504,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This area is always inundated by heavy rainfall. Only hardy Trainers that can take the rain gather here.",
     "kind": "route",
     "neighbors": [
-      "veilstone-city",
-      "sinnoh-route-210"
+      "sinnoh-route-210",
+      "veilstone-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -506,8 +537,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Despite its shortness, this road is revered by fishing enthusiasts as a great, yet little known, fishing spot.",
     "kind": "route",
     "neighbors": [
-      "jubilife-city",
-      "canalave-city"
+      "canalave-city",
+      "jubilife-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -528,8 +559,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A straight path hemmed by green grass and sparse stands of trees.",
     "kind": "route",
     "neighbors": [
-      "pal-park",
-      "sinnoh-sea-route-220"
+      "sinnoh-sea-route-220",
+      "pal-park"
     ],
     "notableTrainers": [],
     "notable": false
@@ -539,8 +570,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A sandy beach extends from the road. The beach is busy with avid Fishermen happily casting at the water's edge.",
     "kind": "route",
     "neighbors": [
-      "sunyshore-city",
-      "valor-lakefront"
+      "valor-lakefront",
+      "sunyshore-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -550,8 +581,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "With grass fields, rocky outcroppings, the sea, and sandbars, this area is like a miniature of the Sinnoh Region.",
     "kind": "route",
     "neighbors": [
-      "seabreak-path",
-      "sinnoh-victory-road"
+      "sinnoh-victory-road",
+      "seabreak-path"
     ],
     "notableTrainers": [],
     "notable": false
@@ -561,8 +592,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The path makes its way up and down among rocky outcroppings. It is physically challenging.",
     "kind": "route",
     "neighbors": [
-      "fight-area",
-      "survival-area"
+      "survival-area",
+      "fight-area"
     ],
     "notableTrainers": [],
     "notable": false
@@ -572,8 +603,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A rugged and steep mountain path where vision is limited by steadily falling volcanic ash.",
     "kind": "route",
     "neighbors": [
-      "stark-mountain",
-      "sinnoh-sea-route-226"
+      "sinnoh-sea-route-226",
+      "stark-mountain"
     ],
     "notableTrainers": [],
     "notable": false
@@ -594,9 +625,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A seaside path that makes its way through wildly growing trees and plants.",
     "kind": "route",
     "neighbors": [
-      "sinnoh-route-228",
       "resort-area",
-      "sinnoh-sea-route-230"
+      "sinnoh-sea-route-230",
+      "sinnoh-route-228"
     ],
     "notableTrainers": [],
     "notable": false
@@ -616,8 +647,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A tiny town that preserves the history of Sinnoh and the old ways of life.",
     "kind": "town",
     "neighbors": [
-      "sinnoh-route-210",
-      "sinnoh-route-211"
+      "sinnoh-route-211",
+      "sinnoh-route-210"
     ],
     "notableTrainers": [],
     "notable": true
@@ -659,9 +690,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A path that winds precariously along sheer cliffs that go right to the edge of the sea's pounding waves.",
     "kind": "water",
     "neighbors": [
-      "sinnoh-route-227",
       "sinnoh-route-228",
-      "survival-area"
+      "survival-area",
+      "sinnoh-route-227"
     ],
     "notableTrainers": [],
     "notable": false
@@ -695,7 +726,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A tower that was hit by lightning, and subsequently caught fire and burned.",
     "kind": "building",
     "neighbors": [
-      "ecruteak-city"
+      "ecruteak-city",
+      "bell-tower"
     ],
     "notableTrainers": [],
     "notable": false
@@ -720,8 +752,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "kanto-route-24",
       "kanto-route-5",
-      "kanto-route-9",
-      "kanto-route-4"
+      "kanto-route-4",
+      "kanto-route-9"
     ],
     "notableTrainers": [
       "Misty"
@@ -733,8 +765,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A city where you can smell small flowers and a sea breeze.",
     "kind": "city",
     "neighbors": [
-      "johto-route-30",
-      "johto-route-29"
+      "johto-route-29",
+      "johto-route-30"
     ],
     "notableTrainers": [],
     "notable": true
@@ -769,7 +801,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A dark, difficult-to-navigate tunnel that runs beneath the Johto region.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "violet-city",
+      "blackthorn-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -788,7 +823,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "The Dragon's Den is a location in Blackthorn City in the Johto region.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "blackthorn-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -798,8 +835,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "johto-route-37",
-      "johto-route-42",
-      "johto-route-38"
+      "johto-route-38",
+      "johto-route-42"
     ],
     "notableTrainers": [
       "Morty"
@@ -812,9 +849,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "kanto-safari-zone",
+      "pal-park",
       "kanto-sea-route-19",
-      "kanto-route-15",
-      "kanto-route-18"
+      "kanto-route-18",
+      "kanto-route-15"
     ],
     "notableTrainers": [
       "Koga",
@@ -837,6 +875,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A large forest full of trees that are used to make charcoal.",
     "kind": "forest",
     "neighbors": [
+      "azalea-town",
       "johto-route-34"
     ],
     "notableTrainers": [],
@@ -846,7 +885,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A huge lake full of clear, blue water.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "mahogany-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -856,7 +897,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "mountain",
     "neighbors": [
       "kanto-route-3",
-      "kanto-route-4"
+      "kanto-route-4",
+      "pewter-city",
+      "cerulean-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -866,8 +909,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A naturally large cavern that is incredibly spacious.",
     "kind": "mountain",
     "neighbors": [
-      "johto-route-42",
-      "mahogany-town"
+      "ecruteak-city",
+      "mahogany-town",
+      "johto-route-42"
     ],
     "notableTrainers": [],
     "notable": false
@@ -888,7 +932,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A spacious and beautiful park. It's connected to the Pokéathlon Dome.",
     "kind": "landmark",
     "neighbors": [
-      "johto-route-36"
+      "johto-route-36",
+      "goldenrod-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -966,8 +1011,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "digletts-cave",
-      "kanto-route-12",
-      "vermilion-city"
+      "vermilion-city",
+      "kanto-route-12"
     ],
     "notableTrainers": [],
     "notable": false
@@ -989,8 +1034,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A difficult, narrow path where many Trainers await you.",
     "kind": "route",
     "neighbors": [
-      "kanto-route-12",
-      "kanto-route-14"
+      "kanto-route-14",
+      "kanto-route-12"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1011,8 +1056,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A path that cuts through the row of trees to come out on the coastline.",
     "kind": "route",
     "neighbors": [
-      "kanto-route-14",
-      "fuchsia-city"
+      "fuchsia-city",
+      "kanto-route-14"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1044,8 +1089,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The southern ending point of Cycling Road.",
     "kind": "route",
     "neighbors": [
-      "kanto-route-17",
-      "fuchsia-city"
+      "fuchsia-city",
+      "kanto-route-17"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1078,8 +1123,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A popular path with swimmers. The Seafoam Islands are also here.",
     "kind": "water",
     "neighbors": [
-      "kanto-sea-route-19",
-      "cinnabar-island"
+      "cinnabar-island",
+      "kanto-sea-route-19"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1100,7 +1145,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A path to Victory Road that eventually becomes impassable.",
     "kind": "route",
     "neighbors": [
-      "viridian-city"
+      "viridian-city",
+      "kanto-route-23"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1142,8 +1188,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "tohjo-falls",
-      "kanto-route-26",
-      "new-bark-town"
+      "new-bark-town",
+      "kanto-route-26"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1164,8 +1210,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "johto-route-46",
-      "new-bark-town",
-      "cherrygrove-city"
+      "cherrygrove-city",
+      "new-bark-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1175,8 +1221,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A road where many rocks have fallen from the sky to create craters.",
     "kind": "mountain",
     "neighbors": [
+      "pewter-city",
       "kanto-route-4",
-      "pewter-city"
+      "mt-moon"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1198,8 +1245,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "dark-cave",
-      "johto-route-30",
-      "violet-city"
+      "violet-city",
+      "johto-route-30"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1210,8 +1257,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "violet-city",
-      "union-cave",
-      "ruins-of-alph"
+      "ruins-of-alph",
+      "union-cave"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1245,6 +1292,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "national-park",
       "goldenrod-city",
+      "johto-route-36",
       "pokeathlon-dome"
     ],
     "notableTrainers": [],
@@ -1255,10 +1303,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A green and densely overgrown path that forks in two directions.",
     "kind": "route",
     "neighbors": [
+      "violet-city",
+      "national-park",
       "johto-route-37",
       "johto-route-35",
-      "violet-city",
-      "national-park"
+      "ruins-of-alph"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1302,8 +1351,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "mountain",
     "neighbors": [
       "mt-moon",
-      "kanto-route-3",
-      "cerulean-city"
+      "cerulean-city",
+      "kanto-route-3"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1314,8 +1363,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "frontier-access",
-      "johto-sea-route-41",
-      "olivine-city"
+      "olivine-city",
+      "johto-sea-route-41"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1337,8 +1386,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "mt-mortar",
-      "mahogany-town",
-      "ecruteak-city"
+      "ecruteak-city",
+      "mahogany-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1359,8 +1408,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A wonderful path with a few pleasant springs and abundant greenery.",
     "kind": "water",
     "neighbors": [
-      "ice-path",
-      "mahogany-town"
+      "mahogany-town",
+      "ice-path"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1371,7 +1420,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "mountain",
     "neighbors": [
       "blackthorn-city",
-      "johto-route-46"
+      "johto-route-46",
+      "dark-cave"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1437,8 +1487,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A short road that leads to the blocked-off Underground Path.",
     "kind": "route",
     "neighbors": [
-      "saffron-city",
-      "celadon-city"
+      "celadon-city",
+      "saffron-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1448,8 +1498,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A short road that leads to the blocked-off Underground Path.",
     "kind": "route",
     "neighbors": [
-      "lavender-town",
-      "saffron-city"
+      "saffron-city",
+      "lavender-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1459,8 +1509,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A road that forms a maze crossing a small, rocky mountain.",
     "kind": "mountain",
     "neighbors": [
-      "kanto-route-10",
-      "cerulean-city"
+      "cerulean-city",
+      "kanto-route-10"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1470,6 +1520,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A place where you can find a former adventure.",
     "kind": "landmark",
     "neighbors": [
+      "violet-city",
       "johto-route-32"
     ],
     "notableTrainers": [],
@@ -1512,7 +1563,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A tower that's said to have a legendary Pokémon that lands there.",
     "kind": "building",
     "neighbors": [
-      "ecruteak-city"
+      "ecruteak-city",
+      "burned-tower"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1564,7 +1616,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kanto-victory-road-1.webp",
     "description": "A tunnel situated on Route 23. It earned its name because it must be traveled by all Trainers aiming for the top.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "indigo-plateau"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1573,8 +1627,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This old village is still surrounded by trees and other scenery.",
     "kind": "city",
     "neighbors": [
-      "johto-route-32",
       "johto-route-31",
+      "johto-route-32",
       "johto-route-36"
     ],
     "notableTrainers": [
@@ -1602,7 +1656,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A deep and sprawling forest that extends around Viridian City. A natural maze, many people become lost inside.",
     "kind": "forest",
     "neighbors": [
-      "kanto-route-2"
+      "kanto-route-2",
+      "viridian-city",
+      "pewter-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1612,7 +1668,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Four islands that are protected by whirlpools and are difficult to reach.",
     "kind": "landmark",
     "neighbors": [
-      "johto-sea-route-41"
+      "johto-sea-route-41",
+      "cianwood-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1622,8 +1679,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A mountain path where only the strongest Trainers may pass.",
     "kind": "route",
     "neighbors": [
-      "indigo-plateau",
-      "kanto-route-22"
+      "kanto-route-22",
+      "kanto-victory-road-1",
+      "indigo-plateau"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1640,7 +1698,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kanto-victory-road-2.webp",
     "description": "A tunnel situated on Route 23. It earned its name because it must be traveled by all Trainers aiming for the top.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "indigo-plateau"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1668,7 +1728,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kanto-safari-zone.webp",
     "description": "An amusement park outside Fuchsia City where many rare Pokémon can be observed in the wild. Catch them in a popular game!",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "fuchsia-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1677,9 +1739,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A sandy town that is located right next to a beach. It is redolent with the salty scent of the sea.",
     "kind": "town",
     "neighbors": [
+      "sinnoh-route-201",
       "sinnoh-route-202",
-      "sinnoh-route-219",
-      "sinnoh-route-201"
+      "sinnoh-route-219"
     ],
     "notableTrainers": [],
     "notable": true
@@ -1702,8 +1764,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "town",
     "neighbors": [
       "sinnoh-route-210",
-      "sinnoh-route-209",
-      "solaceon-ruins"
+      "solaceon-ruins",
+      "sinnoh-route-209"
     ],
     "notableTrainers": [],
     "notable": true
@@ -1713,9 +1775,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The most modernized city in the Sinnoh region. It is bustling with people on the go.",
     "kind": "city",
     "neighbors": [
-      "sinnoh-route-204",
       "sinnoh-route-202",
       "sinnoh-route-203",
+      "sinnoh-route-204",
       "sinnoh-route-218"
     ],
     "notableTrainers": [],
@@ -1726,9 +1788,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A vibrant and energetic mining town that is blessed with a precious natural resource.",
     "kind": "city",
     "neighbors": [
-      "sinnoh-route-207",
+      "oreburgh-gate",
       "oreburgh-mine",
-      "oreburgh-gate"
+      "sinnoh-route-207"
     ],
     "notableTrainers": [
       "Roark"
@@ -1741,9 +1803,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "amity-square",
-      "sinnoh-route-212",
+      "sinnoh-route-208",
       "sinnoh-route-209",
-      "sinnoh-route-208"
+      "sinnoh-route-212"
     ],
     "notableTrainers": [
       "Fantina"
@@ -1791,8 +1853,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This used to be the location of the Safari Zone, but is now the Pal Park.",
     "kind": "landmark",
     "neighbors": [
-      "sinnoh-route-221",
-      "fuchsia-city"
+      "fuchsia-city",
+      "sinnoh-route-221"
     ],
     "notableTrainers": [],
     "notable": false
@@ -1811,7 +1873,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/floaroma-meadow.webp",
     "description": "The Floaroma Meadow is an area located in Sinnoh. It can be accessed via Floaroma Town to the south and Fuego Ironworks to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "floaroma-town",
+      "fuego-ironworks"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1827,7 +1892,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sendoff-spring.webp",
     "description": "Sendoff Spring is an area east of Route 214, accessible via the Spring Path. It is known as the \"fourth lake of Sinnoh that was kept secret\", and is said by some to be where the deceased go to journey to the world beyond.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "spring-path",
+      "turnback-cave",
+      "distortion-world"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1835,7 +1904,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/flower-paradise.webp",
     "description": "A speck of an island far from any civilization. It is covered in an abundance of flowers.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "seabreak-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1902,8 +1973,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A city where hot-blooded Trainers gather to work out and hone their battling skills.",
     "kind": "town",
     "neighbors": [
-      "sinnoh-sea-route-226",
-      "sinnoh-route-225"
+      "sinnoh-route-225",
+      "sinnoh-sea-route-226"
     ],
     "notableTrainers": [],
     "notable": true
@@ -1923,7 +1994,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sinnoh-hall-of-origin-1.webp",
     "description": "The Hall of Origin is an area where the Mythical Pokémon Arceus resides. The area originally appeared in Pokémon Diamond, Pearl, and Platinum, but is only legitimately accessible in the remakes, Pokémon Brilliant Diamond and Shining Pearl.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "spear-pillar",
+      "temple-of-sinnoh"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -1931,7 +2005,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sinnoh-hall-of-origin-2.webp",
     "description": "The Hall of Origin is an area where the Mythical Pokémon Arceus resides. The area originally appeared in Pokémon Diamond, Pearl, and Platinum, but is only legitimately accessible in the remakes, Pokémon Brilliant Diamond and Shining Pearl.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "spear-pillar",
+      "temple-of-sinnoh"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2015,7 +2092,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "The Poffin House is a location in Hearthome City situated west of the Poké Mart where people go to make Poffins, a form of Pokémon food used to raise a Pokémon's condition stats for Super Contests.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hearthome-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2025,9 +2104,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "amity-square",
-      "sinnoh-route-212",
+      "sinnoh-route-208",
       "sinnoh-route-209",
-      "sinnoh-route-208"
+      "sinnoh-route-212"
     ],
     "notableTrainers": [
       "Fantina"
@@ -2055,7 +2134,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The Canalave Library is a location in Pokémon Diamond, Pearl, and Platinum and Pokémon Brilliant Diamond and Shining Pearl.",
     "kind": "building",
     "neighbors": [
-      "canalave-city"
+      "canalave-city",
+      "lake-valor"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2101,8 +2181,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Hotel Grand Lake is one of Sinnoh's most popular resorts. Taking up a large stretch of Route 213 and part of Valor Lakefront, the hotel's rooms are actually small bungalows spread out on terraces along the grounds.",
     "kind": "building",
     "neighbors": [
-      "sinnoh-route-213",
-      "valor-lakefront"
+      "valor-lakefront",
+      "sinnoh-route-213"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2175,7 +2255,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sinnoh-global-terminal.webp",
     "description": "The Global Terminal, known as the Global Trade Station in Pokémon Diamond and Pearl, is a location that allows players of the Generation IV and V games to interact in different ways via the Nintendo Wi-Fi Connection.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "jubilife-city",
+      "goldenrod-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2203,7 +2286,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/rotoms-room.webp",
     "description": "Rotom's Room is a hidden room in the Pokémon games that appears in Pokémon Platinum, HeartGold and SoulSilver, and Brilliant Diamond and Shining Pearl.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "eterna-city",
+      "saffron-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2272,9 +2358,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A town with a suspicious air to it. It's a hiding place for ninjas.",
     "kind": "town",
     "neighbors": [
+      "johto-route-42",
       "johto-route-43",
-      "johto-route-44",
-      "johto-route-42"
+      "johto-route-44"
     ],
     "notableTrainers": [
       "Pryce"
@@ -2311,7 +2397,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The fate of many Trainers aiming for the top rests here.",
     "kind": "town",
     "neighbors": [
-      "kanto-route-23"
+      "kanto-route-23",
+      "kanto-victory-road-1"
     ],
     "notableTrainers": [],
     "notable": true
@@ -2323,8 +2410,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "kanto-route-5",
       "kanto-route-6",
-      "kanto-route-8",
-      "kanto-route-7"
+      "kanto-route-7",
+      "kanto-route-8"
     ],
     "notableTrainers": [
       "Sabrina"
@@ -2335,7 +2422,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A lighthouse is a building which emits light at the top so that incoming ships to a port city can see where their destination lies during deep fog or in the dark of the night.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "olivine-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2343,7 +2432,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/team-rocket-hq.webp",
     "description": "The Team Rocket HQ, referred to as Team Rocket's Hideout in Generation II, is the headquarters and a hideout for Team Rocket in the Johto region, located beneath \"Just a Souvenir Shop\" in Mahogany Town.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "mahogany-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2351,7 +2442,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/goldenrod-tunnel.webp",
     "description": "The Goldenrod Tunnel, known as the Underground in Generation II, is a shopping district stretching below Goldenrod City. The shops that are open in the Tunnel depend on the days of the week and, in some cases, the time of day.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "goldenrod-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2359,7 +2452,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A hallowed mountain that rises between the Johto and Kanto regions.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "mt-silver"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2454,6 +2549,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Cliff Edge Gate is a small cavern on Cianwood island that leads between the small island town and Route 47.",
     "kind": "cave",
     "neighbors": [
+      "cianwood-city",
       "johto-route-47"
     ],
     "notableTrainers": [],
@@ -2596,8 +2692,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This town offers great views due to its many hills.",
     "kind": "town",
     "neighbors": [
-      "unova-route-1",
-      "unova-route-2"
+      "unova-route-2",
+      "unova-route-1"
     ],
     "notableTrainers": [],
     "notable": true
@@ -2608,8 +2704,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "unova-route-3",
-      "unova-route-2",
-      "dreamyard"
+      "dreamyard",
+      "unova-route-2"
     ],
     "notableTrainers": [
       "Cilan",
@@ -2637,8 +2733,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "unova-route-4",
-      "castelia-sewers",
-      "skyarrow-bridge"
+      "skyarrow-bridge",
+      "castelia-sewers"
     ],
     "notableTrainers": [
       "Burgh"
@@ -2650,9 +2746,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A bustling city of entertainment, with many theme parks.",
     "kind": "city",
     "neighbors": [
-      "unova-route-4",
+      "unova-route-5",
       "unova-route-16",
-      "unova-route-5"
+      "unova-route-4",
+      "join-avenue"
     ],
     "notableTrainers": [
       "Elesa"
@@ -2665,9 +2762,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "clay-tunnel",
-      "cold-storage",
+      "unova-route-6",
       "driftveil-drawbridge",
-      "unova-route-6"
+      "cold-storage"
     ],
     "notableTrainers": [
       "Clay"
@@ -2693,8 +2790,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "dragonspiral-tower",
-      "unova-route-8",
-      "twist-mountain"
+      "twist-mountain",
+      "unova-route-8"
     ],
     "notableTrainers": [
       "Brycen"
@@ -2707,8 +2804,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "unova-route-10",
-      "unova-route-11",
-      "unova-route-9"
+      "unova-route-9",
+      "unova-route-11"
     ],
     "notableTrainers": [
       "Drayden",
@@ -2744,8 +2841,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A long winding road with lots of ponds and tall grass.",
     "kind": "forest",
     "neighbors": [
-      "striaton-city",
-      "nacrene-city"
+      "nacrene-city",
+      "wellspring-cave",
+      "striaton-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2756,6 +2854,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "nimbasa-city",
+      "join-avenue",
       "castelia-city",
       "desert-resort"
     ],
@@ -2767,8 +2866,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A busy road where performers gather.",
     "kind": "forest",
     "neighbors": [
-      "nimbasa-city",
-      "driftveil-drawbridge"
+      "driftveil-drawbridge",
+      "nimbasa-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2779,7 +2878,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "forest",
     "neighbors": [
       "chargestone-cave",
-      "driftveil-city"
+      "driftveil-city",
+      "mistralton-cave"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2790,6 +2890,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "forest",
     "neighbors": [
       "celestial-tower",
+      "twist-mountain",
       "mistralton-city"
     ],
     "notableTrainers": [],
@@ -2812,9 +2913,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This paved road attracts those who love bikes.",
     "kind": "forest",
     "neighbors": [
-      "challengers-cave",
       "opelucid-city",
-      "tubeline-bridge"
+      "tubeline-bridge",
+      "challengers-cave"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2870,6 +2971,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "undella-town",
       "black-city",
+      "white-forest",
       "abundant-shrine"
     ],
     "notableTrainers": [],
@@ -2881,6 +2983,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "black-city",
+      "white-forest",
       "marvelous-bridge"
     ],
     "notableTrainers": [],
@@ -2923,7 +3026,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/dreamyard.webp",
     "description": "A plant site used as a playground for children and Pokémon.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "striaton-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2932,7 +3037,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "You can go through hollows of fallen trees, too.",
     "kind": "forest",
     "neighbors": [
-      "skyarrow-bridge"
+      "nacrene-city",
+      "skyarrow-bridge",
+      "castelia-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -2961,7 +3068,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "The Cold Storage is a building in Pokémon Black and White found inside of an area of warehouses to the south of Driftveil City.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "driftveil-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -2989,7 +3098,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/dragonspiral-tower.webp",
     "description": "The oldest tower in the Unova region. No one knows its history.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "icirrus-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3017,9 +3128,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A summer retreat with a beach full of people who enjoy summer vacations.",
     "kind": "town",
     "neighbors": [
-      "unova-route-13",
       "unova-route-14",
+      "unova-route-13",
       "undella-bay",
+      "marine-tube",
       "reversal-mountain"
     ],
     "notableTrainers": [],
@@ -3115,7 +3227,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/unity-tower.webp",
     "description": "A skyscraper where people from all over the world can communicate.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "castelia-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3144,7 +3258,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "You can go through hollows of fallen trees, too.",
     "kind": "forest",
     "neighbors": [
-      "skyarrow-bridge"
+      "nacrene-city",
+      "skyarrow-bridge",
+      "castelia-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3211,7 +3327,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/liberty-garden.webp",
     "description": "An island symbol of hope for a world where humans and Pokémon live free.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "virbank-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3220,7 +3338,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Team Plasma's secret lab is located on a quiet little island.",
     "kind": "building",
     "neighbors": [
-      "unova-route-17"
+      "unova-route-17",
+      "nuvema-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3230,6 +3349,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The biggest, longest bridge in Unova has four supporting towers.",
     "kind": "landmark",
     "neighbors": [
+      "pinwheel-forest",
       "castelia-city"
     ],
     "notableTrainers": [],
@@ -3240,6 +3360,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A drawbridge raises and lowers, depending on the ship schedules.",
     "kind": "landmark",
     "neighbors": [
+      "driftveil-city",
       "unova-route-5"
     ],
     "notableTrainers": [],
@@ -3297,7 +3418,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A world-famous sea of shining waves.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "undella-town",
+      "seaside-cave",
+      "abyssal-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3420,7 +3545,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An ancient tomb that is said to be the resting place of an ancient king.",
     "kind": "landmark",
     "neighbors": [
-      "undella-bay"
+      "undella-bay",
+      "undella-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3455,8 +3581,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This tourist destination is undergoing a revival, thanks to the popularity of its Pokémon Contest Spectaculars.",
     "kind": "city",
     "neighbors": [
-      "hoenn-route-124",
-      "hoenn-route-121"
+      "hoenn-route-121",
+      "hoenn-route-124"
     ],
     "notableTrainers": [],
     "notable": true
@@ -3466,9 +3592,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Research is underway day and night in this city, all in the hope of understanding the distant reaches of space.",
     "kind": "city",
     "neighbors": [
+      "hoenn-route-124",
       "hoenn-route-125",
-      "hoenn-route-127",
-      "hoenn-route-124"
+      "hoenn-route-127"
     ],
     "notableTrainers": [
       "Tate and Liza"
@@ -3505,7 +3631,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This waterfall is said to have been the site of a meteor shower. An ancient people once made their home here.",
     "kind": "cave",
     "neighbors": [
-      "hoenn-route-115"
+      "hoenn-route-115",
+      "fallarbor-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3515,7 +3642,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This stone tunnel links together Rustboro and Verdanturf. Its name was chosen as a mixture of the two.",
     "kind": "cave",
     "neighbors": [
-      "verdanturf-town"
+      "verdanturf-town",
+      "rustboro-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3524,7 +3652,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/granite-cave.webp",
     "description": "This cavern is famous for its cave art, which depicts events from thousands of years ago.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "dewford-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3532,7 +3662,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/petalburg-woods.webp",
     "description": "This dense forest, with its abundance of trees, is well known to be a favorite habitat for Shroomish.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "petalburg-city",
+      "rustboro-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3602,7 +3735,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This cave's appearance changes greatly between high tide and low tide.",
     "kind": "cave",
     "neighbors": [
-      "hoenn-route-125"
+      "hoenn-route-125",
+      "mossdeep-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3611,7 +3745,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/new-mauville.webp",
     "description": "Though it was planned to be a subterranean city extending 69 floors underground, this project died in development.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "mauville-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -3647,8 +3783,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Many Trainers gather on this route in the hope of encountering Pokémon in the wild.",
     "kind": "route",
     "neighbors": [
-      "oldale-town",
-      "petalburg-city"
+      "petalburg-city",
+      "oldale-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3658,9 +3794,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "On weekends and holidays, fishing enthusiasts flock to every section of coastline on this seaside route.",
     "kind": "route",
     "neighbors": [
-      "hoenn-altering-cave",
       "oldale-town",
-      "hoenn-route-110"
+      "hoenn-route-110",
+      "hoenn-altering-cave"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3706,8 +3842,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The local children of Dewford Town practice long-distance swimming in the waters of this aquatic route.",
     "kind": "water",
     "neighbors": [
-      "hoenn-route-108",
-      "dewford-town"
+      "dewford-town",
+      "hoenn-route-108"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3718,8 +3854,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "abandoned-ship",
-      "hoenn-route-109",
-      "hoenn-route-107"
+      "sea-mauville",
+      "hoenn-route-107",
+      "hoenn-route-109"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3741,8 +3878,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "mauville-city",
-      "slateport-city",
-      "hoenn-route-103"
+      "hoenn-route-103",
+      "slateport-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3752,8 +3889,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This expansive route includes a desert where sandstorms rage unceasingly and a mountain pass.",
     "kind": "route",
     "neighbors": [
-      "mauville-city",
-      "hoenn-route-113"
+      "hoenn-route-113",
+      "hoenn-route-112",
+      "mauville-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3763,9 +3901,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This route is popular among Trainers because it offers the chance to stroll while gazing up at Mt. Chimney.",
     "kind": "route",
     "neighbors": [
-      "mt-chimney",
+      "lavaridge-town",
       "hoenn-route-111",
-      "lavaridge-town"
+      "mt-chimney",
+      "jagged-pass"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3786,8 +3925,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This mountain path to Meteor Falls is so long and arduous that even Hikers have difficulty tackling it.",
     "kind": "mountain",
     "neighbors": [
-      "fallarbor-town",
-      "meteor-falls"
+      "meteor-falls",
+      "fallarbor-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3808,8 +3947,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A path that many workers take on their daily commute between Rustboro City and Rusturf Tunnel.",
     "kind": "route",
     "neighbors": [
-      "rusturf-tunnel",
-      "rustboro-city"
+      "rustboro-city",
+      "rusturf-tunnel"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3819,8 +3958,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A path where many Trainers gather to raise their Pokémon and train them for battle.",
     "kind": "route",
     "neighbors": [
-      "mauville-city",
-      "verdanturf-town"
+      "verdanturf-town",
+      "mauville-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3864,10 +4003,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This road leads to both the Safari Zone and Mt. Pyre. Many people set out along this route from Lilycove City.",
     "kind": "route",
     "neighbors": [
-      "hoenn-safari-zone",
       "hoenn-route-122",
+      "hoenn-route-120",
       "lilycove-city",
-      "hoenn-route-120"
+      "hoenn-safari-zone"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3900,8 +4039,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "hoenn-route-126",
-      "mossdeep-city",
-      "lilycove-city"
+      "lilycove-city",
+      "mossdeep-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3923,8 +4062,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "hoenn-route-124",
-      "secret-islet",
-      "hoenn-route-127"
+      "hoenn-route-127",
+      "secret-islet"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3959,8 +4098,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "water",
     "neighbors": [
       "hoenn-route-128",
-      "secret-shore",
-      "hoenn-route-130"
+      "hoenn-route-130",
+      "secret-shore"
     ],
     "notableTrainers": [],
     "notable": false
@@ -3994,8 +4133,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The children of Pacifidlog Town are said to be such strong swimmers that they frolic and play in these fierce currents.",
     "kind": "water",
     "neighbors": [
-      "pacifidlog-town",
-      "hoenn-route-133"
+      "hoenn-route-133",
+      "pacifidlog-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4076,7 +4215,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/desert-underpass.webp",
     "description": "The Desert Underpass is a long tunnel located behind the Fossil Maniac's house on Route 114 in Hoenn. The passage is found only in Pokémon Emerald and is only open to Trainers who have entered the Hall of Fame.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "fallarbor-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4092,7 +4233,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hoenn-altering-cave.webp",
     "description": "This island has been known by this name since the distant past. No one today knows where it got this name, however.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "outcast-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4170,7 +4313,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/mt-ember.webp",
     "description": "Supposedly an inactive volcano. However, there are persistent reports that the peak blazes with fire at night.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "one-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4178,7 +4323,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/berry-forest.webp",
     "description": "A forest on a small islet off the coast of Three Island. Berries grow wildly in profusion, quickly replenishing those that fall off.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "bond-bridge",
+      "three-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4197,6 +4345,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A lush and bush-like area. In it are patterns where no grass grows. Some study it in the belief that a secret is concealed.",
     "kind": "forest",
     "neighbors": [
+      "green-path",
       "six-island"
     ],
     "notableTrainers": [],
@@ -4206,7 +4355,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lost-cave.webp",
     "description": "A bewildering cave off the coast of Resort Gorgeous. Some curious thrill seekers have never emerged from it.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "resort-gorgeous"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4324,7 +4475,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Water Path is a route in the Sevii Islands connecting Six Island, Green Path, and Ruin Valley.",
     "kind": "water",
     "neighbors": [
-      "ruin-valley"
+      "ruin-valley",
+      "green-path"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4343,7 +4495,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/trainer-tower.webp",
     "description": "Trainer Tower is a facility in Pokémon FireRed and LeafGreen located to the north of Seven Island in the Sevii Islands. The area where it is located is the northernmost location in Seven Island.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "seven-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4362,8 +4516,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Sevault Canyon is an area on Seven Island in the Sevii Islands which includes the Tanoby Key and leads south to the Tanoby Ruins.",
     "kind": "mountain",
     "neighbors": [
-      "tanoby-ruins",
-      "canyon-entrance"
+      "canyon-entrance",
+      "tanoby-ruins"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4383,7 +4537,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/one-island.webp",
     "description": "Friends Gather at Knot Island",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "two-island",
+      "treasure-beach",
+      "kindle-road"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4391,7 +4549,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/four-island.webp",
     "description": "The Warm, Blue, Floe Island",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "five-island",
+      "one-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4399,7 +4560,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/five-island.webp",
     "description": "Chrono Island: Where Time Goes",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "four-island",
+      "three-island",
+      "five-isle-meadow",
+      "water-labyrinth",
+      "resort-gorgeous",
+      "lost-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4407,7 +4575,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kanto-altering-cave.webp",
     "description": "This island has been known by this name since the distant past. No one today knows where it got this name, however.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "outcast-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4428,9 +4598,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A city often covered by clouds and smoke, with very active residents.",
     "kind": "city",
     "neighbors": [
+      "unova-route-20",
       "pokestar-studios",
-      "virbank-complex",
-      "unova-route-20"
+      "virbank-complex"
     ],
     "notableTrainers": [
       "Roxie"
@@ -4442,9 +4612,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A resort city where buildings float in the waves and look like islands.",
     "kind": "city",
     "neighbors": [
-      "unova-route-21",
       "marine-tube",
-      "unova-route-22"
+      "unova-route-22",
+      "unova-route-21"
     ],
     "notableTrainers": [
       "Marlon"
@@ -4455,7 +4625,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "Pokéstar Studios, where great movies are produced.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "virbank-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4464,7 +4636,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A big avenue that keeps developing as you communicate with more people.",
     "kind": "building",
     "neighbors": [
-      "nimbasa-city"
+      "nimbasa-city",
+      "accumula-gate"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4507,9 +4680,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "In , fallen leaves accumulate and hide the ground beneath.",
     "kind": "forest",
     "neighbors": [
+      "floccesy-town",
       "floccesy-ranch",
-      "virbank-city",
-      "floccesy-town"
+      "virbank-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4550,7 +4723,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "Iron bars around the exits were dismantled, drawing curious Trainers.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "castelia-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4566,7 +4741,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "A complex that is designed so Pokémon can work there easily.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "virbank-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4575,7 +4752,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A volcano that grabs headlines for its many recent eruptions.",
     "kind": "landmark",
     "neighbors": [
-      "undella-town"
+      "lentimas-town",
+      "undella-town",
+      "strange-house"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4584,7 +4763,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/strange-house.webp",
     "description": "A house known for a sad incident that is said to keep people away.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "reversal-mountain"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4602,8 +4783,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "building",
     "neighbors": [
       "opelucid-city",
-      "unova-route-21",
-      "giant-chasm"
+      "giant-chasm",
+      "p2-laboratory",
+      "unova-route-21"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4612,7 +4794,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/relic-passage.webp",
     "description": "A recently discovered passage that leads to the Relic Castle.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "castelia-sewers",
+      "relic-castle",
+      "driftveil-city",
+      "castelia-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4620,7 +4807,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/clay-tunnel.webp",
     "description": "A tunnel created by Clay's constant mining. It leads to Twist Mountain.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "driftveil-city",
+      "mistralton-cave",
+      "twist-mountain",
+      "underground-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4677,7 +4869,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An undersea tunnel built using cutting-edge technology.",
     "kind": "landmark",
     "neighbors": [
-      "humilau-city"
+      "undella-town",
+      "humilau-city",
+      "undella-bay"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4720,7 +4914,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "Pledge Grove is a small forest-like location in southwest Unova. It is connected to Floccesy Town to the south. The path here is located directly to the right of Alder's house.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "floccesy-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -4739,9 +4935,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A town where the contrast between colorful flowers and deep, verdant forests is most beautiful.",
     "kind": "town",
     "neighbors": [
-      "hoenn-route-103",
       "hoenn-route-101",
-      "hoenn-route-102"
+      "hoenn-route-102",
+      "hoenn-route-103"
     ],
     "notableTrainers": [],
     "notable": true
@@ -4774,8 +4970,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Thanks to the prevailing wind pattern, this town is always kept clear of falling volcanic ash.",
     "kind": "town",
     "neighbors": [
-      "rusturf-tunnel",
-      "hoenn-route-117"
+      "hoenn-route-117",
+      "rusturf-tunnel"
     ],
     "notableTrainers": [],
     "notable": true
@@ -4786,9 +4982,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "hoenn-route-111",
-      "hoenn-route-110",
+      "hoenn-route-117",
       "hoenn-route-118",
-      "hoenn-route-117"
+      "hoenn-route-110"
     ],
     "notableTrainers": [
       "Wattson"
@@ -4801,8 +4997,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "hoenn-route-115",
-      "hoenn-route-104",
-      "hoenn-route-116"
+      "hoenn-route-116",
+      "hoenn-route-104"
     ],
     "notableTrainers": [
       "Roxanne"
@@ -4814,8 +5010,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The people and the Pokémon of this city follow nature's cues to rise each morning and end each day.",
     "kind": "city",
     "neighbors": [
-      "hoenn-route-120",
-      "hoenn-route-119"
+      "hoenn-route-119",
+      "hoenn-route-120"
     ],
     "notableTrainers": [
       "Winona"
@@ -4835,7 +5031,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This volcano towers to a height of nearly 5,000 feet. The view from its peak is beyond compare.",
     "kind": "mountain",
     "neighbors": [
-      "hoenn-route-112"
+      "lavaridge-town",
+      "hoenn-route-112",
+      "jagged-pass"
     ],
     "notableTrainers": [],
     "notable": false
@@ -4870,7 +5068,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/scorched-slab.webp",
     "description": "Scorched Slab is a small cave found in Hoenn. It can be accessed by surfing in an indented lake on Route 120 near Fortree City.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "fortree-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5063,9 +5263,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "kalos-route-14",
-      "kalos-route-4",
+      "kalos-route-13",
       "kalos-route-16",
-      "kalos-route-13"
+      "kalos-route-4",
+      "kalos-route-5"
     ],
     "notableTrainers": [
       "Clemont"
@@ -5117,8 +5318,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This ancient town was once famous for the long-neglected manor home of a noble family.",
     "kind": "town",
     "neighbors": [
-      "kalos-route-5",
-      "kalos-route-7"
+      "kalos-route-7",
+      "kalos-route-5"
     ],
     "notableTrainers": [],
     "notable": true
@@ -5193,8 +5394,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "kalos-route-10",
-      "kalos-route-8",
-      "connecting-cave"
+      "connecting-cave",
+      "kalos-route-8"
     ],
     "notableTrainers": [
       "Grant"
@@ -5207,8 +5408,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "cyllage-city",
-      "ambrette-town",
-      "connecting-cave"
+      "connecting-cave",
+      "ambrette-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5219,8 +5420,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "cyllage-city",
-      "ambrette-town",
-      "connecting-cave"
+      "connecting-cave",
+      "ambrette-town"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5230,8 +5431,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This town was known only for its aquarium until the discovery of rare Fossils really put it on the map.",
     "kind": "town",
     "neighbors": [
-      "kalos-route-8",
-      "kalos-route-9"
+      "kalos-route-9",
+      "kalos-route-8"
     ],
     "notableTrainers": [],
     "notable": true
@@ -5296,8 +5497,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "town",
     "neighbors": [
       "team-flare-secret-hq",
-      "kalos-route-10",
-      "kalos-route-11"
+      "kalos-route-11",
+      "kalos-route-10"
     ],
     "notableTrainers": [],
     "notable": true
@@ -5340,8 +5541,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "tower-of-mastery",
-      "reflection-cave",
-      "kalos-route-12"
+      "kalos-route-12",
+      "reflection-cave"
     ],
     "notableTrainers": [
       "Korrina"
@@ -5364,8 +5565,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "azure-bay",
-      "coumarine-city",
-      "shalour-city"
+      "shalour-city",
+      "coumarine-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5376,8 +5577,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "azure-bay",
-      "coumarine-city",
-      "shalour-city"
+      "shalour-city",
+      "coumarine-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5387,8 +5588,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An exclusive resort area made popular thanks to its clear skies and mild atmosphere.",
     "kind": "city",
     "neighbors": [
-      "kalos-route-13",
-      "kalos-route-12"
+      "kalos-route-12",
+      "kalos-route-13"
     ],
     "notableTrainers": [
       "Ramos"
@@ -5401,8 +5602,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "coumarine-city",
-      "lumiose-city",
-      "kalos-power-plant"
+      "kalos-power-plant",
+      "lumiose-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5413,8 +5614,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "coumarine-city",
-      "lumiose-city",
-      "kalos-power-plant"
+      "kalos-power-plant",
+      "lumiose-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5447,8 +5648,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "poke-ball-factory",
-      "kalos-route-14",
-      "kalos-route-15"
+      "kalos-route-15",
+      "kalos-route-14"
     ],
     "notableTrainers": [
       "Valerie"
@@ -5459,7 +5660,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poke-ball-factory.webp",
     "description": "An expansive factory where every Poké Ball used in the Kalos region is produced.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "laverre-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5468,10 +5671,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This path has become a popular hangout for the wild and directionless youths of Lumiose City.",
     "kind": "route",
     "neighbors": [
-      "lost-hotel",
-      "kalos-route-16",
+      "laverre-city",
       "dendemille-town",
-      "laverre-city"
+      "kalos-route-16",
+      "lost-hotel"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5481,10 +5684,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This path has become a popular hangout for the wild and directionless youths of Lumiose City.",
     "kind": "route",
     "neighbors": [
-      "lost-hotel",
-      "kalos-route-16",
+      "laverre-city",
       "dendemille-town",
-      "laverre-city"
+      "kalos-route-16",
+      "lost-hotel"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5494,9 +5697,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A rural town where Pokémon and windmills work together to farm the land in a chilly latitude.",
     "kind": "town",
     "neighbors": [
-      "frost-cavern",
+      "kalos-route-15",
       "kalos-route-17",
-      "kalos-route-15"
+      "frost-cavern"
     ],
     "notableTrainers": [],
     "notable": true
@@ -5507,6 +5710,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "kalos-route-15",
+      "lost-hotel",
       "lumiose-city"
     ],
     "notableTrainers": [],
@@ -5518,6 +5722,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "kalos-route-15",
+      "lost-hotel",
       "lumiose-city"
     ],
     "notableTrainers": [],
@@ -5527,7 +5732,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/frost-cavern.webp",
     "description": "The drifting snow and impenetrable fog make this cavern a place of fantastical illusions.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "dendemille-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5536,8 +5743,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Due to constant snowstorms and heavy snowfall, humans have no hope of traversing this road on foot.",
     "kind": "route",
     "neighbors": [
-      "anistar-city",
-      "dendemille-town"
+      "dendemille-town",
+      "anistar-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5547,8 +5754,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Due to constant snowstorms and heavy snowfall, humans have no hope of traversing this road on foot.",
     "kind": "route",
     "neighbors": [
-      "anistar-city",
-      "dendemille-town"
+      "dendemille-town",
+      "anistar-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5558,8 +5765,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Some say the enigmatic device used as a sundial came from outer space.",
     "kind": "city",
     "neighbors": [
-      "kalos-route-18",
-      "kalos-route-17"
+      "kalos-route-17",
+      "kalos-route-18"
     ],
     "notableTrainers": [
       "Olympia"
@@ -5628,9 +5835,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "They say the cold air flowing from the Pokémon Gym is responsible for this city's frozen state.",
     "kind": "city",
     "neighbors": [
+      "kalos-route-21",
       "kalos-route-20",
-      "kalos-route-19",
-      "kalos-route-21"
+      "kalos-route-19"
     ],
     "notableTrainers": [
       "Wulfric"
@@ -5694,9 +5901,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This lively path bustles with many Trainers and their Pokémon, all gathered here to train themselves.",
     "kind": "route",
     "neighbors": [
+      "santalune-city",
       "chamber-of-emptiness",
-      "kalos-victory-road",
-      "santalune-city"
+      "kalos-victory-road"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5706,9 +5913,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This lively path bustles with many Trainers and their Pokémon, all gathered here to train themselves.",
     "kind": "route",
     "neighbors": [
+      "santalune-city",
       "chamber-of-emptiness",
-      "kalos-victory-road",
-      "santalune-city"
+      "kalos-victory-road"
     ],
     "notableTrainers": [],
     "notable": false
@@ -5735,7 +5942,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kiloude-city.webp",
     "description": "This city, popular with Pokémon Trainers, is a typical example of southern Kalosian life.",
     "kind": "city",
-    "neighbors": [],
+    "neighbors": [
+      "battle-maison"
+    ],
     "notableTrainers": [],
     "notable": true
   },
@@ -5770,7 +5979,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/connecting-cave.webp",
     "description": "This cave linking Route 7 and Cyllage City is notable for its great hordes of Zubat.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "cyllage-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5778,7 +5989,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/zubat-roost.webp",
     "description": "This cave linking Route 7 and Cyllage City is notable for its great hordes of Zubat.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "cyllage-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5906,7 +6119,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lumiose-station.webp",
     "description": "North Boulevard is a street lining the northern half of Lumiose City in the Kalos region. It connects to South Boulevard, Autumnal Avenue, and Hibernal Avenue.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "lumiose-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -5915,8 +6130,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "This town was known only for its aquarium until the discovery of rare Fossils really put it on the map.",
     "kind": "town",
     "neighbors": [
-      "kalos-route-8",
-      "kalos-route-9"
+      "kalos-route-9",
+      "kalos-route-8"
     ],
     "notableTrainers": [],
     "notable": true
@@ -5953,7 +6168,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sea-mauville.webp",
     "description": "A facility that was decommissioned dozens of years ago. It is now maintained as a natural preserve.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "abandoned-ship"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6014,7 +6231,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/trackless-forest.webp",
     "description": "The Trackless Forest is a location in the Hoenn region, found east of Petalburg Woods (or southeast of Rustboro City) in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "rustboro-city",
+      "petalburg-woods"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6022,7 +6242,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/pathless-plain.webp",
     "description": "The Pathless Plain is an island in the Hoenn region, found south of Pacifidlog Town in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "pacifidlog-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6031,7 +6253,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The Nameless Cavern is a location in the Hoenn region, found on the northeast side of Sootopolis City in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "cave",
     "neighbors": [
-      "hoenn-route-126"
+      "hoenn-route-126",
+      "sootopolis-city"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6040,7 +6263,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/fabled-cave.webp",
     "description": "The Fabled Cave is a location in the Hoenn region, found on a large island situated in the bay east of the Seaside Cycling Road on Route 110 (or southeast of Mauville City) in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "mauville-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6048,7 +6273,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/gnarled-den.webp",
     "description": "The Gnarled Den is a location in the Hoenn region, found on the west side of Mt. Chimney in Pokémon Omega Ruby and Alpha Sapphire.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "mt-chimney"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6056,7 +6283,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/crescent-isle.webp",
     "description": "Crescent Isle is a Hoenn location first seen in Pokémon Omega Ruby and Alpha Sapphire. It is only accessible by soaring on Latios/Latias and is to the south of Ever Grande City.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "ever-grande-city",
+      "soaring-in-the-sky"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6098,8 +6328,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "iki-town",
-      "ten-carat-hill",
-      "melemele-sea"
+      "alola-route-3",
+      "melemele-sea",
+      "hauoli-city--beachfront",
+      "ten-carat-hill"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6110,8 +6342,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "iki-town",
-      "ten-carat-hill",
-      "melemele-sea"
+      "alola-route-3",
+      "melemele-sea",
+      "hauoli-city--beachfront",
+      "ten-carat-hill"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6122,7 +6356,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "mountain",
     "neighbors": [
       "alola-route-1--hauoli-outskirts",
-      "alola-route-2"
+      "alola-route-2",
+      "melemele-meadow"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6133,6 +6368,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "alola-route-3",
+      "verdant-cavern--trial-site",
+      "hauoli-cemetery",
       "hauoli-city--beachfront"
     ],
     "notableTrainers": [],
@@ -6150,7 +6387,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/melemele-sea.webp",
     "description": "East part: The vast sea spreads, and various Pokémon live among rocks.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "alola-route-1--hauoli-outskirts",
+      "hauoli-city--beachfront"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6160,7 +6400,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "alola-route-2",
-      "alola-route-1--hauoli-outskirts"
+      "alola-route-1--hauoli-outskirts",
+      "melemele-sea"
     ],
     "notableTrainers": [],
     "notable": true
@@ -6171,7 +6412,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "alola-route-2",
-      "alola-route-1--hauoli-outskirts"
+      "alola-route-1--hauoli-outskirts",
+      "melemele-sea"
     ],
     "notableTrainers": [],
     "notable": true
@@ -6182,7 +6424,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "alola-route-2",
-      "alola-route-1--hauoli-outskirts"
+      "alola-route-1--hauoli-outskirts",
+      "melemele-sea"
     ],
     "notableTrainers": [],
     "notable": true
@@ -6202,7 +6445,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/mahalo-trail.webp",
     "description": "A mountainous trail that leads to the sacred ruins. The cool air up here is very soothing on the skin.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "iki-town",
+      "ruins-of-conflict",
+      "hauoli-city--beachfront"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6210,7 +6457,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/mahalo-trail--plank-bridge.webp",
     "description": "A mountainous trail that leads to the sacred ruins. The cool air up here is very soothing on the skin.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "iki-town",
+      "ruins-of-conflict",
+      "hauoli-city--beachfront"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6218,7 +6469,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ruins-of-conflict.webp",
     "description": "The ruins that enshrine Tapu Koko, one of the land spirits. It is said that life is tested here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mahalo-trail"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6226,7 +6479,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ten-carat-hill.webp",
     "description": "A great hill formed by the activity of an underwater volcano. It is famous for the hollow in its middle that is open to the air.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "alola-route-1--hauoli-outskirts",
+      "hauoli-city--beachfront"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6234,7 +6490,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ten-carat-hill--farthest-hollow.webp",
     "description": "A great hill formed by the activity of an underwater volcano. It is famous for the hollow in its middle that is open to the air.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "alola-route-1--hauoli-outskirts",
+      "hauoli-city--beachfront"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6252,7 +6511,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/melemele-meadow.webp",
     "description": "A place where yellow flowers bloom in abundance. You can gather the nectar Oricorio loves to feed on here.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "seaward-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6304,7 +6565,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "lush-jungle",
       "paniola-ranch",
-      "brooklet-hill"
+      "brooklet-hill",
+      "alola-route-8"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6315,8 +6577,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "paniola-ranch",
-      "heahea-city",
       "royal-avenue",
+      "heahea-city",
       "paniola-town"
     ],
     "notableTrainers": [],
@@ -6328,6 +6590,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "route",
     "neighbors": [
       "alola-route-8",
+      "dividing-peak-tunnel",
       "royal-avenue",
       "wela-volcano-park"
     ],
@@ -6339,7 +6602,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An oceanside route with great views. It is a popular date spot enjoyed by many couples and Pokémon.",
     "kind": "route",
     "neighbors": [
-      "alola-route-5"
+      "alola-route-5",
+      "alola-route-7"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6360,7 +6624,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hano-grand-resort.webp",
     "description": "The biggest of all the resorts in the Alola region. The hotel is fully booked a year in advance.",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "heahea-city",
+      "hano-beach"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6368,7 +6635,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hano-beach.webp",
     "description": "The beach near Hano Grand Hotel at the Hano Grand Resort. Pyukumuku-chucking is a popular part-time job to do here.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "hano-grand-resort"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6378,8 +6647,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "town",
     "neighbors": [
       "paniola-ranch",
-      "alola-route-4",
-      "alola-route-6"
+      "alola-route-6",
+      "alola-route-4"
     ],
     "notableTrainers": [],
     "notable": true
@@ -6390,8 +6659,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "alola-route-6",
-      "digletts-tunnel",
       "alola-route-4",
+      "hano-grand-resort",
+      "digletts-tunnel",
       "heahea-beach"
     ],
     "notableTrainers": [],
@@ -6413,8 +6683,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A major street that has developed so much thanks to the Battle Royal Dome being on it, making it look like a city street.",
     "kind": "route",
     "neighbors": [
-      "alola-route-7",
-      "alola-route-6"
+      "alola-route-6",
+      "alola-route-7"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6423,7 +6693,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/memorial-hill.webp",
     "description": "A place where the memories of people and Pokémon linger. Many people come from other islands to visit this graveyard.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "akala-outskirts"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6431,7 +6703,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paniola-ranch.webp",
     "description": "The ranch managed together by the people and Pokémon living in Paniola Town.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "paniola-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6479,7 +6753,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ruins-of-life.webp",
     "description": "The ruins that enshrine Tapu Lele, one of the land spirits. It is said that life is born here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "akala-outskirts"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6487,7 +6763,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/akala-outskirts.webp",
     "description": "A grassy stretch along Akala's southern-most coast. It leads from Memorial Hill to the Ruins of Life.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "memorial-hill",
+      "ruins-of-life"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6496,6 +6775,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Diglett and people worked together to finish digging this tunnel several years ago.",
     "kind": "cave",
     "neighbors": [
+      "heahea-city",
+      "konikoni-city",
       "alola-route-9"
     ],
     "notableTrainers": [],
@@ -6559,6 +6840,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "town",
     "neighbors": [
       "mount-lanakila",
+      "alola-route-15",
       "alola-route-14",
       "alola-route-13"
     ],
@@ -6605,7 +6887,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "neighbors": [
       "blush-mountain",
       "secluded-shore",
-      "alola-route-11"
+      "alola-route-11",
+      "alola-route-13"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6614,7 +6897,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/haina-desert.webp",
     "description": "A scorching-hot desert beyond Route 13. Trainers often get lost here in this broiling labyrinth.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "ruins-of-abundance"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6632,7 +6917,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ulaula-meadow.webp",
     "description": "A place where red flowers bloom in abundance. You can gather the nectar Oricorio loves to feed on here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "lake-of-the-moone",
+      "lake-of-the-sunne"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6688,7 +6976,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ruins-of-abundance.webp",
     "description": "The ruins that enshrine Tapu Bulu, one of the land spirits. It is said that life grows here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "haina-desert"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6696,7 +6986,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lake-of-the-sunne.webp",
     "description": "A place that seems to have some connection to the Alola's Legendary Pokémon. The lake forms a perfect circle.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "ulaula-meadow"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6704,7 +6996,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lake-of-the-moone.webp",
     "description": "A place that seems to have some connection to the Alola's Legendary Pokémon. The lake forms a perfect circle.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "ulaula-meadow"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6712,7 +7006,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/mount-lanakila.webp",
     "description": "The roughest and coldest mountain in the Alola region. A large-scale construction project has been taken up here.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "tapu-village"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6731,8 +7027,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A major street that has developed so much thanks to the Battle Royal Dome being on it, making it look like a city street.",
     "kind": "route",
     "neighbors": [
-      "alola-route-7",
-      "alola-route-6"
+      "alola-route-6",
+      "alola-route-7"
     ],
     "notableTrainers": [],
     "notable": false
@@ -6759,7 +7055,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-meadow.webp",
     "description": "A place where purple flowers bloom in abundance. You can gather the nectar Oricorio loves to feed on here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "poni-plains",
+      "resolution-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6767,7 +7066,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-wilds.webp",
     "description": "The entrance to Poni Island. It connects to Seafolk Village.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "seafolk-village",
+      "ancient-poni-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6775,7 +7077,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ancient-poni-path.webp",
     "description": "An old path that leads to Vast Poni Canyon. Some people and Pokémon still try to live in the ruins here, but not many.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "poni-wilds",
+      "poni-breaker-coast",
+      "vast-poni-canyon",
+      "poni-grove"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6783,7 +7090,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-breaker-coast.webp",
     "description": "The southern coast of Poni Island, where rough waves pound mercilessly upon the shore.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "ancient-poni-path",
+      "ruins-of-hope"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6791,7 +7101,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-grove.webp",
     "description": "A natural path that winds among the many trees. It leads to the eastern side of Poni Island.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "ancient-poni-path",
+      "poni-plains"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6799,7 +7112,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-plains.webp",
     "description": "The plains that lead to the northern part of Poni island. There is also a path connecting to Poni Meadow from here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "poni-grove",
+      "poni-meadow",
+      "poni-coast"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6807,7 +7124,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-coast.webp",
     "description": "The north-eastern coast of Poni Island, where the clarity of the water makes it a popular view spot.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "poni-plains",
+      "poni-gauntlet"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6815,7 +7135,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poni-gauntlet.webp",
     "description": "A difficult path that leads to the Battle Tree. It's full of tough Trainers.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "poni-coast",
+      "battle-tree"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6833,7 +7156,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/vast-poni-canyon.webp",
     "description": "The most challenging path on Poni Island. The ups and downs of this canyon are beyond any other.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "ancient-poni-path",
+      "altar-of-the-sunne",
+      "altar-of-the-moone"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6861,7 +7188,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ruins-of-hope.webp",
     "description": "The ruins that enshrine Tapu Fini, one of the land spirits. It is said that life ends its journey here.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "poni-breaker-coast"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6869,7 +7198,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/resolution-cave.webp",
     "description": "A cave that leads deep, deep down under the ground. How it got the name \"resolution\" is not known.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "poni-meadow"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6877,7 +7208,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/exeggutor-island.webp",
     "description": "It's a paradise for Exeggutor! This island is designated as a special preserve.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "seafolk-village"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6885,7 +7218,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/battle-tree.webp",
     "description": "The sacred battle grounds for the toughest Trainers of the Alola region.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "poni-gauntlet"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6945,7 +7280,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/two-island.webp",
     "description": "Boon Island for Two",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "one-island",
+      "three-island",
+      "cape-brink",
+      "navel-rock"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6953,7 +7293,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/three-island.webp",
     "description": "Kin Island of Family Bonding",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "two-island",
+      "three-isle-path",
+      "bond-bridge"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6971,7 +7315,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/six-island.webp",
     "description": "Fortune Island of Aged Wisdom",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "seven-island",
+      "five-island",
+      "water-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6979,7 +7327,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/seven-island.webp",
     "description": "Quest Island of Infinity",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "six-island",
+      "four-island",
+      "trainer-tower",
+      "canyon-entrance",
+      "sevault-canyon"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6987,7 +7341,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "Birth Island is a location near Six and Seven Islands in the Sevii Islands, accessible in Pokémon FireRed, LeafGreen, and Emerald.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "six-island",
+      "seven-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -6995,7 +7352,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "Navel Rock is an island between Four and Five Islands in the Sevii Islands, accessible in Pokémon FireRed, LeafGreen, and Emerald.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "four-island",
+      "five-island"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7011,7 +7371,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hoenn-battle-frontier.webp",
     "description": "The front lines of Pokémon battling!",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hoenn-pokemon-league"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7019,7 +7381,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/johto-safari-zone.webp",
     "description": "The Johto Safari Zone is a special Pokémon preserve where Trainers can catch certain types of Pokémon. The Johto Safari Zone made its debut appearance in Pokémon HeartGold and SoulSilver, where it was shown to be located northwest of Cianwood.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "safari-zone-gate"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7051,9 +7415,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "town",
     "neighbors": [
       "naranja-academy",
+      "uva-academy",
       "paldea-south-province-area-one",
-      "paldea-south-province-area-three",
-      "paldea-south-province-area-two"
+      "paldea-south-province-area-two",
+      "paldea-south-province-area-three"
     ],
     "notableTrainers": [],
     "notable": true
@@ -7180,7 +7545,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-one.webp",
     "description": "South Province (Area One) is a valley surrounding Los Platos in the South Province of the Paldea region. It is located west of South Province (Area Five) and east of South Province (Area Four).",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "los-platos",
+      "paldea-south-province-area-five",
+      "paldea-south-province-area-four",
+      "cabo-poco",
+      "mesagoza"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7188,7 +7559,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-two.webp",
     "description": "South Province (Area Two) is a valley surrounding Cortondo in the South Province of the Paldea region west of Mesagoza.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cortondo",
+      "mesagoza",
+      "paldea-south-province-area-four",
+      "paldea-south-province-area-six",
+      "paldea-west-province-area-one"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7196,7 +7573,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-three.webp",
     "description": "South Province (Area Three) is a rocky region in the South Province of the Paldea region east of Mesagoza. It connects to Mesagoza in the west, South Province (Area Five) in the south, East Province (Area One) in the north, and Artazon in the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mesagoza",
+      "paldea-south-province-area-five",
+      "paldea-east-province-area-one",
+      "artazon"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7204,7 +7586,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-four.webp",
     "description": "South Province (Area Four) is a grassy region in the South Province of the Paldea region, southwest of Mesagoza.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mesagoza",
+      "paldea-south-province-area-two",
+      "paldea-south-province-area-six",
+      "paldea-south-province-area-one",
+      "poco-path",
+      "paldea-west-province-area-one"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7212,7 +7601,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-five.webp",
     "description": "South Province (Area Five) is a grassy and rocky region split by a river in the South Province of the Paldea region, southeast of Mesagoza.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mesagoza",
+      "paldea-south-province-area-three",
+      "artazon"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7220,7 +7613,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-south-province-area-six.webp",
     "description": "South Province (Area Six) is a elevated grassy and rocky region in the South Province of the Paldea region that surrounds Alfornada.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "alfornada",
+      "paldea-west-province-area-one",
+      "paldea-south-province-area-four",
+      "south-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7228,7 +7626,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/south-paldean-sea.webp",
     "description": "The South Paldean Sea is the ocean adjacent to the South Province of the Paldea region. It is one of Paldea's four seas. It connects to the East Paldean Sea in the northeast and the West Paldean Sea in the northwest.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "east-paldean-sea",
+      "west-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7236,7 +7637,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/poco-path.webp",
     "description": "Poco Path is a short path in the south of the Paldea region. It connects to Cabo Poco to the south and South Province (Area One) to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cabo-poco",
+      "paldea-south-province-area-one"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7263,7 +7667,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Alfornada Cavern is a subregion of South Province (Area Six) and a route in southwestern Paldea. The region is located south of South Province (Area Six) and provides land access to Alfornada without requiring the defeat of the False Dragon Titan.",
     "kind": "cave",
     "neighbors": [
-      "paldea-south-province-area-six"
+      "paldea-south-province-area-six",
+      "alfornada"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7282,7 +7687,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-east-province-area-one.webp",
     "description": "East Province (Area One) is a grassy region in the East Province of the Paldea region that surrounds Artazon.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "artazon",
+      "paldea-east-province-area-two",
+      "paldea-east-province-area-three",
+      "paldea-south-province-area-three",
+      "paldea-south-province-area-five",
+      "east-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7290,7 +7702,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-east-province-area-two.webp",
     "description": "East Province (Area Two) is a grassy region in the East Province of the Paldea region that surrounds Levincia. It connects to East Province (Area One) over a river in the south and west and East Province (Area Three) in the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "levincia",
+      "paldea-east-province-area-one",
+      "paldea-east-province-area-three",
+      "east-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7298,7 +7715,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-east-province-area-three.webp",
     "description": "East Province (Area Three) is a rocky region in the East Province of the Paldea region that surrounds Zapapico.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "zapapico",
+      "paldea-east-province-area-two",
+      "paldea-east-province-area-one",
+      "tagtree-thicket",
+      "paldea-north-province-area-one",
+      "paldea-north-province-area-two"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7306,7 +7730,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/east-paldean-sea.webp",
     "description": "The East Paldean Sea is the ocean adjacent to the East Province of the Paldea region. It is one of Paldea's four seas. It connects to the South Paldean Sea in the south.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "south-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7314,7 +7740,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/tagtree-thicket.webp",
     "description": "Tagtree Thicket is a forested region in the East Province of the Paldea region.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "paldea-east-province-area-three",
+      "glaseado-mountain",
+      "paldea-north-province-area-one",
+      "dalizapa-passage"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7342,7 +7773,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-west-province-area-one.webp",
     "description": "West Province (Area One) is a grassy region in the West Province of the Paldea region.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "asado-desert",
+      "paldea-west-province-area-three",
+      "paldea-south-province-area-two",
+      "paldea-south-province-area-four",
+      "paldea-south-province-area-six",
+      "west-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7350,7 +7788,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-west-province-area-two.webp",
     "description": "West Province (Area Two) is a grassy region in the West Province of the Paldea region that surrounds Porto Marinada. It connects to the Asado Desert in the south, West Province (Area Three) in the east, and Casseroya Lake in the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "porto-marinada",
+      "asado-desert",
+      "paldea-west-province-area-three",
+      "casseroya-lake",
+      "west-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7358,7 +7802,14 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-west-province-area-three.webp",
     "description": "West Province (Area Three) is a grassy region in the West Province of the Paldea region that surrounds Medali.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "medali",
+      "paldea-west-province-area-two",
+      "paldea-west-province-area-one",
+      "cascarrafa",
+      "casseroya-lake",
+      "glaseado-mountain"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7374,7 +7825,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/west-paldean-sea.webp",
     "description": "The West Paldean Sea is the ocean adjacent to the West Province of the Paldea region. It is one of Paldea's four seas. It connects to the South Paldean Sea in the south and the North Paldean Sea in the north.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "south-paldean-sea",
+      "north-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7402,7 +7856,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-north-province-area-one.webp",
     "description": "North Province (Area One) is a rugged region in the North Province of the Paldea region. It connects to Glaseado Mountain in the west, North Province (Area Two) in the east, East Province (Area Three) in the south, and Tagtree Thicket in the southwest.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "glaseado-mountain",
+      "paldea-north-province-area-two",
+      "paldea-east-province-area-three",
+      "tagtree-thicket",
+      "north-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7410,7 +7870,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-north-province-area-two.webp",
     "description": "North Province (Area Two) is a rugged region in the North Province of the Paldea region. It connects to North Province (Area One) in the north and East Province (Area Three) in the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "paldea-north-province-area-one",
+      "paldea-east-province-area-three"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7418,7 +7881,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/paldea-north-province-area-three.webp",
     "description": "North Province (Area Three) is a mostly grassy region in the North Province of the Paldea region. It is surrounded to the east, west, and south by Glaseado Mountain.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "glaseado-mountain",
+      "north-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7426,7 +7892,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/casseroya-lake.webp",
     "description": "Casseroya Lake is a large lake and surrounding region in northwestern Paldea, it is part of the North Province. Contained within it is the Socarrat Trail.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "glaseado-mountain",
+      "paldea-west-province-area-two",
+      "paldea-west-province-area-three",
+      "north-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7435,7 +7906,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Dalizapa Passage is a subregion of Glaseado Mountain and a route in northern Paldea. The route is located along the southern base of Glaseado Mountain and connects Zapapico in the East Province to Medali in the West Province.",
     "kind": "landmark",
     "neighbors": [
-      "glaseado-mountain"
+      "glaseado-mountain",
+      "zapapico",
+      "medali"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7482,7 +7955,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/north-paldean-sea.webp",
     "description": "The North Paldean Sea is the ocean adjacent to the North Province of the Paldea region. It is one of Paldea's four seas. It connects to the West Paldean Sea in the southwest.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "west-paldean-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7550,8 +8025,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Route 3 is a route in central Galar that connects Motostoke to Galar Mine.",
     "kind": "route",
     "neighbors": [
-      "galar-mine",
-      "motostoke"
+      "motostoke",
+      "galar-mine"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7572,8 +8047,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Route 5 is a route in central Galar that connects Turffield to Hulbury.",
     "kind": "route",
     "neighbors": [
-      "hulbury",
-      "turffield"
+      "turffield",
+      "hulbury"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7594,8 +8069,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Route 7 is a route in northeast Galar that connects Hammerlocke, Route 8, and the Route 9 Tunnel.",
     "kind": "route",
     "neighbors": [
-      "galar-route-8",
-      "hammerlocke"
+      "hammerlocke",
+      "galar-route-8"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7605,8 +8080,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Route 8 is a route in northeast Galar that connects Route 7 and Circhester. The northern portion of the route is also known as Steamdrift Way.",
     "kind": "route",
     "neighbors": [
-      "circhester",
-      "galar-route-7"
+      "galar-route-7",
+      "circhester"
     ],
     "notableTrainers": [],
     "notable": false
@@ -7644,7 +8119,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ballimere-lake.webp",
     "description": "Ballimere Lake is a location in the Galar region. It contains Dyna Tree Hill and connects to the Giant's Bed to the north and Lakeside Cave to the northeast.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "dyna-tree-hill",
+      "giants-bed",
+      "lakeside-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7673,7 +8152,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/brawlers-cave.webp",
     "description": "Brawlers' Cave is a part of the Isle of Armor in the Galar region. It connects to the Soothing Wetlands in the south, the Training Lowlands in the northwest, Challenge Road in the northeast, and the Workout Sea in the east.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "soothing-wetlands",
+      "training-lowlands",
+      "challenge-road",
+      "workout-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7681,7 +8165,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/bridge-field.webp",
     "description": "Bridge Field is a part of the Wild Area in the Galar region, located northeast of Motostoke, connecting the southern and northern portions of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "motostoke",
+      "motostoke-riverbank",
+      "stony-wilderness"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7697,7 +8185,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/challenge-road.webp",
     "description": "Challenge Road is a part of the Isle of Armor in the Galar region. It connects to Brawlers' Cave in the south and the Training Lowlands in the west.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "brawlers-cave",
+      "training-lowlands"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7706,7 +8197,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Buildings from an age long gone still stand about the steaming hot spring that covers the town.",
     "kind": "town",
     "neighbors": [
-      "galar-route-8"
+      "galar-route-8",
+      "galar-route-9"
     ],
     "notableTrainers": [
       "Gordie",
@@ -7718,7 +8210,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/courageous-cavern.webp",
     "description": "Courageous Cavern is a part of the Isle of Armor in the Galar region. It connects to Challenge Beach in the north, Loop Lagoon in the west, and the Fields of Honor in the east.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "challenge-beach",
+      "loop-lagoon",
+      "fields-of-honor"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7726,7 +8222,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/crown-shrine.webp",
     "description": "The Crown Shrine is a location in the Galar region. It connects to the Path to the Peak to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "path-to-the-peak"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7734,7 +8232,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/dappled-grove.webp",
     "description": "The Dappled Grove is a part of the Wild Area in the Galar region, located in the southwest of the southern portion of the Wild Area.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "rolling-fields",
+      "west-lake-axewell",
+      "watchtower-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7742,7 +8244,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/dusty-bowl.webp",
     "description": "Dusty Bowl is a part of the Wild Area in the Galar region, located in the center of the northern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "stony-wilderness",
+      "hammerlocke-hills",
+      "giants-mirror"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7750,7 +8256,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/dyna-tree-hill.webp",
     "description": "Dyna Tree Hill is a location in the Galar region. It connects to Ballimere Lake to the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "ballimere-lake"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7758,7 +8266,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/east-lake-axewell.webp",
     "description": "East Lake Axewell is a part of the Wild Area in the Galar region, located in the north of the southern portion of the Wild Area.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "west-lake-axewell",
+      "motostoke",
+      "north-lake-miloch",
+      "rolling-fields"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7766,7 +8279,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/fields-of-honor.webp",
     "description": "The Fields of Honor are a part of the Isle of Armor in the Galar region. It connects to the Workout Sea in the south, Loop Lagoon in the west, Courageous Cavern in the northwest, and the Soothing Wetlands in the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "workout-sea",
+      "loop-lagoon",
+      "courageous-cavern",
+      "soothing-wetlands"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7774,7 +8292,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/forest-of-focus.webp",
     "description": "The Forest of Focus is a part of the Isle of Armor in the Galar region. It connects to the Soothing Wetlands in the south, Challenge Beach in the southwest, and the Training Lowlands in the north.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "soothing-wetlands",
+      "challenge-beach",
+      "training-lowlands"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7793,7 +8315,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/frigid-sea.webp",
     "description": "The Frigid Sea is a location in the Galar region. It connects to Roaring-Sea Caves to the east and Three-Point Pass to the southeast.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "roaring-sea-caves",
+      "three-point-pass"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7801,7 +8326,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/frostpoint-field.webp",
     "description": "Frostpoint Field is a location in the Galar region. It connects to Freezington to the north and the Giant's Bed to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "freezington",
+      "giants-bed"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7820,6 +8348,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The Galar Mine No. 2 is a mine that connects Hulbury and Motostoke Outskirts.",
     "kind": "cave",
     "neighbors": [
+      "hulbury",
       "motostoke-outskirts"
     ],
     "notableTrainers": [],
@@ -7829,7 +8358,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/giants-bed.webp",
     "description": "The Giant's Bed is a location in the Galar region. It contains the Old Cemetery in the south, and it connects to Frostpoint Field to the northwest, Snowslide Slope to the northeast, the Giant's Foot to the east, and Ballimere Lake to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "old-cemetery",
+      "frostpoint-field",
+      "snowslide-slope",
+      "giants-foot",
+      "ballimere-lake"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7837,7 +8372,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/giants-foot.webp",
     "description": "The Giant's Foot is a location in the Galar region. It connects to the Giant's Bed to the west and Roaring-Sea Caves to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "giants-bed",
+      "roaring-sea-caves"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7845,7 +8383,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/giants-mirror.webp",
     "description": "The Giant's Mirror is a part of the Wild Area in the Galar region, located in the east of the northern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "stony-wilderness",
+      "dusty-bowl",
+      "hammerlocke-hills"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7853,7 +8395,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/giants-seat.webp",
     "description": "The Giant's Seat is a part of the Wild Area in the Galar region, located in the southeast of the southern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "north-lake-miloch",
+      "south-lake-miloch"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7862,6 +8407,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Glimwood Tangle is a forest in the northwestern part of the Galar region. It lies between Stow-on-Side (to the south) and Ballonlea (to the north).",
     "kind": "forest",
     "neighbors": [
+      "stow-on-side",
       "ballonlea"
     ],
     "notableTrainers": [],
@@ -7872,9 +8418,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A city of great history, living and thriving within castle walls that date back to the middle ages.",
     "kind": "town",
     "neighbors": [
-      "hammerlocke-hills",
+      "galar-route-6",
       "galar-route-7",
-      "galar-route-6"
+      "hammerlocke-hills"
     ],
     "notableTrainers": [
       "Raihan"
@@ -7885,7 +8431,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hammerlocke-hills.webp",
     "description": "The Hammerlocke Hills are a part of the Wild Area in the Galar region, located in the north of the northern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hammerlocke",
+      "giants-cap",
+      "dusty-bowl",
+      "giants-mirror"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7903,7 +8454,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/honeycalm-sea.webp",
     "description": "The Honeycalm Sea is a part of the Isle of Armor in the Galar region. In the connects to the Training Lowlands in the east, Challenge Beach in the south, the Stepping-Stone Sea in the southwest, and the Insular Sea in the west.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "training-lowlands",
+      "challenge-beach",
+      "stepping-stone-sea",
+      "insular-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7912,8 +8468,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A bustling seaport that many visit to see its lively market stalls and famed restaurant.",
     "kind": "town",
     "neighbors": [
-      "galar-mine-no-2",
-      "galar-route-5"
+      "galar-route-5",
+      "galar-mine-no-2"
     ],
     "notableTrainers": [
       "Nessa"
@@ -7932,7 +8488,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/insular-sea.webp",
     "description": "The Insular Sea is a part of the Isle of Armor in the Galar region. It connects to the Honeycalm Sea in the east and the Stepping-Stone Sea in the south.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "honeycalm-sea",
+      "stepping-stone-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7956,7 +8515,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lakeside-cave.webp",
     "description": "Lakeside Cave is a location in the Galar region. It connects to Ballimere Lake.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "ballimere-lake"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7964,7 +8525,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/loop-lagoon.webp",
     "description": "Loop Lagoon is a part of the Isle of Armor in the Galar region. It connects to Courageous Cavern in the north and the Stepping-Stone Sea in the west.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "courageous-cavern",
+      "stepping-stone-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -7993,9 +8557,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "An industrial city studded with steam-powered marvels of modern engineering.",
     "kind": "town",
     "neighbors": [
-      "east-lake-axewell",
+      "galar-route-3",
       "motostoke-outskirts",
-      "galar-route-3"
+      "east-lake-axewell"
     ],
     "notableTrainers": [
       "Kabu"
@@ -8007,6 +8571,7 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The Motostoke Outskirts is an area that connects Galar Mine No. 2 and Motostoke.",
     "kind": "landmark",
     "neighbors": [
+      "galar-mine-no-2",
       "motostoke"
     ],
     "notableTrainers": [],
@@ -8016,7 +8581,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/motostoke-riverbank.webp",
     "description": "The Motostoke Riverbank is a part of the Wild Area in the Galar region, located east of Motostoke, connecting the southern and northern portions of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "motostoke",
+      "north-lake-miloch",
+      "bridge-field"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8024,7 +8593,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/north-lake-miloch.webp",
     "description": "North Lake Miloch is a part of the Wild Area in the Galar region, located in the northeast of the southern portion of the Wild Area.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "east-lake-axewell",
+      "motostoke-riverbank",
+      "giants-seat",
+      "south-lake-miloch"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8040,7 +8614,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/path-to-the-peak.webp",
     "description": "The Path to the Peak is a location in the Galar region. It connects to the Tunnel to the Top to the south and the Crown Shrine to the north.",
     "kind": "mountain",
-    "neighbors": [],
+    "neighbors": [
+      "tunnel-to-the-top",
+      "crown-shrine"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8059,7 +8636,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/potbottom-desert.webp",
     "description": "The Potbottom Desert is a part of the Isle of Armor in the Galar region. It connects to Warm-Up Tunnel to its south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "warm-up-tunnel"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8067,7 +8646,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/roaring-sea-caves.webp",
     "description": "Roaring-Sea Caves is a location in the Galar region. It connects to the Giant's Foot to the south and the Frigid Sea to the east.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "giants-foot",
+      "frigid-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8083,7 +8665,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/rolling-fields.webp",
     "description": "The Rolling Fields are a part of the Wild Area in the Galar region, located in the south of the southern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "meetup-spot",
+      "dappled-grove",
+      "west-lake-axewell",
+      "east-lake-axewell",
+      "south-lake-miloch"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8091,7 +8679,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/slippery-slope.webp",
     "description": "Slippery Slope is a location in the Galar region. It connects to Freezington to the south. The Max Lair is located here, at the northeastern end.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "freezington"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8099,7 +8689,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/slumbering-weald.webp",
     "description": "The Slumbering Weald is a forest in southern Galar, located west of Postwick.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "postwick"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8107,7 +8699,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/snowslide-slope.webp",
     "description": "Snowslide Slope is a part of the Crown Tundra in the Galar region. It connects to the Giant's Bed to the south and the Tunnel to the Top to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "giants-bed",
+      "tunnel-to-the-top"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8115,7 +8710,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/soothing-wetlands.webp",
     "description": "The Soothing Wetlands are a part of the Isle of Armor in the Galar region. It connects to the Fields of Honor in the south, Brawlers' Cave in the northeast, Challenge Beach in the west, and the Forest of Focus in the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "fields-of-honor",
+      "brawlers-cave",
+      "challenge-beach",
+      "forest-of-focus"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8123,7 +8723,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/south-lake-miloch.webp",
     "description": "South Lake Miloch is a part of the Wild Area in the Galar region, located in the east of the southern portion of the Wild Area.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "giants-seat",
+      "north-lake-miloch",
+      "rolling-fields"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8155,8 +8759,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "Route 8 is a route in northeast Galar that connects Route 7 and Circhester. The northern portion of the route is also known as Steamdrift Way.",
     "kind": "route",
     "neighbors": [
-      "circhester",
-      "galar-route-7"
+      "galar-route-7",
+      "circhester"
     ],
     "notableTrainers": [],
     "notable": false
@@ -8165,7 +8769,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/stepping-stone-sea.webp",
     "description": "The Stepping-Stone Sea is a part of the Isle of Armor in the Galar region. It connects to the Workout Sea in the southeast, Loop Lagoon and Challenge Beach in the east, the Honeycalm Sea in the northeast, and the Insular Sea in the north.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "workout-sea",
+      "loop-lagoon",
+      "challenge-beach",
+      "honeycalm-sea",
+      "insular-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8173,7 +8783,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/stony-wilderness.webp",
     "description": "The Stony Wilderness is a part of the Wild Area in the Galar region, located in the south of the northern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "bridge-field",
+      "giants-cap",
+      "dusty-bowl",
+      "giants-mirror"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8182,8 +8797,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A vibrant town that has grown up around an ancient mural tucked away in the mountains.",
     "kind": "town",
     "neighbors": [
-      "glimwood-tangle",
-      "galar-route-6"
+      "galar-route-6",
+      "glimwood-tangle"
     ],
     "notableTrainers": [
       "Bea",
@@ -8195,7 +8810,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/three-point-pass.webp",
     "description": "Three-Point Pass is a location in the Galar region. It connects to the Frigid Sea to the north and Roaring-Sea Caves to the southwest.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "frigid-sea",
+      "roaring-sea-caves"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8223,7 +8841,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/training-lowlands.webp",
     "description": "The Training Lowlands are a part of the Isle of Armor in the Galar region. They connect to Warm-Up Tunnel in the north, Challenge Road in the east, Brawlers' Cave in the southeast, the Forest of Focus in the southwest, and the Honeycalm Sea in the west.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "warm-up-tunnel",
+      "challenge-road",
+      "brawlers-cave",
+      "forest-of-focus",
+      "honeycalm-sea"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8231,7 +8855,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/tunnel-to-the-top.webp",
     "description": "The Tunnel to the Top is a location in the Galar region. It connects to Snowslide Slope to the south and the Path to the Peak to the north.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "snowslide-slope",
+      "path-to-the-peak"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8240,8 +8867,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A town nestled within the nurturing bowl of our many terraced farming fields.",
     "kind": "town",
     "neighbors": [
-      "galar-route-4",
-      "galar-route-5"
+      "galar-route-5",
+      "galar-route-4"
     ],
     "notableTrainers": [
       "Milo"
@@ -8252,7 +8879,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/warm-up-tunnel.webp",
     "description": "Warm-Up Tunnel is a part of the Isle of Armor in the Galar region. It connects to the Training Lowlands to its south and the Potbottom Desert to its north.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "training-lowlands",
+      "potbottom-desert"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8260,7 +8890,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/watchtower-ruins.webp",
     "description": "Watchtower Ruins is a part of the Wild Area in the Galar region, located in the northwest of the southern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "dappled-grove",
+      "west-lake-axewell"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8279,7 +8912,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/west-lake-axewell.webp",
     "description": "West Lake Axewell is a part of the Wild Area in the Galar region, located in the northwest of the southern portion of the Wild Area.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "dappled-grove",
+      "rolling-fields",
+      "east-lake-axewell",
+      "watchtower-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8287,7 +8925,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/workout-sea.webp",
     "description": "The Workout Sea is a part of the Isle of Armor in the Galar region. It connects to the Stepping-Stone Sea to its west, the Fields of Honor to its north, and Brawlers' Cave to its northeast.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "stepping-stone-sea",
+      "fields-of-honor",
+      "brawlers-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8305,7 +8947,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/aipom-hill.webp",
     "description": "Aipom Hill is an area located in the western region of the Cobalt Coastlands of Hisui. It is located south of both the Crossing Slope and Ginkgo Landing, and to the west of both Bathers' Lagoon and Hideaway Bay.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "crossing-slope",
+      "ginkgo-landing",
+      "bathers-lagoon",
+      "hideaway-bay"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8313,7 +8960,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ancient-quarry.webp",
     "description": "Ancient Quarry is an area located in the southern region of the Coronet Highlands of Hisui. It connects Wayward Wood with Sonorous Path.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "wayward-wood",
+      "sonorous-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8321,7 +8971,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/arenas-approach.webp",
     "description": "Arena's Approach is an area located in the western region of the Alabaster Icelands of Hisui. It is located south of Icepeak Arena, north of Avalanche Slopes and Icebound Falls, and northwest of Bonechill Wastes.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "icepeak-arena",
+      "avalanche-slopes",
+      "icebound-falls",
+      "bonechill-wastes"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8329,7 +8984,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/aspiration-hill.webp",
     "description": "Aspiration Hill is an area located in the northwestern part of the Obsidian Fieldlands of Hisui. It is located just southeast of the Fieldlands Camp.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "floaro-gardens",
+      "horseshoe-plains"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8337,7 +8995,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/avalanche-slopes.webp",
     "description": "Avalanche Slopes is an area located in the southwestern region of the Alabaster Icelands of Hisui. It is located south of Arena's Approach and the Icepeak Arena, and northwest of Icebound Falls.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "arenas-approach",
+      "icepeak-arena",
+      "icebound-falls"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8345,7 +9007,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/avaluggs-legacy.webp",
     "description": "Avalugg's Legacy is an area located at the heart of the Alabaster Icelands of Hisui. It is situated south of Lake Acuity and north of Bonechill Wastes.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hisui-lake-acuity",
+      "bonechill-wastes"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8353,7 +9018,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/bathers-lagoon.webp",
     "description": "Bathers' Lagoon is an area located in the southern region of the Cobalt Coastlands of Hisui. It is located east of Aipom Hill, north of Hideaway Bay, and west of Deadwood Haunt.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "aipom-hill",
+      "hideaway-bay",
+      "deadwood-haunt"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8361,7 +9030,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/bolderoll-ravine.webp",
     "description": "Bolderoll Ravine is an area located in the western region of the Coronet Highlands of Hisui. It is located south of Stonetooth Rows, north of Fabled Spring, and west of Primeval Grotto.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "stonetooth-rows",
+      "fabled-spring",
+      "primeval-grotto"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8369,7 +9042,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/bolderoll-slope.webp",
     "description": "Bolderoll Slope is an area located in the central region of the Crimson Mirelands of Hisui. It is located north of the Scarlet Bog and south of the Diamond Settlement.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "scarlet-bog",
+      "diamond-settlement"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8377,7 +9053,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/bonechill-wastes.webp",
     "description": "Bonechill Wastes is an area located in the southern region of the Alabaster Icelands of Hisui. It is located north of Whiteout Valley and south of Avalugg's Legacy.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "whiteout-valley",
+      "avaluggs-legacy"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8385,7 +9064,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/brava-arena.webp",
     "description": "Brava Arena is an area located in the northern region of the Crimson Mirelands of Hisui. It lies north of Cloudpool Ridge and west of the Shrouded Ruins.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cloudpool-ridge",
+      "shrouded-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8393,7 +9075,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/castaway-shore.webp",
     "description": "Castaway Shore is an area located in the central region of the Cobalt Coastlands of Hisui. It is located north of Tranquility Cove, northwest of Ginkgo Landing, and south of Veilstone Cape.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "tranquility-cove",
+      "ginkgo-landing",
+      "veilstone-cape"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8401,7 +9087,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/celestica-ruins.webp",
     "description": "Celestica Ruins is an area located in the central region of the Coronet Highlands of Hisui. It is located north of Clamberclaw Cliffs and Celestica Trail, and east of the Sacred Plaza.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "clamberclaw-cliffs",
+      "celestica-trail",
+      "sacred-plaza"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8409,7 +9099,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/celestica-trail.webp",
     "description": "Celestica Trail is an area located in the central region of the Coronet Highlands of Hisui. It is located north of Sonorous Path and south of Primeval Grotto.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sonorous-path",
+      "primeval-grotto"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8417,7 +9110,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/clamberclaw-cliffs.webp",
     "description": "Clamberclaw Cliffs is an area located in the eastern region of the Coronet Highlands of Hisui. It is located north of the Lonely Spring and south of the Celestica Ruins.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "lonely-spring",
+      "celestica-ruins"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8425,7 +9121,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/cloudcap-pass.webp",
     "description": "Cloudcap Pass is an area located in the northern region of the Coronet Highlands of Hisui. It lies to the north of the Sacred Plaza, as well as the Summit Camp after it is permanently established.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sacred-plaza"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8433,7 +9131,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/cloudpool-ridge.webp",
     "description": "Cloudpool Ridge is an area located in the northwestern region of the Crimson Mirelands of Hisui. It is located between the Brava Arena to the north and Diamond Heath to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "brava-arena",
+      "diamond-heath"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8441,7 +9142,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/cottonsedge-prairie.webp",
     "description": "Cottonsedge Prairie is an area located in the eastern region of the Crimson Mirelands of Hisui. It is located north of the Droning Meadow and south of Lake Valor.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "droning-meadow",
+      "hisui-lake-valor"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8449,7 +9153,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/crossing-slope.webp",
     "description": "Crossing Slope is an area located in the western region of the Cobalt Coastlands of Hisui. It is located just to the east of the Beachside Camp and to the west of Ginkgo Landing.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "ginkgo-landing"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8457,7 +9163,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/deadwood-haunt.webp",
     "description": "Deadwood Haunt is an area located in the southern region of the Cobalt Coastlands of Hisui. It is situated between Bathers' Lagoon and Sand's Reach.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "bathers-lagoon",
+      "sands-reach"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8465,7 +9174,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/deertrack-heights.webp",
     "description": "Deertrack Heights is an area located in the central region of the Obsidian Fieldlands in Hisui. It is located between Deertrack Path to the north, Windswept Run to the west, and Nature's Pantry to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "deertrack-path",
+      "windswept-run",
+      "natures-pantry"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8473,7 +9186,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/deertrack-path.webp",
     "description": "Deertrack Path is an area located in the northern region of the Obsidian Fieldlands of Hisui. It comprises the northwest section of the central island of the fieldlands, branching into Windswept Run to the southwest and Deertrack Heights to the southeast.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "windswept-run",
+      "deertrack-heights"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8481,7 +9197,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/diamond-heath.webp",
     "description": "Diamond Heath is an area located in the northern region of the Crimson Mirelands of Hisui. Cloudpool Ridge lies to the northwest and the Golden Lowlands lies to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cloudpool-ridge",
+      "golden-lowlands"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8489,7 +9208,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/diamond-settlement.webp",
     "description": "Diamond Settlement is a place in Hisui region founded by the Diamond Clan, located in the northern central region of the Crimson Mirelands.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hisui-lake-valor"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8497,7 +9218,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/droning-meadow.webp",
     "description": "The Droning Meadow is an area located in the eastern region of the Crimson Mirelands of Hisui. It lies just to the south of Cottonsedge Prairie.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cottonsedge-prairie"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8505,7 +9228,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/fabled-spring.webp",
     "description": "Fabled Spring is an area located in the southwestern region of the Coronet Highlands of Hisui. It lies south of Bolderoll Ravine and west of Wayward Wood.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "bolderoll-ravine",
+      "wayward-wood"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8513,7 +9239,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/firespit-island.webp",
     "description": "Firespit Island is an island located in the northeastern waters of the Cobalt Coastlands of Hisui. It is located north of Lunker's Lair and northeast of Seagrass Haven.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "lunkers-lair",
+      "seagrass-haven"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8521,7 +9250,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/floaro-gardens.webp",
     "description": "Floaro Gardens is an area located in the northwestern part of the Obsidian Fieldlands of Hisui. It connects to Aspiration Hill to the south and southeast.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "aspiration-hill"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8529,7 +9260,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/gapejaw-bog.webp",
     "description": "The Gapejaw Bog is an area that stretches from the western to the central region of the Crimson Mirelands of Hisui. It extends from the Golden Lowlands to the northwest and Sludge Mound to the southeast.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "golden-lowlands",
+      "sludge-mound",
+      "holm-of-trials"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8537,7 +9272,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ginkgo-landing.webp",
     "description": "Ginkgo Landing is an area located in the western region of the Cobalt Coastlands of Hisui. It is east of Crossing Slope, west of Tranquility Cove, and south of Windbreak Stand.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "crossing-slope",
+      "tranquility-cove",
+      "windbreak-stand"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8545,7 +9284,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/glacier-terrace.webp",
     "description": "Glacier Terrace is an area located in the northwestern region of the Alabaster Icelands of Hisui. It is located north of Snowfall Hot Spring, northwest of Avalugg's Legacy, and west of Lake Acuity.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "snowfall-hot-spring",
+      "avaluggs-legacy",
+      "hisui-lake-acuity"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8553,7 +9296,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/golden-lowlands.webp",
     "description": "The Golden Lowlands is an area located in the western region of the Crimson Mirelands of Hisui. It lies north of Gapejaw Bog.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "gapejaw-bog"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8569,7 +9314,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/grueling-grove.webp",
     "description": "Grueling Grove is an area located in the northeastern region of the Obsidian Fieldlands of Hisui. It lies to the east of Horseshoe Plains and north of Worn Bridge.",
     "kind": "forest",
-    "neighbors": [],
+    "neighbors": [
+      "horseshoe-plains",
+      "worn-bridge"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8577,7 +9325,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hearts-crag.webp",
     "description": "Heart's Crag is an area located in the eastern region of the Alabaster Icelands of Hisui. It is located southeast of the Pearl Settlement and northeast of Avalugg's Legacy.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "pearl-settlement",
+      "avaluggs-legacy"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8585,7 +9336,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/heavenward-lookout.webp",
     "description": "Heavenward Lookout is an area located in the southeastern region of the Coronet Highlands of Hisui. It is across the river to the east of Wayward Wood and south of Lonely Spring.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "wayward-wood",
+      "lonely-spring"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8593,7 +9347,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hideaway-bay.webp",
     "description": "Hideaway Bay is an area located in the southern region of the Cobalt Coastlands of Hisui. It is located south of Bathers' Lagoon and accessible from the east of Aipom Hill.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "bathers-lagoon",
+      "aipom-hill"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8601,7 +9358,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/holm-of-trials.webp",
     "description": "The Holm of Trials is an area located in the southern region of the Crimson Mirelands of Hisui. It is across the river south of Gapejaw Bog and Sludge Mound.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "gapejaw-bog",
+      "sludge-mound"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8609,7 +9369,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/horseshoe-plains.webp",
     "description": "Horseshoe Plains is an area located in the northern region of the Obsidian Fieldlands of Hisui. It connects to Aspiration Hill to the west.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "aspiration-hill"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8617,7 +9379,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ice-column-chamber.webp",
     "description": "Ice Column Chamber is a cave located underneath the Alabaster Icelands of Hisui. Its entrance is located at the northeastern end of Avalanche Slopes, close to Arena's Approach.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "avalanche-slopes"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8625,7 +9389,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/icebound-falls.webp",
     "description": "Icebound Falls is an area located in the southwestern region of the Alabaster Icelands of Hisui. It is located southeast of Avalanche Slopes, south of Arena's Approach, and west of Whiteout Valley and Bonechill Wastes.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "avalanche-slopes",
+      "arenas-approach",
+      "whiteout-valley",
+      "bonechill-wastes"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8633,7 +9402,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/icepeak-arena.webp",
     "description": "Icepeak Arena is an area located in the western region of the Alabaster Icelands of Hisui. It is located south of Snowfall Hot Spring and north of Arena's Approach.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "snowfall-hot-spring",
+      "arenas-approach"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8649,7 +9421,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/islespy-shore.webp",
     "description": "Islespy Shore is an area located in the northern region of the Cobalt Coastlands of Hisui. It is located to the east of Spring Path and north of Veilstone Cape and Windbreak Stand.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "hisui-spring-path",
+      "veilstone-cape",
+      "windbreak-stand"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8689,7 +9465,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lonely-spring.webp",
     "description": "Lonely Spring is an area located in the eastern region of the Coronet Highlands of Hisui. It is located north of Heavenward Lookout, east of Sonorous Path, and south of Clamberclaw Cliffs.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "heavenward-lookout",
+      "sonorous-path",
+      "clamberclaw-cliffs"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8697,7 +9477,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/lunkers-lair.webp",
     "description": "Lunker's Lair is an area located in the eastern region of the Cobalt Coastlands of Hisui. It lies beneath the eastern tip of Veilstone Cape and north of Tranquility Cove.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "veilstone-cape",
+      "tranquility-cove"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8713,7 +9496,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/moonview-arena.webp",
     "description": "Moonview Arena is an area located in the western region of the Coronet Highlands of Hisui. It is located west of the Sacred Plaza.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sacred-plaza"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8721,7 +9506,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/natures-pantry.webp",
     "description": "Nature's Pantry is an area located in the central region of the Obsidian Fieldlands of Hisui. On the central island of the fieldlands, it is connected to Windswept Run and Deertrack Heights to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "windswept-run",
+      "deertrack-heights",
+      "the-heartwood",
+      "tidewater-dam"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8729,7 +9519,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/obsidian-falls.webp",
     "description": "Obsidian Falls is an area located in the eastern portion of the Obsidian Fieldlands in Hisui. The upper portion of the Obsidian Falls can be used to reach The Heartwood.",
     "kind": "water",
-    "neighbors": [],
+    "neighbors": [
+      "oreburrow-tunnel",
+      "grueling-grove"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8753,7 +9546,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/primeval-grotto.webp",
     "description": "Primeval Grotto is an area located in the central region of the Coronet Highlands of Hisui. Its entrance is located north of Celestica Trail.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "celestica-trail"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8761,7 +9556,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ramanas-island.webp",
     "description": "Ramanas Island is an island located in the southwestern waters of the Obsidian Fieldlands of Hisui. Sandgem Flats is located across the river from it to the north.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "sandgem-flats"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8769,7 +9566,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sacred-plaza.webp",
     "description": "Sacred Plaza is an area located in the western region of the Coronet Highlands of Hisui. It is located east of Moonview Arena, west of Celestica Ruins, north of Stonetooth Rows, and south of Cloudcap Pass.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "moonview-arena",
+      "celestica-ruins",
+      "stonetooth-rows",
+      "cloudcap-pass"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8777,7 +9579,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sands-reach.webp",
     "description": "Sand's Reach is an area located in the southeastern region of the Cobalt Coastlands of Hisui. It is found to the east of Deadwood Haunt and north of Tombolo Walk.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "deadwood-haunt",
+      "tombolo-walk",
+      "tranquility-cove"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8785,7 +9591,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sandgem-flats.webp",
     "description": "The Sandgem Flats is an area located in the southwestern region of the Obsidian Fieldlands of Hisui. It connects to Lake Verity and Aspiration Hill to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "hisui-lake-verity",
+      "aspiration-hill"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8793,7 +9602,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/scarlet-bog.webp",
     "description": "Scarlet Bog is an area located in the central region of the Crimson Mirelands of Hisui. It is located between Gapejaw Bog to the west and Bolderoll Slope to the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "gapejaw-bog",
+      "bolderoll-slope"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8801,7 +9613,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/seagrass-haven.webp",
     "description": "Seagrass Haven is an area located in the northern region of the Cobalt Coastlands of Hisui. It rests directly between Firespit Island to the north and Veilstone Cape to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "firespit-island",
+      "veilstone-cape",
+      "lunkers-lair"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8809,7 +9625,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/seaside-hollow.webp",
     "description": "The Seaside Hollow is a small cave located in the northern region of the Cobalt Coastlands of Hisui. It is accessible through an opening on the northern cliffside of Veilstone Cape, which is to the west of the Tidal Passage.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "veilstone-cape"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8817,7 +9635,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/shrouded-ruins.webp",
     "description": "The Shrouded Ruins is an area located in the northern region of the Crimson Mirelands of Hisui. It is located east of Cloudpool Ridge and the Brava Arena, north of Diamond Heath, and northwest of Lake Valor.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "cloudpool-ridge",
+      "brava-arena",
+      "diamond-heath",
+      "hisui-lake-valor"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8825,7 +9648,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sludge-mound.webp",
     "description": "Sludge Mound is an area located in the southern region of the Crimson Mirelands of Hisui. It is bordered by Gapejaw Bog to the west and Ursa's Ring to the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "gapejaw-bog",
+      "ursas-ring"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8833,7 +9659,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/snowfall-hot-spring.webp",
     "description": "Snowfall Hot Spring is an area located in the northwestern region of the Alabaster Icelands of Hisui. It is located just north of Icepeak Arena, south of the Glacier Terrace, and west of Avalugg's Legacy.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "icepeak-arena",
+      "glacier-terrace",
+      "avaluggs-legacy"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8841,7 +9671,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hisui-snowpoint-temple.webp",
     "description": "Snowpoint Temple is a location in Snowpoint City. It is home to the Legendary Pokémon Regigigas. The temple cannot be entered until the player has entered the Hall of Fame and obtained the National Pokédex.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "snowpoint-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8849,7 +9681,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hisui-solaceon-ruins.webp",
     "description": "The Solaceon Ruins is a location in Sinnoh. In the past, during the region's time as Hisui, it is mapped under the Crimson Mirelands.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "solaceon-town",
+      "ruin-maniac-cave"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8857,7 +9692,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/sonorous-path.webp",
     "description": "Sonorous Path is an area located in the southern region of the Coronet Highlands of Hisui. It stretches between the Ancient Quarry to the west and the Lonely Spring to the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "ancient-quarry",
+      "lonely-spring"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8874,8 +9712,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "The fourth lake of Sinnoh that was kept secret.",
     "kind": "route",
     "neighbors": [
-      "sendoff-spring",
-      "sinnoh-route-214"
+      "sinnoh-route-214",
+      "sendoff-spring"
     ],
     "notableTrainers": [],
     "notable": false
@@ -8884,7 +9722,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/stonetooth-rows.webp",
     "description": "Stonetooth Rows is an area located in the western region of the Coronet Highlands of Hisui. It is located south of Sacred Plaza and Moonview Arena, and north of Bolderoll Ravine.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sacred-plaza",
+      "moonview-arena",
+      "bolderoll-ravine"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8892,7 +9734,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/temple-of-sinnoh.webp",
     "description": "The Temple of Sinnoh is a location at the peak of Mount Coronet in the Coronet Highlands of Hisui, built as a monument to Arceus, also known as almighty Sinnoh.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mt-coronet"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8900,7 +9744,12 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/the-heartwood.webp",
     "description": "The Heartwood is an area located in the southeastern region of the Obsidian Fieldlands of Hisui. It connects to Oreburrow Tunnel and Obsidian Falls along the river to the north.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "oreburrow-tunnel",
+      "obsidian-falls",
+      "natures-pantry",
+      "tidewater-dam"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8908,7 +9757,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/tidewater-dam.webp",
     "description": "Tidewater Dam is an area located in the southern region of the Obsidian Fieldlands of Hisui. It connects to Nature's Pantry to the north and The Heartwood to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "natures-pantry",
+      "the-heartwood"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8916,7 +9768,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/tombolo-walk.webp",
     "description": "Tombolo Walk is an area located in the southeastern waters of the Cobalt Coastlands of Hisui. It is located just to the southeast of Sand's Reach and Deadwood Haunt.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sands-reach",
+      "deadwood-haunt"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8924,7 +9779,13 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/tranquility-cove.webp",
     "description": "Tranquility Cove is a body of water located in the central region of the Cobalt Coastlands of Hisui. It touches the shorelines of Castaway Shore, Ginkgo Landing, Bathers' Lagoon, Deadwood Haunt, and Sand's Reach, and leads out into the open ocean to the east.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "castaway-shore",
+      "ginkgo-landing",
+      "bathers-lagoon",
+      "deadwood-haunt",
+      "sands-reach"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8932,7 +9793,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hisui-turnback-cave.webp",
     "description": "Turnback Cave is a cave which is home to the Legendary Pokémon Giratina. In Sinnoh, it is located at the north-central region of Sendoff Spring, which itself may be accessed through the Spring Path.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "sendoff-spring",
+      "hisui-spring-path"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8940,7 +9804,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/ursas-ring.webp",
     "description": "Ursa's Ring is an area located in the southwestern region of the Crimson Mirelands of Hisui. It is south of the Sludge Mound.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "sludge-mound"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8948,7 +9814,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/veilstone-cape.webp",
     "description": "Veilstone Cape is an area located in the center of the Cobalt Coastlands of Hisui. It stretches between Windbreak Stand and Lunker's Lair.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "windbreak-stand",
+      "lunkers-lair"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8956,7 +9825,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/hisui-wayward-cave.webp",
     "description": "Wayward Cave is a multi-floor cave located in western Sinnoh. It lies on Route 206, with two possible entrances hidden beneath the Cycling Road.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "sinnoh-route-206",
+      "wayward-wood"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8964,7 +9836,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/wayward-wood.webp",
     "description": "Wayward Wood is an area located in the southern region of the Coronet Highlands of Hisui. It is across the river west of Heavenward Lookout.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "heavenward-lookout",
+      "ancient-quarry"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8972,7 +9847,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/whiteout-valley.webp",
     "description": "Whiteout Valley is an area located in the southern region of the Alabaster Icelands of Hisui. It is located south of Bonechill Wastes and east of Icebound Falls.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "bonechill-wastes",
+      "icebound-falls"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8980,7 +9858,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/windbreak-stand.webp",
     "description": "Windbreak Stand is an area located in the western region of the Cobalt Coastlands of Hisui. It sits above Crossing Slope to the north and Spring Path to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "crossing-slope",
+      "hisui-spring-path",
+      "veilstone-cape"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8988,7 +9870,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/windswept-run.webp",
     "description": "Windswept Run is an area located in the central region of the Obsidian Fieldlands of Hisui. It is connected to Deertrack Path to the north, Deertrack Heights to the east, and Nature's Pantry to the southeast.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "deertrack-path",
+      "deertrack-heights",
+      "natures-pantry"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -8996,7 +9882,11 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/worn-bridge.webp",
     "description": "Worn Bridge is an area located in the northeastern region of the Obsidian Fieldlands of Hisui. It connects Horseshoe Plains and Grueling Grove to the north and Deertrack Heights to the south.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "horseshoe-plains",
+      "grueling-grove",
+      "deertrack-heights"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9004,7 +9894,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/giants-cap.webp",
     "description": "The Giant's Cap is a part of the Wild Area in the Galar region, located in the west of the northern portion of the Wild Area.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "stony-wilderness",
+      "hammerlocke-hills"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9014,7 +9907,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "kind": "city",
     "neighbors": [
       "alola-route-2",
-      "alola-route-1--hauoli-outskirts"
+      "alola-route-1--hauoli-outskirts",
+      "melemele-sea"
     ],
     "notableTrainers": [],
     "notable": true
@@ -9034,8 +9928,8 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "description": "A major street that has developed so much thanks to the Battle Royal Dome being on it, making it look like a city street.",
     "kind": "route",
     "neighbors": [
-      "alola-route-7",
-      "alola-route-6"
+      "alola-route-6",
+      "alola-route-7"
     ],
     "notableTrainers": [],
     "notable": false
@@ -9148,7 +10042,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/apple-hills.webp",
     "description": "The Apple Hills is a large apple orchard located in Kitakami.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mossui-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9166,7 +10062,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/crystal-pool.webp",
     "description": "The Crystal Pool is a large pool located at Oni Mountain summit in the center of Kitakami. It is one of the Six Wonders of Kitakami.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "oni-mountain"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9202,7 +10100,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/kitakami-hall.webp",
     "description": "Kitakami Hall is a location east of Mossui Town where locals of Kitakami hold the traditional Festival of Masks. Various food stalls are set up during this festival.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mossui-town"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9242,7 +10142,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/mossui-town.webp",
     "description": "Mossui Town is a town in Kitakami, located south of Oni Mountain. It is the only settlement in the land.",
     "kind": "town",
-    "neighbors": [],
+    "neighbors": [
+      "oni-mountain"
+    ],
     "notableTrainers": [],
     "notable": true
   },
@@ -9276,7 +10178,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/revelers-road.webp",
     "description": "Reveler's Road is a road located between Mossui Town and Kitakami Hall in Kitakami.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "mossui-town",
+      "kitakami-hall"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9328,7 +10233,10 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/chargestone-cavern.webp",
     "description": "Not to be confused with Chargestone Cave. The Chargestone Cavern is a cavern within the Terarium, beneath the Polar and Canyon Biomes, located in the Unova region.",
     "kind": "cave",
-    "neighbors": [],
+    "neighbors": [
+      "polar-biome",
+      "canyon-biome"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9408,7 +10316,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/outskirt-stand.webp",
     "description": "A lonely gasoline stand in a desolate desert. Travelers visit it on their journeys.",
     "kind": "landmark",
-    "neighbors": [],
+    "neighbors": [
+      "phenac-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9468,7 +10378,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": null,
     "description": "The construction site for an immense tower, which will have a Colosseum on the top floor.*",
     "kind": "building",
-    "neighbors": [],
+    "neighbors": [
+      "phenac-city"
+    ],
     "notableTrainers": [],
     "notable": false
   },
@@ -9538,7 +10450,9 @@ export const GENERATED_LOCATION_META: Record<string, LocationMetaSeed> = {
     "image": "locations/citadark-isle.webp",
     "description": "A volcanic island ringed by magma.",
     "kind": "island",
-    "neighbors": [],
+    "neighbors": [
+      "gateon-port"
+    ],
     "notableTrainers": [],
     "notable": false
   },
