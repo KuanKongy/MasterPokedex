@@ -24,6 +24,7 @@ const ITEM_SORT_COLUMNS: Record<string, SQL> = {
   id: sql`i.id`,
   name: sql`i.display_name`,
   cost: sql`i.cost`,
+  category: sql`ic.name`,
 };
 
 function itemConditionToSql(condition: ItemFilterCondition): SQL {

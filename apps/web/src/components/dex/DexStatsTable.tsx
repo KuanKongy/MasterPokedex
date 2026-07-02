@@ -1,11 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUp } from 'lucide-react';
 import type { PokemonSortField, PokemonSummary, SortDir } from '@masterpokedex/shared';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
 import ColumnToggle from '../ColumnToggle';
-import HelpTip from '../HelpTip';
+import SortableHead from '../SortableHead';
 import { useColumnPrefs } from '@/hooks/useColumnPrefs';
 import { capitalize } from '../../utils/helpers';
 import { cn } from '@/lib/utils';
@@ -26,45 +25,50 @@ type DexStatsTableProps = {
   sort: PokemonSortField;
   dir: SortDir;
   onSort: (field: PokemonSortField) => void;
+  /** When set, rendered left of the column picker so both share one row. */
+  heading?: React.ReactNode;
 };
 
 const STAT_KEYS = STAT_COLUMNS.map((c) => c.key);
 
 /** The pokemondb-style full-stats view; header clicks re-sort server-side. */
-const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSort }) => {
+const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSort, heading }) => {
   const { spriteStyle } = useSpritePref();
   const { visible, toggle } = useColumnPrefs('dex-stats', STAT_KEYS, STAT_KEYS);
   const shownStats = STAT_COLUMNS.filter((c) => visible.includes(c.key));
 
-  const header = (key: PokemonSortField, label: string, alignRight = false, help?: string) => (
-    <TableHead
-      key={key}
-      onClick={() => onSort(key)}
-      aria-sort={sort === key ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}
-      className={cn('cursor-pointer select-none whitespace-nowrap hover:text-foreground', alignRight && 'text-right')}
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {help && <HelpTip title={label}>{help}</HelpTip>}
-        {sort === key &&
-          (dir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-      </span>
-    </TableHead>
-  );
+  const columnToggle = <ColumnToggle columns={STAT_COLUMNS} visible={visible} onToggle={toggle} />;
 
   return (
     <div>
-      <div className="mb-2 flex justify-end">
-        <ColumnToggle columns={STAT_COLUMNS} visible={visible} onToggle={toggle} />
-      </div>
+      {heading ? (
+        <div className="mb-3 flex items-center justify-between gap-3 border-b pb-2">
+          <div className="flex min-w-0 items-baseline gap-3">{heading}</div>
+          {columnToggle}
+        </div>
+      ) : (
+        <div className="mb-2 flex justify-end">{columnToggle}</div>
+      )}
       <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            {header('id', '#')}
-            {header('name', 'Name')}
-            <TableHead>Types</TableHead>
-            {shownStats.map((col) => header(col.key, col.label, true, col.help))}
+            <SortableHead field="id" label="#" sort={sort} dir={dir} onSort={onSort} className="w-20" />
+            <SortableHead field="name" label="Name" sort={sort} dir={dir} onSort={onSort} className="min-w-[14rem]" />
+            <TableHead className="min-w-[9rem]">Types</TableHead>
+            {shownStats.map((col) => (
+              <SortableHead
+                key={col.key}
+                field={col.key}
+                label={col.label}
+                sort={sort}
+                dir={dir}
+                onSort={onSort}
+                alignRight
+                help={col.help}
+                className="w-20"
+              />
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,7 +84,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
                     onError={(e) => spriteFallback(e, p.id)}
                     className={cn('h-8 w-8 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                   />
-                  {capitalize(p.name)}
+                  {p.formLabel ?? capitalize(p.name)}
                 </Link>
               </TableCell>
               <TableCell>

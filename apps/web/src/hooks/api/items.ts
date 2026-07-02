@@ -1,5 +1,5 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { AdjustItemInput, Item, ItemDetail, Page, TrainerItem } from '@masterpokedex/shared';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AdjustItemInput, Item, ItemDetail, ItemSortField, Page, SortDir, TrainerItem } from '@masterpokedex/shared';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/auth/AuthProvider';
 
@@ -8,13 +8,17 @@ import { useAuth } from '@/auth/AuthProvider';
  * server caps a page, so without the cursor everything past the first page
  * simply never existed as far as the grid was concerned.
  */
-export function useItemCatalogue(params: { category?: string; q?: string } = {}) {
+export function useItemCatalogue(
+  params: { category?: string; q?: string; sort?: ItemSortField; dir?: SortDir } = {},
+) {
   return useInfiniteQuery({
     queryKey: ['items', 'catalogue', params],
     queryFn: ({ pageParam }) => {
       const search = new URLSearchParams();
       if (params.category) search.set('category', params.category);
       if (params.q) search.set('q', params.q);
+      if (params.sort) search.set('sort', params.sort);
+      if (params.dir) search.set('dir', params.dir);
       search.set('limit', '60');
       if (pageParam) search.set('cursor', pageParam);
       return apiFetch<Page<Item>>(`/v1/items?${search}`);
@@ -22,6 +26,8 @@ export function useItemCatalogue(params: { category?: string; q?: string } = {})
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     select: (data) => data.pages.flatMap((page) => page.items),
+    // Sort and filter changes keep the previous rows visible while loading.
+    placeholderData: keepPreviousData,
   });
 }
 

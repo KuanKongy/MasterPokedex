@@ -38,7 +38,7 @@ export const MoveDetailSchema = MoveSummarySchema.extend({
 });
 export type MoveDetail = z.infer<typeof MoveDetailSchema>;
 
-export const MOVE_SORT_FIELDS = ['id', 'name', 'power', 'pp', 'accuracy', 'priority'] as const;
+export const MOVE_SORT_FIELDS = ['id', 'name', 'power', 'pp', 'accuracy', 'priority', 'generation'] as const;
 export const MoveSortFieldSchema = z.enum(MOVE_SORT_FIELDS);
 export type MoveSortField = z.infer<typeof MoveSortFieldSchema>;
 

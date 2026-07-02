@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ITEM_SORT_FIELDS, type ItemSortField, type SortDir } from '@masterpokedex/shared';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import {
   Select,
@@ -11,16 +11,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import ItemSprite from './ItemSprite';
+import SearchField from './SearchField';
+import SegmentedToggle from './SegmentedToggle';
+import SortableHead from './SortableHead';
 import { HoverTip } from './HelpTip';
-import { PackagePlus, Search } from 'lucide-react';
+import { LayoutGrid, List, PackagePlus } from 'lucide-react';
 import { useItemCatalogue, useItemCategories, useAdjustItem } from '@/hooks/api/items';
 import { useAuth } from '@/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { capitalize } from '../utils/helpers';
+import { cn } from '@/lib/utils';
 import LoadingSpinner from './LoadingSpinner';
 
 const ALL = 'all';
+
+/** Price reads best highest-first, so its first click sorts descending. */
+const DESC_FIRST = new Set<ItemSortField>(['cost']);
+
+const ITEM_VIEWS = [
+  { value: 'cards', label: 'Cards', icon: LayoutGrid },
+  { value: 'table', label: 'Table', icon: List },
+] as const;
 
 /**
  * The full item catalogue from the dex (~2200 items) — public browsing, with
@@ -29,8 +42,14 @@ const ALL = 'all';
  */
 const ItemCatalogue: React.FC = () => {
   // The omnisearch deep-links here as /items?q=<name>.
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const initialQuery = params.get('q') ?? '';
+  const view = params.get('view') === 'table' ? 'table' : 'cards';
+  const sortParam = params.get('sort');
+  const sort: ItemSortField = (ITEM_SORT_FIELDS as readonly string[]).includes(sortParam ?? '')
+    ? (sortParam as ItemSortField)
+    : 'name';
+  const dir: SortDir = params.get('dir') === 'desc' ? 'desc' : 'asc';
   const [searchInput, setSearchInput] = useState(initialQuery);
   const [search, setSearch] = useState(initialQuery);
   const [category, setCategory] = useState(ALL);
@@ -38,10 +57,41 @@ const ItemCatalogue: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const patchParams = (patchObj: Record<string, string | null>) => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(patchObj)) {
+          if (value === null || value === '') next.delete(key);
+          else next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const handleSort = (field: ItemSortField) => {
+    const nextDir: SortDir =
+      sort === field ? (dir === 'asc' ? 'desc' : 'asc') : DESC_FIRST.has(field) ? 'desc' : 'asc';
+    patchParams({ sort: field, dir: nextDir });
+  };
+
   const { data: categories } = useItemCategories();
-  const { data: items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useItemCatalogue({
+  const {
+    data: items,
+    isLoading,
+    isFetching,
+    isPlaceholderData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useItemCatalogue({
     category: category === ALL ? undefined : category,
     q: search || undefined,
+    // The card grid keeps the server's name order; only the table sorts.
+    sort: view === 'table' ? sort : undefined,
+    dir: view === 'table' ? dir : undefined,
   });
   const adjust = useAdjustItem();
 
@@ -60,26 +110,16 @@ const ItemCatalogue: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3">
-        <form
-          className="flex flex-1"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSearch(searchInput.trim());
+        <SearchField
+          value={searchInput}
+          onChange={(value) => {
+            setSearchInput(value);
+            if (value === '') setSearch('');
           }}
-        >
-          <Input
-            placeholder="Search items…"
-            value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              if (e.target.value === '') setSearch('');
-            }}
-            className="rounded-r-none"
-          />
-          <Button type="submit" className="rounded-l-none">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
+          onSubmit={() => setSearch(searchInput.trim())}
+          placeholder="Search items…"
+          className="flex-1"
+        />
 
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full sm:w-64">
@@ -94,6 +134,15 @@ const ItemCatalogue: React.FC = () => {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="self-start">
+          <SegmentedToggle
+            options={ITEM_VIEWS}
+            value={view}
+            onChange={(next) => patchParams({ view: next === 'cards' ? null : next })}
+            ariaLabel="Item list style"
+          />
+        </div>
       </div>
 
       {isLoading ? (
@@ -102,33 +151,92 @@ const ItemCatalogue: React.FC = () => {
         </div>
       ) : !items || items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">No items match.</p>
+      ) : view === 'table' ? (
+        // Dimmed while a re-sort or filter refetches, instead of blanking.
+        <div className={cn('overflow-x-auto rounded-md border', isFetching && !isFetchingNextPage && 'opacity-60 transition-opacity')}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <SortableHead field="name" label="Item" sort={sort} dir={dir} onSort={handleSort} className="min-w-[12rem]" />
+                <SortableHead field="category" label="Category" sort={sort} dir={dir} onSort={handleSort} className="w-40" />
+                <SortableHead
+                  field="cost"
+                  label="Price"
+                  sort={sort}
+                  dir={dir}
+                  onSort={handleSort}
+                  alignRight
+                  className="w-24"
+                  help="What a shop charges for it in the games, in Poké Dollars. Here it's just trivia; the bag is free."
+                />
+                <TableHead>Effect</TableHead>
+                <TableHead aria-label="Add to bag" className="w-14" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="whitespace-nowrap font-medium">
+                    <Link to={`/items/${item.name}`} className="flex items-center gap-2 hover:underline">
+                      <ItemSprite src={item.sprite} itemName={item.name} alt="" className="h-8 w-8" />
+                      {item.displayName}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap capitalize">
+                    {item.category.replace(/-/g, ' ')}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-right">
+                    {item.cost !== null && item.cost > 0 ? `₽${item.cost}` : '—'}
+                  </TableCell>
+                  <TableCell className="max-w-md text-sm text-muted-foreground">
+                    <span className="line-clamp-1">{item.effect ?? ''}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="h-8 w-8"
+                      aria-label={`Add ${item.displayName} to bag`}
+                      disabled={adjust.isPending}
+                      onClick={() => addToBag(item.id, item.displayName)}
+                    >
+                      <PackagePlus className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className={cn('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3', isFetching && !isFetchingNextPage && 'opacity-60 transition-opacity')}>
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-3 flex items-center gap-3">
-                <ItemSprite src={item.sprite} itemName={item.name} alt={item.displayName} />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate flex items-center gap-2">
-                    {item.displayName}
-                    {item.cost !== null && item.cost > 0 && (
-                      <HoverTip
-                        title="Price"
-                        trigger={
-                          <Badge variant="outline" className="text-xs shrink-0">
-                            ₽{item.cost}
-                          </Badge>
-                        }
-                      >
-                        What a shop charges for it in the games, in Poké Dollars. Here it's
-                        just trivia; the bag is free.
-                      </HoverTip>
-                    )}
+                <Link to={`/items/${item.name}`} className="group flex flex-1 min-w-0 items-center gap-3">
+                  <ItemSprite src={item.sprite} itemName={item.name} alt={item.displayName} />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate flex items-center gap-2">
+                      <span className="group-hover:underline">{item.displayName}</span>
+                      {item.cost !== null && item.cost > 0 && (
+                        <HoverTip
+                          title="Price"
+                          trigger={
+                            <Badge variant="outline" className="text-xs shrink-0">
+                              ₽{item.cost}
+                            </Badge>
+                          }
+                        >
+                          What a shop charges for it in the games, in Poké Dollars. Here it's
+                          just trivia; the bag is free.
+                        </HoverTip>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground line-clamp-2">
+                      {item.effect ?? capitalize(item.category.replace(/-/g, ' '))}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground line-clamp-2">
-                    {item.effect ?? capitalize(item.category.replace(/-/g, ' '))}
-                  </div>
-                </div>
+                </Link>
                 <Button
                   size="icon"
                   variant="outline"
@@ -146,7 +254,11 @@ const ItemCatalogue: React.FC = () => {
       )}
       {hasNextPage && (
         <div className="mt-6 flex justify-center">
-          <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          <Button
+            variant="outline"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage || isPlaceholderData}
+          >
             {isFetchingNextPage ? 'Loading…' : 'Load more'}
           </Button>
         </div>

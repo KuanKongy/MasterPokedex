@@ -79,11 +79,15 @@ export function decodeAbilityFilter(raw: string | undefined | null): AbilityFilt
   return AbilityFilterSchema.parse(parsed);
 }
 
+export const ABILITY_SORT_FIELDS = ['id', 'name', 'generation', 'pokemonCount'] as const;
+export const AbilitySortFieldSchema = z.enum(ABILITY_SORT_FIELDS);
+export type AbilitySortField = z.infer<typeof AbilitySortFieldSchema>;
+
 export const AbilityListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
   cursor: z.string().min(1).max(512).optional(),
   q: z.string().min(1).max(50).optional(),
-  sort: z.enum(['id', 'name']).default('id'),
+  sort: AbilitySortFieldSchema.default('id'),
   dir: SortDirSchema,
   filter: z.string().max(4096).optional(),
 });

@@ -53,6 +53,14 @@ function conditionToSql(condition: AbilityFilterCondition): SQL {
   }
 }
 
+/** Sortable columns; pokemonCount reuses the filter map's correlated count. */
+const ABILITY_SORT_COLUMNS: Record<string, SQL> = {
+  id: sql`a.id`,
+  name: sql`a.display_name`,
+  generation: sql`a.generation_id`,
+  pokemonCount: sql`(SELECT count(*) FROM dex.pokemon_abilities pa WHERE pa.ability_id = a.id)`,
+};
+
 const ABILITY_COLUMNS = `
   a.id,
   a.name,
@@ -75,7 +83,7 @@ export const abilitiesRoutes = new Hono<AppBindings>()
   .get('/', async (c) => {
     const query = AbilityListQuerySchema.parse(c.req.query());
     const filter = decodeAbilityFilter(query.filter);
-    const sortColumn = query.sort === 'name' ? sql`a.display_name` : sql`a.id`;
+    const sortColumn = ABILITY_SORT_COLUMNS[query.sort] ?? ABILITY_SORT_COLUMNS.id!;
     const ascending = query.dir === 'asc';
     const cursor = decodeCursor(query.cursor);
 
@@ -107,7 +115,7 @@ export const abilitiesRoutes = new Hono<AppBindings>()
 
     let nextCursor: string | null = null;
     if (hasMore && last) {
-      const sortValue = query.sort === 'name' ? last.displayName : last.id;
+      const sortValue = last[query.sort === 'name' ? 'displayName' : query.sort];
       nextCursor = encodeCursor({
         v: typeof sortValue === 'string' || typeof sortValue === 'number' ? sortValue : null,
         id: last.id,

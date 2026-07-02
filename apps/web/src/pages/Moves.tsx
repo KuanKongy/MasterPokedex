@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { DAMAGE_CLASSES, POKEMON_TYPES, type DamageClass, type PokemonTypeName } from '@masterpokedex/shared';
-import { useMoves } from '@/hooks/api/dex';
+import {
+  DAMAGE_CLASSES,
+  MOVE_SORT_FIELDS,
+  POKEMON_TYPES,
+  type MoveSortField,
+  type MoveSummary,
+  type SortDir,
+} from '@masterpokedex/shared';
+import { useAllMoves } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
 import HelpTip from '../components/HelpTip';
+import SearchField from '../components/SearchField';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../components/ui/type-badge';
 import ColumnToggle from '../components/ColumnToggle';
+import SortableHead from '../components/SortableHead';
 import { useColumnPrefs } from '@/hooks/useColumnPrefs';
-import { Search } from 'lucide-react';
 import { capitalize } from '../utils/helpers';
+import { makeComparator } from '../utils/clientSort';
 
 const MOVE_TABLE_COLUMNS = [
   { key: 'type', label: 'Type' },
@@ -25,13 +33,33 @@ const MOVE_TABLE_COLUMNS = [
 ] as const;
 const MOVE_COLUMN_KEYS = MOVE_TABLE_COLUMNS.map((c) => c.key);
 
+/** Stats read best highest-first, so their first click sorts descending. */
+const DESC_FIRST = new Set<MoveSortField>(['power', 'accuracy', 'pp']);
+
+/** name sorts on displayName because the SQL it replaces sorted m.display_name. */
+const MOVE_SORT_GETTERS: Record<MoveSortField, (m: MoveSummary) => string | number | null> = {
+  id: (m) => m.id,
+  name: (m) => m.displayName,
+  power: (m) => m.power,
+  pp: (m) => m.pp,
+  accuracy: (m) => m.accuracy,
+  priority: (m) => m.priority,
+  generation: (m) => m.generation,
+};
+
+const PAGE_SIZE = 100;
+
 /** The full move dex: filterable, linked through to per-move pages. */
 const Moves: React.FC = () => {
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
   const type = params.get('type') ?? 'all';
   const damageClass = params.get('class') ?? 'all';
-  const [searchInput, setSearchInput] = useState(q);
+  const sortParam = params.get('sort');
+  const sort: MoveSortField = (MOVE_SORT_FIELDS as readonly string[]).includes(sortParam ?? '')
+    ? (sortParam as MoveSortField)
+    : 'id';
+  const dir: SortDir = params.get('dir') === 'desc' ? 'desc' : 'asc';
 
   const patch = (patchObj: Record<string, string | null>) => {
     setParams(
@@ -49,13 +77,28 @@ const Moves: React.FC = () => {
 
   const { visible, toggle } = useColumnPrefs('moves', MOVE_COLUMN_KEYS, MOVE_COLUMN_KEYS);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useMoves({
-    q: q || undefined,
-    type: type === 'all' ? undefined : (type as PokemonTypeName),
-    damageClass: damageClass === 'all' ? undefined : (damageClass as DamageClass),
-    limit: 100,
-  });
-  const moves = data?.pages.flatMap((page) => page.items) ?? [];
+  const handleSort = (field: MoveSortField) => {
+    const nextDir: SortDir =
+      sort === field ? (dir === 'asc' ? 'desc' : 'asc') : DESC_FIRST.has(field) ? 'desc' : 'asc';
+    patch({ sort: field, dir: nextDir });
+  };
+
+  // The whole move dex is loaded once and filtered/sorted right here, so
+  // typing, the selects and header clicks all respond without a round trip.
+  const { data: allMoves, isLoading } = useAllMoves();
+  const moves = useMemo(() => {
+    const ql = q.trim().toLowerCase();
+    const filtered = (allMoves ?? []).filter(
+      (m) =>
+        (!ql || m.displayName.toLowerCase().includes(ql) || m.name.toLowerCase().includes(ql)) &&
+        (type === 'all' || m.type === type) &&
+        (damageClass === 'all' || m.damageClass === damageClass),
+    );
+    return filtered.sort(makeComparator(MOVE_SORT_GETTERS[sort], dir));
+  }, [allMoves, q, type, damageClass, sort, dir]);
+
+  const [shown, setShown] = useState(PAGE_SIZE);
+  useEffect(() => setShown(PAGE_SIZE), [q, type, damageClass, sort, dir]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,26 +106,14 @@ const Moves: React.FC = () => {
       <p className="text-muted-foreground mb-8">Every move in the dex — power, accuracy, PP and effect</p>
 
       <div className="mb-6 flex flex-col gap-4 md:flex-row">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            patch({ q: searchInput.trim() || null });
-          }}
-          className="flex flex-1"
-        >
-          <Input
-            placeholder="Search moves…"
-            value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              if (e.target.value === '') patch({ q: null });
-            }}
-            className="rounded-r-none"
-          />
-          <Button type="submit" className="rounded-l-none">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
+        {/* Filters as you type; the whole list is client-side. */}
+        <SearchField
+          value={q}
+          onChange={(value) => patch({ q: value || null })}
+          onSubmit={() => undefined}
+          placeholder="Search moves…"
+          className="flex-1"
+        />
         <Select value={type} onValueChange={(value) => patch({ type: value })}>
           <SelectTrigger className="w-full md:w-44">
             <SelectValue placeholder="Type" />
@@ -120,10 +151,10 @@ const Moves: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Move</TableHead>
-                  {visible.includes('type') && <TableHead>Type</TableHead>}
+                  <SortableHead field="name" label="Move" sort={sort} dir={dir} onSort={handleSort} className="min-w-[11rem]" />
+                  {visible.includes('type') && <TableHead className="w-28">Type</TableHead>}
                   {visible.includes('class') && (
-                    <TableHead>
+                    <TableHead className="w-24">
                       Class
                       <HelpTip title="Damage class" className="ml-1">
                         Physical moves use Attack, special moves use Sp. Attack, and status
@@ -132,42 +163,60 @@ const Moves: React.FC = () => {
                     </TableHead>
                   )}
                   {visible.includes('power') && (
-                    <TableHead className="text-right">
-                      Power
-                      <HelpTip title="Power" className="ml-1">
-                        Base damage; "—" means variable or no direct damage.
-                      </HelpTip>
-                    </TableHead>
+                    <SortableHead
+                      field="power"
+                      label="Power"
+                      sort={sort}
+                      dir={dir}
+                      onSort={handleSort}
+                      alignRight
+                      help={'Base damage; "—" means variable or no direct damage.'}
+                      className="w-20"
+                    />
                   )}
                   {visible.includes('accuracy') && (
-                    <TableHead className="text-right">
-                      Acc.
-                      <HelpTip title="Accuracy" className="ml-1">
-                        Chance to hit, in percent; "—" never misses.
-                      </HelpTip>
-                    </TableHead>
+                    <SortableHead
+                      field="accuracy"
+                      label="Acc."
+                      helpTitle="Accuracy"
+                      sort={sort}
+                      dir={dir}
+                      onSort={handleSort}
+                      alignRight
+                      help={'Chance to hit, in percent; "—" never misses.'}
+                      className="w-20"
+                    />
                   )}
                   {visible.includes('pp') && (
-                    <TableHead className="text-right">
-                      PP
-                      <HelpTip title="PP" className="ml-1">
-                        Power Points: how many uses before resting.
-                      </HelpTip>
-                    </TableHead>
+                    <SortableHead
+                      field="pp"
+                      label="PP"
+                      sort={sort}
+                      dir={dir}
+                      onSort={handleSort}
+                      alignRight
+                      help="Power Points: how many uses before resting."
+                      className="w-20"
+                    />
                   )}
                   {visible.includes('gen') && (
-                    <TableHead className="text-right">
-                      Gen
-                      <HelpTip title="Generation" className="ml-1">
-                        The generation of games that introduced the move.
-                      </HelpTip>
-                    </TableHead>
+                    <SortableHead
+                      field="generation"
+                      label="Gen"
+                      helpTitle="Generation"
+                      sort={sort}
+                      dir={dir}
+                      onSort={handleSort}
+                      alignRight
+                      help="The generation of games that introduced the move."
+                      className="w-20"
+                    />
                   )}
                   {visible.includes('effect') && <TableHead>Effect</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {moves.map((move) => (
+                {moves.slice(0, shown).map((move) => (
                   <TableRow key={move.id}>
                     <TableCell className="whitespace-nowrap font-medium">
                       <Link to={`/moves/${move.name}`} className="hover:underline">
@@ -201,10 +250,10 @@ const Moves: React.FC = () => {
           {moves.length === 0 && (
             <p className="py-12 text-center text-muted-foreground">No moves match those filters.</p>
           )}
-          {hasNextPage && (
+          {moves.length > shown && (
             <div className="mt-6 flex justify-center">
-              <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                {isFetchingNextPage ? 'Loading…' : 'Load more'}
+              <Button variant="outline" onClick={() => setShown((n) => n + PAGE_SIZE)}>
+                Show more ({moves.length - shown} remaining)
               </Button>
             </div>
           )}

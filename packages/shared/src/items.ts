@@ -94,8 +94,9 @@ export function decodeItemFilter(raw: string | undefined | null): ItemFilter {
   return ItemFilterSchema.parse(parsed);
 }
 
-export const ITEM_SORT_FIELDS = ['id', 'name', 'cost'] as const;
+export const ITEM_SORT_FIELDS = ['id', 'name', 'cost', 'category'] as const;
 export const ItemSortFieldSchema = z.enum(ITEM_SORT_FIELDS);
+export type ItemSortField = z.infer<typeof ItemSortFieldSchema>;
 
 export const ItemListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(500).default(200),

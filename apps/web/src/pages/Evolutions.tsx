@@ -1,15 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
 import type { MegaSummary } from '@masterpokedex/shared';
 import { useEvolutionChains, useGmax, useMegas } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EvolutionTree from '../components/pokemon/EvolutionTree';
 import { evolutionCondition } from '../components/pokemon/evolution-utils';
 import { megaCaption } from '../components/pokemon/mega-stones';
+import SearchField from '../components/SearchField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { TypeBadge } from '../components/ui/type-badge';
@@ -66,26 +65,16 @@ const Evolutions: React.FC = () => {
       <p className="text-muted-foreground mb-8">Every family, base form to final evolution</p>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setParams(searchInput.trim() ? { q: searchInput.trim() } : {}, { replace: true });
+        <SearchField
+          value={searchInput}
+          onChange={(value) => {
+            setSearchInput(value);
+            if (value === '') setParams({}, { replace: true });
           }}
-          className="flex w-full max-w-md"
-        >
-          <Input
-            placeholder="Find a family (e.g. eevee)…"
-            value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              if (e.target.value === '') setParams({}, { replace: true });
-            }}
-            className="rounded-r-none"
-          />
-          <Button type="submit" className="rounded-l-none">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
+          onSubmit={() => setParams(searchInput.trim() ? { q: searchInput.trim() } : {}, { replace: true })}
+          placeholder="Find a family (e.g. eevee)…"
+          className="w-full max-w-md"
+        />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex items-center gap-2">
             <Switch id="chains-show-megas" checked={showMegas} onCheckedChange={setMegaOverride} />

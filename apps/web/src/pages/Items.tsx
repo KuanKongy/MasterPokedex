@@ -14,9 +14,10 @@ import { useAuth } from '@/auth/AuthProvider';
  */
 const Items: React.FC = () => {
   const { session } = useAuth();
-  // A ?q= deep link (from the omnisearch) is a catalogue search, not a bag visit.
+  // A ?q= deep link (from the omnisearch) is a catalogue search, not a bag
+  // visit; a ?view= or ?sort= link points at the catalogue's table too.
   const [params] = useSearchParams();
-  const deepLinkedSearch = params.has('q');
+  const deepLinkedSearch = params.has('q') || params.has('view') || params.has('sort');
 
   return (
     <div className="container mx-auto px-4 py-8">

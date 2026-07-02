@@ -27,6 +27,7 @@ const MOVE_SORT_COLUMNS: Record<string, SQL> = {
   pp: sql`m.pp`,
   accuracy: sql`m.accuracy`,
   priority: sql`m.priority`,
+  generation: sql`m.generation_id`,
 };
 
 const MOVE_COLUMNS = `

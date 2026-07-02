@@ -1,10 +1,10 @@
 import React from 'react';
 import { Grid3x3, LayoutGrid, TableProperties } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import SegmentedToggle, { type SegmentedOption } from '../SegmentedToggle';
 
 export type DexView = 'cards' | 'sprites' | 'table';
 
-export const DEX_VIEWS: Array<{ value: DexView; label: string; icon: typeof LayoutGrid }> = [
+export const DEX_VIEWS: ReadonlyArray<SegmentedOption<DexView>> = [
   { value: 'cards', label: 'Cards', icon: LayoutGrid },
   { value: 'sprites', label: 'Sprites', icon: Grid3x3 },
   { value: 'table', label: 'Stats', icon: TableProperties },
@@ -12,21 +12,7 @@ export const DEX_VIEWS: Array<{ value: DexView; label: string; icon: typeof Layo
 
 /** Cards / sprites-only / stats-table — the three ways to browse the dex. */
 const DexViewToggle: React.FC<{ view: DexView; onChange: (view: DexView) => void }> = ({ view, onChange }) => (
-  <div className="inline-flex items-center gap-1 rounded-lg border p-1" role="group" aria-label="List style">
-    {DEX_VIEWS.map((option) => (
-      <Button
-        key={option.value}
-        type="button"
-        size="sm"
-        variant={view === option.value ? 'default' : 'ghost'}
-        aria-pressed={view === option.value}
-        onClick={() => onChange(option.value)}
-      >
-        <option.icon className="h-4 w-4 sm:mr-1.5" />
-        <span className="hidden sm:inline">{option.label}</span>
-      </Button>
-    ))}
-  </div>
+  <SegmentedToggle options={DEX_VIEWS} value={view} onChange={onChange} ariaLabel="List style" />
 );
 
 export default DexViewToggle;

@@ -12,11 +12,12 @@ import DexViewToggle, { type DexView } from '../components/dex/DexViewToggle';
 import DexSpritesGrid from '../components/dex/DexSpritesGrid';
 import DexStatsTable from '../components/dex/DexStatsTable';
 import HelpTip from '../components/HelpTip';
+import SearchField from '../components/SearchField';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, SortDesc, Search } from 'lucide-react';
+import { Plus, SortDesc } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const VIEW_STORAGE_KEY = 'masterpokedex.dexView';
 
@@ -78,25 +79,33 @@ const GenerationSection: React.FC<{
   const { data, isLoading } = usePokemonList({ generation: gen, limit: 200 });
   const pokemon = data?.pages.flatMap((page) => page.items) ?? [];
 
+  const heading = (
+    <>
+      <h2 className="text-xl font-bold">Generation {gen}</h2>
+      <span className="text-sm text-muted-foreground">
+        {region}
+        {pokemon.length > 0 && ` · ${pokemon.length} Pokémon`}
+      </span>
+      <HelpTip title="Generations">
+        A generation is the set of games that introduced these Pokémon, and the region is
+        the world those games take place in.
+      </HelpTip>
+    </>
+  );
+
   return (
     <section className="mb-10" aria-label={`Generation ${gen}`}>
-      <div className="mb-3 flex items-baseline gap-3 border-b pb-2">
-        <h2 className="text-xl font-bold">Generation {gen}</h2>
-        <span className="text-sm text-muted-foreground">
-          {region}
-          {pokemon.length > 0 && ` · ${pokemon.length} Pokémon`}
-        </span>
-        <HelpTip title="Generations">
-          A generation is the set of games that introduced these Pokémon, and the region is
-          the world those games take place in.
-        </HelpTip>
-      </div>
+      {/* In table view the heading moves into the table's toolbar so it shares
+          a row with the column picker instead of stacking above it. */}
+      {(view !== 'table' || isLoading) && (
+        <div className="mb-3 flex items-baseline gap-3 border-b pb-2">{heading}</div>
+      )}
       {isLoading ? (
         <LoadingSpinner />
       ) : view === 'sprites' ? (
         <DexSpritesGrid pokemon={pokemon} />
       ) : view === 'table' ? (
-        <DexStatsTable pokemon={pokemon} sort={sort} dir={dir} onSort={onSort} />
+        <DexStatsTable pokemon={pokemon} sort={sort} dir={dir} onSort={onSort} heading={heading} />
       ) : (
         <CardsGrid pokemon={pokemon} onCatch={onCatch} />
       )}
@@ -200,6 +209,12 @@ const PokemonList: React.FC = () => {
     setCatching(target);
   };
 
+  const showing = (
+    <p className="text-sm text-muted-foreground">
+      Showing {flatPokemon.length} Pokémon{flat.hasNextPage ? ', more below' : ''}
+    </p>
+  );
+
   if (!genMode && flat.error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -223,30 +238,17 @@ const PokemonList: React.FC = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              patchParams({ q: searchInput.trim() || null });
-            }}
-            className="flex w-full"
-          >
-            <div className="relative flex-grow">
-              <Input
-                placeholder="Search Pokémon by name..."
-                value={searchInput}
-                onChange={(e) => {
-                  setSearchInput(e.target.value);
-                  if (e.target.value === '') patchParams({ q: null });
-                }}
-                className="rounded-r-none"
-              />
-            </div>
-            <Button type="submit" className="rounded-l-none">
-              <Search className="h-4 w-4" />
-            </Button>
-          </form>
-        </div>
+        <SearchField
+          value={searchInput}
+          onChange={(value) => {
+            setSearchInput(value);
+            if (value === '') patchParams({ q: null });
+          }}
+          onSubmit={() => patchParams({ q: searchInput.trim() || null })}
+          placeholder="Search Pokémon by name..."
+          aria-label="Search Pokémon by name"
+          className="flex-1"
+        />
 
         <div className="w-full md:w-48 flex-shrink-0">
           <Select
@@ -259,7 +261,10 @@ const PokemonList: React.FC = () => {
               });
             }}
           >
-            <SelectTrigger className="w-full">
+            {/* The closed trigger clones the selected item's children, so the
+                two-line help subtitles are hidden here and shown only in the
+                open list. */}
+            <SelectTrigger className="w-full [&_.item-help]:hidden">
               <div className="flex items-center gap-2">
                 <SortDesc className="h-4 w-4" />
                 <SelectValue placeholder="Sort by" />
@@ -271,7 +276,7 @@ const PokemonList: React.FC = () => {
               <SelectItem value="total">
                 <span className="flex flex-col items-start">
                   Total Stats
-                  <span className="text-xs text-muted-foreground">All six base stats added up</span>
+                  <span className="item-help text-xs text-muted-foreground">All six base stats added up</span>
                 </span>
               </SelectItem>
               <SelectItem value="hp">HP</SelectItem>
@@ -280,13 +285,13 @@ const PokemonList: React.FC = () => {
               <SelectItem value="specialAttack">
                 <span className="flex flex-col items-start">
                   Sp. Attack
-                  <span className="text-xs text-muted-foreground">Powers special (non-physical) moves</span>
+                  <span className="item-help text-xs text-muted-foreground">Powers special (non-physical) moves</span>
                 </span>
               </SelectItem>
               <SelectItem value="specialDefense">
                 <span className="flex flex-col items-start">
                   Sp. Defense
-                  <span className="text-xs text-muted-foreground">Withstands special moves</span>
+                  <span className="item-help text-xs text-muted-foreground">Withstands special moves</span>
                 </span>
               </SelectItem>
               <SelectItem value="speed">Speed</SelectItem>
@@ -327,15 +332,23 @@ const PokemonList: React.FC = () => {
       ) : flat.isLoading ? (
         <LoadingSpinner />
       ) : (
-        <>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Showing {flatPokemon.length} Pokémon{flat.hasNextPage ? ' — more below' : ''}
-          </p>
+        // Re-sorts keep the previous rows on screen (placeholderData) and just
+        // dim them until the new order lands, instead of blanking to a spinner.
+        <div className={cn(flat.isFetching && !flat.isFetchingNextPage && 'opacity-60 transition-opacity')}>
+          {/* In table view the count shares the table's toolbar row with the
+              column picker instead of stacking above it. */}
+          {view !== 'table' && <div className="mb-4">{showing}</div>}
 
           {view === 'sprites' ? (
             <DexSpritesGrid pokemon={flatPokemon} />
           ) : view === 'table' ? (
-            <DexStatsTable pokemon={flatPokemon} sort={sortBy} dir={dir} onSort={handleSort} />
+            <DexStatsTable
+              pokemon={flatPokemon}
+              sort={sortBy}
+              dir={dir}
+              onSort={handleSort}
+              heading={showing}
+            />
           ) : (
             <CardsGrid pokemon={flatPokemon} onCatch={handleCatch} />
           )}
@@ -351,14 +364,14 @@ const PokemonList: React.FC = () => {
             <div className="flex justify-center mt-8">
               <Button
                 onClick={() => flat.fetchNextPage()}
-                disabled={flat.isFetchingNextPage}
+                disabled={flat.isFetchingNextPage || flat.isPlaceholderData}
                 variant="outline"
               >
                 {flat.isFetchingNextPage ? 'Loading…' : 'Load more'}
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
 
       <CatchPokemonDialog pokemon={catching} onClose={() => setCatching(null)} />

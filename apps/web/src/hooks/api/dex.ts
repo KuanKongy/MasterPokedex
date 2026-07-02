@@ -1,11 +1,13 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   type AbilityDetail,
   type AbilityFilter,
+  type AbilitySortField,
   type AbilitySummary,
   type DamageClass,
   type EvolutionChain,
   type ItemFilter,
+  type ItemSortField,
   type ItemSummary,
   type LocationFilter,
   type LocationSearchRow,
@@ -60,6 +62,43 @@ export function useMoves(params: MoveListParams = {}, options: { enabled?: boole
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: options.enabled ?? true,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Follows nextCursor until the list is exhausted; for bounded reference sets. */
+async function fetchAll<T>(path: string, limit: number): Promise<T[]> {
+  const all: T[] = [];
+  let cursor: string | undefined;
+  do {
+    const search = new URLSearchParams({ limit: String(limit) });
+    if (cursor) search.set('cursor', cursor);
+    const page = await apiFetch<Page<T>>(`${path}?${search.toString()}`);
+    all.push(...page.items);
+    cursor = page.nextCursor ?? undefined;
+  } while (cursor);
+  return all;
+}
+
+/**
+ * The whole move dex in one cached query (~919 rows, five requests): the
+ * Moves page filters and sorts client-side, pokemondb-style, so header
+ * clicks and typing cost no round trip.
+ */
+export function useAllMoves() {
+  return useQuery({
+    queryKey: ['moves', 'all'],
+    queryFn: () => fetchAll<MoveSummary>('/v1/moves', 200),
+    staleTime: Infinity,
+  });
+}
+
+/** Same for abilities (~313 rows, two requests). */
+export function useAllAbilities() {
+  return useQuery({
+    queryKey: ['abilities', 'all'],
+    queryFn: () => fetchAll<AbilitySummary>('/v1/abilities', 200),
+    staleTime: Infinity,
   });
 }
 
@@ -74,7 +113,7 @@ export function useMove(idOrName: string | undefined) {
 // ── Abilities ──────────────────────────────────────────────────────────────
 
 export function useAbilities(
-  params: { q?: string; sort?: 'id' | 'name'; dir?: SortDir; filter?: AbilityFilter; limit?: number } = {},
+  params: { q?: string; sort?: AbilitySortField; dir?: SortDir; filter?: AbilityFilter; limit?: number } = {},
   options: { enabled?: boolean } = {},
 ) {
   return useInfiniteQuery({
@@ -94,6 +133,7 @@ export function useAbilities(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: options.enabled ?? true,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -117,6 +157,7 @@ export function useLocationSearch(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: options.enabled ?? true,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -192,7 +233,7 @@ export function usePokemonForms(
 // ── Items (advanced search) ────────────────────────────────────────────────
 
 export function useItemSearch(
-  params: { filter?: ItemFilter; sort?: 'id' | 'name' | 'cost'; dir?: SortDir; limit?: number },
+  params: { filter?: ItemFilter; sort?: ItemSortField; dir?: SortDir; limit?: number },
   options: { enabled?: boolean } = {},
 ) {
   return useInfiniteQuery({
@@ -211,6 +252,7 @@ export function useItemSearch(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: options.enabled ?? true,
+    placeholderData: keepPreviousData,
   });
 }
 
