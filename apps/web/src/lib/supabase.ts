@@ -12,8 +12,16 @@ import { createClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'public-anon-key-not-configured';
 
-if (!import.meta.env.VITE_SUPABASE_URL) {
-  console.warn('[auth] VITE_SUPABASE_URL is not set — sign-in is disabled until .env is configured.');
+/**
+ * False when the URL is missing or is the placeholder that the offline docker
+ * recipe hardcodes; the login page uses this to say so instead of letting a
+ * fetch to a dead domain fail with the browser's opaque network error.
+ */
+export const isSupabaseConfigured =
+  Boolean(import.meta.env.VITE_SUPABASE_URL) && !url.includes('placeholder.supabase.co');
+
+if (!isSupabaseConfigured) {
+  console.warn('[auth] VITE_SUPABASE_URL is not set (or is the offline placeholder); sign-in is disabled until .env is configured.');
 }
 
 export const supabase = createClient(url, anonKey);

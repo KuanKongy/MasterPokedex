@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,22 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MailCheck } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useAuth } from '@/auth/AuthProvider';
+
+/**
+ * Safari reports a failed fetch as "Load failed", Chrome as "Failed to
+ * fetch", and supabase-js passes either through verbatim. Neither tells the
+ * user anything, so translate them into the two real causes.
+ */
+const NETWORK_ERROR = /load failed|failed to fetch|networkerror|network request failed/i;
+
+function explainAuthError(message: string): string {
+  if (NETWORK_ERROR.test(message)) {
+    return 'Could not reach the sign-in service. The Supabase project may be paused or unreachable, or this stack may be running in offline mode. Check your .env and how you started docker compose.';
+  }
+  return message;
+}
 
 /**
  * Email/password auth. Sign-up intentionally treats "check your email" as the
@@ -33,12 +47,13 @@ const Login: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSupabaseConfigured) return;
     setError(null);
     setSubmitting(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (signInError) {
-      setError(signInError.message);
+      setError(explainAuthError(signInError.message));
       return;
     }
     navigate(from, { replace: true });
@@ -46,12 +61,13 @@ const Login: React.FC = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSupabaseConfigured) return;
     setError(null);
     setSubmitting(true);
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
     setSubmitting(false);
     if (signUpError) {
-      setError(signUpError.message);
+      setError(explainAuthError(signUpError.message));
       return;
     }
     if (data.session) {
@@ -135,6 +151,16 @@ const Login: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {!isSupabaseConfigured && (
+            <Alert className="mb-4">
+              <AlertTitle>Sign-in is off in this build</AlertTitle>
+              <AlertDescription>
+                This stack is running in offline mode without a Supabase project, so accounts
+                are unavailable. Browsing the dex works normally. To enable sign-in, stop the
+                offline stack and run <code>docker compose up --build</code> with a filled .env.
+              </AlertDescription>
+            </Alert>
+          )}
           <Tabs defaultValue="signin" onValueChange={() => setError(null)}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
@@ -143,7 +169,7 @@ const Login: React.FC = () => {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4 pt-4">
                 {fields('current-password')}
-                <Button type="submit" className="w-full" disabled={submitting}>
+                <Button type="submit" className="w-full" disabled={submitting || !isSupabaseConfigured}>
                   {submitting ? 'Signing in…' : 'Sign in'}
                 </Button>
               </form>
@@ -151,11 +177,19 @@ const Login: React.FC = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4 pt-4">
                 {fields('new-password')}
-                <Button type="submit" className="w-full" disabled={submitting}>
+                <Button type="submit" className="w-full" disabled={submitting || !isSupabaseConfigured}>
                   {submitting ? 'Creating account…' : 'Create account'}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  By creating an account you agree to our Terms of Service and Privacy Policy.
+                  By creating an account you agree to our{' '}
+                  <Link to="/terms" className="underline">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/privacy" className="underline">
+                    Privacy Policy
+                  </Link>
+                  .
                 </p>
               </form>
             </TabsContent>

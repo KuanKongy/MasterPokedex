@@ -34,6 +34,8 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local
 
 The `seed` service hardcodes `db:5432` and caches the 41 PokeAPI CSVs in the `masterpokedex-dexcache` volume, so re-seeding skips the download. The first dex seed inserts ~250k rows — expect a few minutes. Authenticated routes in this mode accept HS256 tokens minted with `SUPABASE_JWT_SECRET`.
 
+The offline override hardcodes a placeholder Supabase URL, so signing in and creating accounts are disabled and the login page says so. To test real auth, stop this stack (`docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local down`) and run plain `docker compose up --build` against a filled `.env`.
+
 ## Supabase setup (one-time per project)
 
 1. **Fill `.env`** from the Supabase dashboard (Project Settings → Database / API):
