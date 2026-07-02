@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BOOLEAN_OPS, NUMBER_OPS, STRING_OPS } from './filters';
+import { LocationItemSchema } from './items';
 import { PokemonTypeSchema } from './pokemon';
 
 /**
@@ -105,6 +106,7 @@ export type LocationArea = z.infer<typeof LocationAreaSchema>;
 
 export const LocationDetailSchema = LocationSummarySchema.extend({
   areas: z.array(LocationAreaSchema),
+  items: z.array(LocationItemSchema).default([]),
   neighbors: z.array(
     z.object({
       id: z.number().int().positive(),

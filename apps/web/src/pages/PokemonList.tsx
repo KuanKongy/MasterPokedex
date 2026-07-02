@@ -248,11 +248,7 @@ const PokemonList: React.FC = () => {
           </form>
         </div>
 
-        <div className="flex w-full items-center gap-1 md:w-52 flex-shrink-0">
-          <HelpTip title="Sorting">
-            Sorts every generation's list at once. “Total Stats” is the six base stats added
-            up; Sp. Attack and Sp. Defense power and withstand special (non-physical) moves.
-          </HelpTip>
+        <div className="w-full md:w-48 flex-shrink-0">
           <Select
             value={sortBy}
             onValueChange={(value) => {
@@ -272,12 +268,27 @@ const PokemonList: React.FC = () => {
             <SelectContent>
               <SelectItem value="id">Number</SelectItem>
               <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="total">Total Stats</SelectItem>
+              <SelectItem value="total">
+                <span className="flex flex-col items-start">
+                  Total Stats
+                  <span className="text-xs text-muted-foreground">All six base stats added up</span>
+                </span>
+              </SelectItem>
               <SelectItem value="hp">HP</SelectItem>
               <SelectItem value="attack">Attack</SelectItem>
               <SelectItem value="defense">Defense</SelectItem>
-              <SelectItem value="specialAttack">Sp. Attack</SelectItem>
-              <SelectItem value="specialDefense">Sp. Defense</SelectItem>
+              <SelectItem value="specialAttack">
+                <span className="flex flex-col items-start">
+                  Sp. Attack
+                  <span className="text-xs text-muted-foreground">Powers special (non-physical) moves</span>
+                </span>
+              </SelectItem>
+              <SelectItem value="specialDefense">
+                <span className="flex flex-col items-start">
+                  Sp. Defense
+                  <span className="text-xs text-muted-foreground">Withstands special moves</span>
+                </span>
+              </SelectItem>
               <SelectItem value="speed">Speed</SelectItem>
             </SelectContent>
           </Select>

@@ -401,12 +401,11 @@ const PokemonDetail: React.FC = () => {
             <TabsContent value="locations" className="pt-4">
               {encountersByLocation.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
-                  No known wild encounters — this Pokémon may only be obtained by evolution or
-                  events.
-                  <HelpTip title="Events" className="ml-1">
+                  No known wild encounters — this Pokémon may only be obtained by evolution or{' '}
+                  <HoverTip title="Events" trigger={<>events</>}>
                     Limited-time distributions: Pokémon handed out at shops, shows or online
                     rather than met in the wild.
-                  </HelpTip>
+                  </HoverTip>.
                 </p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

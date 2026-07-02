@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Map from "./pages/Map";
 import Trainer from "./pages/Trainer";
 import Items from "./pages/Items";
+import ItemDetail from "./pages/ItemDetail";
 import PokemonFilter from "./pages/PokemonFilter";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
@@ -80,6 +81,7 @@ const App = () => {
                       <Route path="/trainer" element={<Trainer />} />
                     </Route>
                     <Route path="/items" element={<Items />} />
+                    <Route path="/items/:name" element={<ItemDetail />} />
                     <Route path="/pokemon-filter" element={<PokemonFilter />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/settings" element={<Settings />} />

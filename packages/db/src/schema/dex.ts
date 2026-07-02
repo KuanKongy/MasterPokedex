@@ -460,3 +460,29 @@ export const items = dex.table(
   },
   (t) => [index('items_category_idx').on(t.categoryId)],
 );
+
+/**
+ * Ours, parsed from Bulbapedia's {{Itemlist}} rows (see
+ * scripts/parse-bulbapedia-location-items.mjs): the field items a location
+ * holds, with a where-note and a hidden flag. `itemId` is null when the
+ * label doesn't resolve to a dex item (event exclusives, odd spellings);
+ * the label still renders.
+ */
+export const locationItems = dex.table(
+  'location_items',
+  {
+    id: integer('id').primaryKey(),
+    locationId: integer('location_id')
+      .notNull()
+      .references(() => locations.id, { onDelete: 'cascade' }),
+    itemId: integer('item_id').references(() => items.id, { onDelete: 'cascade' }),
+    label: text('label').notNull(),
+    note: text('note'),
+    hidden: boolean('hidden').notNull().default(false),
+    spots: smallint('spots').notNull().default(1),
+  },
+  (t) => [
+    index('location_items_location_idx').on(t.locationId),
+    index('location_items_item_idx').on(t.itemId),
+  ],
+);

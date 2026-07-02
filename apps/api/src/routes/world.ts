@@ -245,7 +245,7 @@ export const worldRoutes = new Hono<AppBindings>()
 
     if (!location) throw ApiError.notFound('Location');
 
-    const [areaRows, neighbours] = await Promise.all([
+    const [areaRows, neighbours, itemRows] = await Promise.all([
       c.var.db.execute(sql`
         SELECT
           la.id            AS "areaId",
@@ -287,6 +287,20 @@ export const worldRoutes = new Hono<AppBindings>()
             )})
             ORDER BY display_name
           `),
+      c.var.db.execute(sql`
+        SELECT
+          li.label,
+          li.note,
+          li.hidden,
+          li.spots,
+          i.name         AS "itemName",
+          i.display_name AS "itemDisplayName",
+          i.sprite
+        FROM dex.location_items li
+        LEFT JOIN dex.items i ON i.id = li.item_id
+        WHERE li.location_id = ${id}
+        ORDER BY li.label
+      `),
     ]);
 
     // One flat join, grouped here rather than issuing a query per area.
@@ -309,5 +323,10 @@ export const worldRoutes = new Hono<AppBindings>()
       area.encounters.push({ ...encounter, rarity: rarityFromChance(row.chance ?? 0) });
     }
 
-    return c.json({ ...location, areas: [...areas.values()], neighbors: neighbours as unknown as unknown[] });
+    return c.json({
+      ...location,
+      areas: [...areas.values()],
+      neighbors: neighbours as unknown as unknown[],
+      items: itemRows as unknown as unknown[],
+    });
   });

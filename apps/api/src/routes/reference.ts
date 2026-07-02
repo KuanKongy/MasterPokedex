@@ -172,6 +172,49 @@ export const referenceRoutes = new Hono<AppBindings>()
     return c.json({ items: page, nextCursor });
   })
 
+  /** GET /v1/items/:idOrName — one item, plus every place it can be picked up. */
+  .get('/items/:idOrName', async (c) => {
+    const raw = c.req.param('idOrName');
+    const byId = /^\d+$/.test(raw);
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        i.id,
+        i.name,
+        i.display_name  AS "displayName",
+        ic.name         AS category,
+        ic.display_name AS "categoryName",
+        ic.pocket,
+        i.short_effect  AS effect,
+        i.sprite,
+        i.cost,
+        i.fling_power   AS "flingPower"
+      FROM dex.items i
+      JOIN dex.item_categories ic ON ic.id = i.category_id
+      WHERE ${byId ? sql`i.id = ${Number(raw)}` : sql`i.name = ${raw.toLowerCase()}`}
+      LIMIT 1
+    `)) as unknown as Record<string, unknown>[];
+    const item = rows[0];
+    if (!item) return c.json({ error: { code: 'not_found', message: 'No such item' } }, 404);
+
+    const locations = (await c.var.db.execute(sql`
+      SELECT
+        l.id           AS "locationId",
+        l.display_name AS "locationName",
+        r.display_name AS "regionName",
+        li.note,
+        li.hidden,
+        li.spots
+      FROM dex.location_items li
+      JOIN dex.locations l ON l.id = li.location_id
+      LEFT JOIN dex.regions r ON r.id = l.region_id
+      WHERE li.item_id = ${item.id as number}
+      ORDER BY r.display_name NULLS LAST, l.display_name
+      LIMIT 120
+    `)) as unknown as unknown[];
+
+    return c.json({ ...item, locations });
+  })
+
   /** GET /v1/typechart — the whole 18×18 efficacy matrix in one query. */
   .get('/typechart', async (c) => {
     const rows = await c.var.db.execute(sql`

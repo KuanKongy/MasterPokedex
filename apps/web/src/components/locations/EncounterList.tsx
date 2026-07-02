@@ -31,22 +31,26 @@ const METHOD_HELP: Record<string, string> = {
   'grand-underground': 'Found in the Grand Underground’s caverns beneath Sinnoh.',
 };
 
-const MethodHeading: React.FC<{ method: string; compact?: boolean }> = ({ method, compact }) => (
-  <h4
-    className={
-      compact
-        ? 'mb-1 text-xs font-semibold capitalize text-muted-foreground'
-        : 'mb-2 text-sm font-semibold capitalize text-muted-foreground'
-    }
-  >
-    {method.replace(/-/g, ' ')}
-    {METHOD_HELP[method] && (
-      <HelpTip title={method.replace(/-/g, ' ')} className="ml-1">
-        {METHOD_HELP[method]}
-      </HelpTip>
-    )}
-  </h4>
-);
+const MethodHeading: React.FC<{ method: string; compact?: boolean }> = ({ method, compact }) => {
+  const label = method.replace(/-/g, ' ');
+  const heading = (
+    <h4
+      className={
+        compact
+          ? 'mb-1 text-xs font-semibold capitalize text-muted-foreground'
+          : 'mb-2 text-sm font-semibold capitalize text-muted-foreground'
+      }
+    >
+      {label}
+    </h4>
+  );
+  if (!METHOD_HELP[method]) return heading;
+  return (
+    <HoverTip title={label} className="capitalize" trigger={heading}>
+      {METHOD_HELP[method]}
+    </HoverTip>
+  );
+};
 
 /** area encounters, grouped by method, each method sorted by rarity desc. */
 function groupByMethod(encounters: AreaEncounter[]): Array<{ method: string; rows: AreaEncounter[] }> {

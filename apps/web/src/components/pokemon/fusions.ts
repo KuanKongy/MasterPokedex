@@ -17,15 +17,17 @@ export type Fusion = {
   partnerId: number;
   partnerName: string;
   item: string;
+  /** The key item's dex identifier, or null when the dex has no page for it. */
+  itemSlug: string | null;
 };
 
 export const FUSIONS: Fusion[] = [
-  { formName: 'kyurem-black', formId: 10022, formLabel: 'Black Kyurem', baseId: 646, baseName: 'Kyurem', partnerId: 644, partnerName: 'Zekrom', item: 'DNA Splicers' },
-  { formName: 'kyurem-white', formId: 10023, formLabel: 'White Kyurem', baseId: 646, baseName: 'Kyurem', partnerId: 643, partnerName: 'Reshiram', item: 'DNA Splicers' },
-  { formName: 'necrozma-dusk', formId: 10155, formLabel: 'Dusk Mane Necrozma', baseId: 800, baseName: 'Necrozma', partnerId: 791, partnerName: 'Solgaleo', item: 'N-Solarizer' },
-  { formName: 'necrozma-dawn', formId: 10156, formLabel: 'Dawn Wings Necrozma', baseId: 800, baseName: 'Necrozma', partnerId: 792, partnerName: 'Lunala', item: 'N-Lunarizer' },
-  { formName: 'calyrex-ice', formId: 10193, formLabel: 'Ice Rider Calyrex', baseId: 898, baseName: 'Calyrex', partnerId: 896, partnerName: 'Glastrier', item: 'Reins of Unity' },
-  { formName: 'calyrex-shadow', formId: 10194, formLabel: 'Shadow Rider Calyrex', baseId: 898, baseName: 'Calyrex', partnerId: 897, partnerName: 'Spectrier', item: 'Reins of Unity' },
+  { formName: 'kyurem-black', formId: 10022, formLabel: 'Black Kyurem', baseId: 646, baseName: 'Kyurem', partnerId: 644, partnerName: 'Zekrom', item: 'DNA Splicers', itemSlug: 'dna-splicers' },
+  { formName: 'kyurem-white', formId: 10023, formLabel: 'White Kyurem', baseId: 646, baseName: 'Kyurem', partnerId: 643, partnerName: 'Reshiram', item: 'DNA Splicers', itemSlug: 'dna-splicers' },
+  { formName: 'necrozma-dusk', formId: 10155, formLabel: 'Dusk Mane Necrozma', baseId: 800, baseName: 'Necrozma', partnerId: 791, partnerName: 'Solgaleo', item: 'N-Solarizer', itemSlug: null },
+  { formName: 'necrozma-dawn', formId: 10156, formLabel: 'Dawn Wings Necrozma', baseId: 800, baseName: 'Necrozma', partnerId: 792, partnerName: 'Lunala', item: 'N-Lunarizer', itemSlug: null },
+  { formName: 'calyrex-ice', formId: 10193, formLabel: 'Ice Rider Calyrex', baseId: 898, baseName: 'Calyrex', partnerId: 896, partnerName: 'Glastrier', item: 'Reins of Unity', itemSlug: 'reins-of-unity' },
+  { formName: 'calyrex-shadow', formId: 10194, formLabel: 'Shadow Rider Calyrex', baseId: 898, baseName: 'Calyrex', partnerId: 897, partnerName: 'Spectrier', item: 'Reins of Unity', itemSlug: 'reins-of-unity' },
 ];
 
 export const FUSION_BY_FORM = new Map(FUSIONS.map((fusion) => [fusion.formName, fusion]));

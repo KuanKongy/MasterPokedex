@@ -45,6 +45,7 @@ export async function loadTable<T extends Record<string, unknown>>(
 export async function truncateDex(sql: Sql): Promise<void> {
   await sql`
     TRUNCATE TABLE
+      dex.location_items,
       dex.encounters,
       dex.encounter_methods,
       dex.location_meta,

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useLocationDetail } from '@/hooks/api/world';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EncounterList from '../components/locations/EncounterList';
+import LocationItemChips from '../components/locations/LocationItemChips';
 import HelpTip from '../components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Map as MapIcon, MapPin, Swords } from 'lucide-react';
@@ -119,6 +120,21 @@ const LocationDetailPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {location.items.length > 0 && (
+        <>
+          <h2 className="mb-3 text-2xl font-bold">
+            Items found here
+            <HelpTip title="Field items" className="ml-1">
+              Pickups lying in the overworld, straight from the games; hover a chip for
+              exactly where. Shop stock isn't listed.
+            </HelpTip>
+          </h2>
+          <div className="mb-8">
+            <LocationItemChips items={location.items} />
+          </div>
+        </>
+      )}
 
       <h2 className="mb-4 text-2xl font-bold">
         Pokémon Encounters

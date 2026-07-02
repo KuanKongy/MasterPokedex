@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { AdjustItemInput, Item, Page, TrainerItem } from '@masterpokedex/shared';
+import type { AdjustItemInput, Item, ItemDetail, Page, TrainerItem } from '@masterpokedex/shared';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/auth/AuthProvider';
 
@@ -22,6 +22,15 @@ export function useItemCatalogue(params: { category?: string; q?: string } = {})
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     select: (data) => data.pages.flatMap((page) => page.items),
+  });
+}
+
+export function useItemDetail(name: string) {
+  return useQuery({
+    queryKey: ['items', 'detail', name],
+    queryFn: () => apiFetch<ItemDetail>(`/v1/items/${encodeURIComponent(name)}`),
+    enabled: name.length > 0,
+    staleTime: Infinity,
   });
 }
 

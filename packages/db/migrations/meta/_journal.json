@@ -43,6 +43,13 @@
       "when": 1789981690651,
       "tag": "0005_evolution_detail",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790666127962,
+      "tag": "0006_location_items",
+      "breakpoints": true
     }
   ]
 }

@@ -59,6 +59,11 @@ export function megaStoneOf(formName: string): string | null {
   return MEGA_STONES[formName] ?? null;
 }
 
+/** The stone's dex item identifier ("Charizardite X" → charizardite-x). */
+export function megaStoneSlug(stone: string): string {
+  return stone.toLowerCase().replace(/ /g, '-');
+}
+
 /** The chain caption for a Mega node: the stone by name where one exists. */
 export function megaCaption(formName: string): string {
   if (formName === 'rayquaza-mega') return 'Knows Dragon Ascent';

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '../LoadingSpinner';
 import EncounterList from './EncounterList';
+import LocationItemChips from './LocationItemChips';
 import HelpTip from '../HelpTip';
 import { resolveAsset } from '@/lib/assets';
 
@@ -124,6 +125,13 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
                   )}
                 </div>
               </div>
+
+              {location.items.length > 0 && (
+                <div>
+                  <h3 className="mb-1.5 text-sm font-semibold">Items found here</h3>
+                  <LocationItemChips items={location.items} compact limit={8} />
+                </div>
+              )}
 
               <div>
                 <h3 className="mb-1.5 text-sm font-semibold">Pokémon Encounters</h3>

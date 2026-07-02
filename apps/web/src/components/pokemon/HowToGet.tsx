@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import HelpTip, { HoverTip } from '../HelpTip';
 import { evolutionCondition } from './evolution-utils';
 import { FUSION_BY_FORM, fusionsOf } from './fusions';
-import { megaStoneOf } from './mega-stones';
+import { megaStoneOf, megaStoneSlug } from './mega-stones';
 import { capitalize } from '../../utils/helpers';
 
 type Props = {
@@ -45,7 +45,15 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         <Link to={`/pokemon/${fusion.partnerId}`} className="font-medium text-pokebrand-red hover:underline">
           {fusion.partnerName}
         </Link>{' '}
-        using the <strong>{fusion.item}</strong>. A reversible item fusion, not an evolution:{' '}
+        using the{' '}
+        {fusion.itemSlug ? (
+          <Link to={`/items/${fusion.itemSlug}`} className="font-semibold hover:underline">
+            {fusion.item}
+          </Link>
+        ) : (
+          <strong>{fusion.item}</strong>
+        )}
+        . A reversible item fusion, not an evolution:{' '}
         {fusion.partnerName} is stored while fused.
       </>,
     );
@@ -70,6 +78,14 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
           >
             {pokemon.speciesName}'s own Mega Stone, a held item; with a bonded trainer's Key
             Stone it unlocks the Mega form in battle.
+            {stone && (
+              <Link
+                to={`/items/${megaStoneSlug(stone)}`}
+                className="mt-2 block text-xs font-medium underline"
+              >
+                Open {stone} in the item dex →
+              </Link>
+            )}
           </HoverTip>
           . The form lasts until the battle ends.
         </>
@@ -123,7 +139,15 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
             <Link to={`/pokemon/${f.partnerId}`} className="font-medium text-pokebrand-red hover:underline">
               {f.partnerName}
             </Link>{' '}
-            ({f.item} →{' '}
+            (
+            {f.itemSlug ? (
+              <Link to={`/items/${f.itemSlug}`} className="hover:underline">
+                {f.item}
+              </Link>
+            ) : (
+              f.item
+            )}{' '}
+            →{' '}
             <Link to={`/pokemon/${f.formId}`} className="font-medium text-pokebrand-red hover:underline">
               {f.formLabel}
             </Link>
@@ -159,11 +183,11 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
   if (pokemon.species.isLegendary || pokemon.species.isMythical) {
     lines.push(
       <>
-        {pokemon.species.isMythical ? 'Mythical' : 'Legendary'}: one per save file in the games
-        it appears in.
-        <HelpTip title="One per save">
+        {pokemon.species.isMythical ? 'Mythical' : 'Legendary'}:{' '}
+        <HoverTip title="One per save" trigger={<>one per save file</>}>
           The games place a single one in the world per playthrough, with no wild respawns.
-        </HelpTip>
+        </HoverTip>{' '}
+        in the games it appears in.
       </>,
     );
   }

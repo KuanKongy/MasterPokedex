@@ -41,6 +41,7 @@ import {
   GENERATED_ENCOUNTER_METHODS,
   GENERATED_LOCATION_AREAS,
 } from './data/encounters.generated';
+import { GENERATED_LOCATION_ITEMS } from './data/location-items.generated';
 
 /** stat_id → column. Order matters for nothing; the mapping does. */
 const STAT_COLUMN: Record<number, 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed'> =
@@ -851,6 +852,46 @@ async function main() {
         shortEffect: itemEffectById.get(int(r.id)) ?? GENERATED_ITEM_EFFECTS[r.identifier!] ?? null,
       }));
 
+    // ── location items (Bulbapedia field pickups) ───────────────────────────
+    // Labels resolve to dex items by display name, or for discs by their
+    // identifier (TM27 → tm27); unresolved labels load with a null item id
+    // and still render by label.
+    // Straight quotes on both sides: Bulbapedia writes King's Rock, PokeAPI King’s.
+    const plainName = (name: string) => name.toLowerCase().replace(/[\u2018\u2019]/g, "'");
+    const itemIdByDisplay = new Map(itemRows.map((i) => [plainName(i.displayName), i.id]));
+    const itemIdByIdent = new Map(itemRows.map((i) => [i.name, i.id]));
+    let locationItemId = 0;
+    let unresolvedItemLabels = 0;
+    const locationItemRows: Array<{
+      id: number; locationId: number; itemId: number | null;
+      label: string; note: string | null; hidden: boolean; spots: number;
+    }> = [];
+    for (const [slug, entries] of Object.entries(GENERATED_LOCATION_ITEMS)) {
+      const locationId = locationIdByName.get(slug);
+      if (!locationId) continue;
+      for (const entry of entries) {
+        const disc = entry.label.match(/^(TM|HM|TR)(\d+)$/i);
+        const itemId =
+          itemIdByDisplay.get(plainName(entry.label)) ??
+          (disc ? itemIdByIdent.get(`${disc[1].toLowerCase()}${disc[2].padStart(2, '0')}`) : undefined) ??
+          null;
+        if (itemId === null) unresolvedItemLabels += 1;
+        locationItemId += 1;
+        locationItemRows.push({
+          id: locationItemId,
+          locationId,
+          itemId,
+          label: entry.label,
+          note: entry.note,
+          hidden: entry.hidden,
+          spots: entry.spots,
+        });
+      }
+    }
+    if (unresolvedItemLabels > 0) {
+      warnings.push(`${unresolvedItemLabels} location item labels did not resolve to a dex item (kept, unlinked)`);
+    }
+
     // ── Load, in dependency order ───────────────────────────────────────────
     console.log('Loading into Postgres…\n');
     await truncateDex(sql);
@@ -966,6 +1007,14 @@ async function main() {
         'dex.items',
         ['id', 'name', 'displayName', 'categoryId', 'cost', 'flingPower', 'shortEffect'],
         itemRows,
+      ),
+    );
+    results.push(
+      await loadTable(
+        sql,
+        'dex.location_items',
+        ['id', 'locationId', 'itemId', 'label', 'note', 'hidden', 'spots'],
+        locationItemRows,
       ),
     );
 
