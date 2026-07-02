@@ -35,6 +35,12 @@ export type TrainerSummary = z.infer<typeof TrainerSummarySchema>;
 export const TrainerProfileSchema = TrainerSummarySchema.extend({
   bio: z.string().nullable(),
   isPublic: z.boolean(),
+  /** Per-section visibility; the client uses these to decide what to render. */
+  showBag: z.boolean(),
+  showFavorites: z.boolean(),
+  showActivity: z.boolean(),
+  showFriends: z.boolean(),
+  showTeams: z.boolean(),
   createdAt: z.string().datetime(),
   teamCount: z.number().int().nonnegative(),
   uniqueSpeciesCount: z.number().int().nonnegative(),
@@ -47,10 +53,20 @@ export type TrainerProfile = z.infer<typeof TrainerProfileSchema>;
 export const UpdateProfileInputSchema = z.object({
   displayName: z.string().min(1).max(40).optional(),
   bio: z.string().max(500).nullable().optional(),
-  avatarUrl: z.string().url().nullable().optional(),
+  avatarUrl: z
+    .string()
+    .url()
+    .refine((u) => /^https?:\/\//i.test(u), 'Avatar URL must use http or https')
+    .nullable()
+    .optional(),
   regionId: z.number().int().positive().nullable().optional(),
   favoriteTypeId: z.number().int().positive().nullable().optional(),
   isPublic: z.boolean().optional(),
+  showBag: z.boolean().optional(),
+  showFavorites: z.boolean().optional(),
+  showActivity: z.boolean().optional(),
+  showFriends: z.boolean().optional(),
+  showTeams: z.boolean().optional(),
 });
 export type UpdateProfileInput = z.infer<typeof UpdateProfileInputSchema>;
 
@@ -158,6 +174,8 @@ export type Item = z.infer<typeof ItemSchema>;
 
 export const TrainerItemSchema = ItemSchema.extend({
   quantity: z.number().int().nonnegative(),
+  /** The games' bag pocket the item's category belongs to. */
+  pocket: z.string().nullable(),
 });
 export type TrainerItem = z.infer<typeof TrainerItemSchema>;
 

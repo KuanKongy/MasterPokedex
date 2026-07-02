@@ -39,6 +39,27 @@ export function decodeCursor(raw: string | undefined): Cursor | null {
 }
 
 /**
+ * The activity feed pages on (created_at, id) rather than the numeric cursor
+ * above, because activity ids are UUIDs. Same opaque-base64url idea.
+ */
+export type FeedCursor = { t: string; id: string };
+
+export function encodeFeedCursor(cursor: FeedCursor): string {
+  return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
+export function decodeFeedCursor(raw: string | undefined): FeedCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as FeedCursor;
+    if (typeof parsed.t !== 'string' || typeof parsed.id !== 'string') throw new Error('shape');
+    return parsed;
+  } catch {
+    throw ApiError.badRequest('Invalid cursor');
+  }
+}
+
+/**
  * Fetches limit+1 rows so we can tell "there is a next page" from "this page
  * happened to be exactly full" without a second COUNT query.
  */

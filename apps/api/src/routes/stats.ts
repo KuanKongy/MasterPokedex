@@ -148,6 +148,7 @@ export const statsRoutes = new Hono<AppBindings>()
         (SELECT count(*) FROM public.caught_pokemon cp WHERE cp.trainer_id = tr.id)::int AS "caughtCount"
       FROM public.trainers tr
       WHERE tr.is_public
+        AND tr.show_teams
         AND NOT EXISTS (
           SELECT gr.id FROM dex.growth_rates gr
           EXCEPT
@@ -176,6 +177,7 @@ export const statsRoutes = new Hono<AppBindings>()
         (SELECT count(*) FROM public.teams tm WHERE tm.trainer_id = tr.id)::int AS "teamCount"
       FROM public.trainers tr
       WHERE tr.is_public
+        AND tr.show_teams
         AND NOT EXISTS (
           SELECT tc.slug FROM public.team_categories tc
           EXCEPT
@@ -201,6 +203,7 @@ export const statsRoutes = new Hono<AppBindings>()
         (SELECT count(*) FROM public.trainer_items ti WHERE ti.trainer_id = tr.id)::int AS "itemCount"
       FROM public.trainers tr
       WHERE tr.is_public
+        AND tr.show_bag
         AND NOT EXISTS (
           SELECT DISTINCT ic.pocket FROM dex.item_categories ic WHERE ic.pocket IS NOT NULL
           EXCEPT

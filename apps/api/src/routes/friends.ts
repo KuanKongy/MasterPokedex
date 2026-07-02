@@ -101,9 +101,14 @@ export const friendsRoutes = new Hono<AppBindings>()
     const { userId } = getAuth(c);
     const id = assertUuid(c.req.param('id'), 'id');
 
+    // Blocking is always done by the addressee (the PATCH above), so a
+    // blocked row may only be removed by the blocker; letting the blocked
+    // requester delete it would clear the block and reopen requests.
     const deleted = (await c.var.db.execute(sql`
       DELETE FROM public.friendships
-      WHERE id = ${id} AND (requester_id = ${userId} OR addressee_id = ${userId})
+      WHERE id = ${id}
+        AND (addressee_id = ${userId}
+          OR (requester_id = ${userId} AND status <> 'blocked'))
       RETURNING id
     `)) as unknown as { id: string }[];
     if (deleted.length === 0) throw ApiError.notFound('Friendship');

@@ -9,6 +9,7 @@ import type { Database } from '@masterpokedex/db';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
 import { getAuth } from '../lib/auth';
+import { decodeFeedCursor, encodeFeedCursor } from '../lib/pagination';
 import {
   TRAINER_PROFILE_COLUMNS,
   TRAINER_SUMMARY_COLUMNS,
@@ -27,23 +28,6 @@ async function fetchOwnProfile(db: Database, userId: string) {
     WHERE tr.id = ${userId}
   `)) as unknown as TrainerProfileRow[];
   return row;
-}
-
-/**
- * The activity feed pages on (created_at, id) rather than the shared numeric
- * cursor helper, because activity ids are UUIDs. Same opaque-base64url idea.
- */
-type FeedCursor = { t: string; id: string };
-
-function decodeFeedCursor(raw: string | undefined): FeedCursor | null {
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as FeedCursor;
-    if (typeof parsed.t !== 'string' || typeof parsed.id !== 'string') throw new Error('shape');
-    return parsed;
-  } catch {
-    throw ApiError.badRequest('Invalid cursor');
-  }
 }
 
 export const meRoutes = new Hono<AppBindings>()
@@ -90,6 +74,11 @@ export const meRoutes = new Hono<AppBindings>()
     if (input.regionId !== undefined) sets.push(sql`region_id = ${input.regionId}`);
     if (input.favoriteTypeId !== undefined) sets.push(sql`favorite_type_id = ${input.favoriteTypeId}`);
     if (input.isPublic !== undefined) sets.push(sql`is_public = ${input.isPublic}`);
+    if (input.showBag !== undefined) sets.push(sql`show_bag = ${input.showBag}`);
+    if (input.showFavorites !== undefined) sets.push(sql`show_favorites = ${input.showFavorites}`);
+    if (input.showActivity !== undefined) sets.push(sql`show_activity = ${input.showActivity}`);
+    if (input.showFriends !== undefined) sets.push(sql`show_friends = ${input.showFriends}`);
+    if (input.showTeams !== undefined) sets.push(sql`show_teams = ${input.showTeams}`);
     if (sets.length === 0) throw ApiError.badRequest('No fields to update');
 
     const result = (await c.var.db.execute(sql`
@@ -123,7 +112,8 @@ export const meRoutes = new Hono<AppBindings>()
       FROM public.activity a
       JOIN public.trainers tr ON tr.id = a.trainer_id
       ${sql.raw(TRAINER_SUMMARY_JOINS)}
-      WHERE (a.trainer_id = ${userId} OR a.trainer_id IN (SELECT id FROM friend_ids))
+      WHERE (a.trainer_id = ${userId}
+         OR (a.trainer_id IN (SELECT id FROM friend_ids) AND tr.show_activity))
         ${cursor ? sql`AND (a.created_at, a.id) < (${new Date(cursor.t)}, ${cursor.id}::uuid)` : sql``}
       ORDER BY a.created_at DESC, a.id DESC
       LIMIT ${query.limit + 1}
@@ -134,10 +124,7 @@ export const meRoutes = new Hono<AppBindings>()
     const last = page.at(-1);
     const nextCursor =
       hasMore && last
-        ? Buffer.from(
-            JSON.stringify({ t: new Date(last.activityCreatedAt).toISOString(), id: last.activityId }),
-            'utf8',
-          ).toString('base64url')
+        ? encodeFeedCursor({ t: new Date(last.activityCreatedAt).toISOString(), id: last.activityId })
         : null;
 
     return c.json({ items: page.map(toActivity), nextCursor });

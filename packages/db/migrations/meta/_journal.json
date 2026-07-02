@@ -50,6 +50,20 @@
       "when": 1790666127962,
       "tag": "0006_location_items",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790717420971,
+      "tag": "0007_profile_visibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790771455243,
+      "tag": "0008_show_teams",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,7 @@ import type {
   PokemonSummary,
   RespondToFriendInput,
   Team,
+  TrainerItem,
   TrainerProfile,
   TrainerSummary,
   UpdateCaughtPokemonInput,
@@ -244,11 +245,59 @@ export function useTrainerProfile(username: string | undefined) {
   });
 }
 
-export function useTrainerTeams(username: string | undefined) {
+export function useTrainerTeams(username: string | undefined, enabled: boolean) {
   return useQuery({
     queryKey: ['trainer', username, 'teams'],
     queryFn: () => apiFetch<{ items: Team[] }>(`/v1/trainers/${username}/teams`, { auth: 'optional' }),
-    enabled: !!username,
+    enabled: !!username && enabled,
     select: (data) => data.items,
+  });
+}
+
+/**
+ * The per-section reads below take `enabled` from the profile's own
+ * visibility flags, so a switched-off section is never even requested
+ * (the server would 404 it anyway).
+ */
+export function useTrainerItems(username: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['trainer', username, 'items'],
+    queryFn: () => apiFetch<{ items: TrainerItem[] }>(`/v1/trainers/${username}/items`, { auth: 'optional' }),
+    enabled: !!username && enabled,
+    select: (data) => data.items,
+  });
+}
+
+export function useTrainerFavorites(username: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['trainer', username, 'favorites'],
+    queryFn: () =>
+      apiFetch<{ items: PokemonSummary[] }>(`/v1/trainers/${username}/favorites`, { auth: 'optional' }),
+    enabled: !!username && enabled,
+    select: (data) => data.items,
+  });
+}
+
+export function useTrainerFriends(username: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['trainer', username, 'friends'],
+    queryFn: () =>
+      apiFetch<{ items: TrainerSummary[] }>(`/v1/trainers/${username}/friends`, { auth: 'optional' }),
+    enabled: !!username && enabled,
+    select: (data) => data.items,
+  });
+}
+
+export function useTrainerActivity(username: string | undefined, enabled: boolean) {
+  return useInfiniteQuery({
+    queryKey: ['trainer', username, 'activity'],
+    queryFn: ({ pageParam }) =>
+      apiFetch<Page<Activity>>(
+        `/v1/trainers/${username}/activity?limit=20${pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ''}`,
+        { auth: 'optional' },
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: !!username && enabled,
   });
 }

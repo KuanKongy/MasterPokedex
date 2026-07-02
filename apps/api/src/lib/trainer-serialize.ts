@@ -39,6 +39,11 @@ export const TRAINER_SUMMARY_JOINS = `
 export const TRAINER_PROFILE_COLUMNS = `${TRAINER_SUMMARY_COLUMNS},
   tr.bio,
   tr.is_public  AS "isPublic",
+  tr.show_bag       AS "showBag",
+  tr.show_favorites AS "showFavorites",
+  tr.show_activity  AS "showActivity",
+  tr.show_friends   AS "showFriends",
+  tr.show_teams     AS "showTeams",
   tr.created_at AS "createdAt",
   (SELECT count(*) FROM public.teams tm WHERE tm.trainer_id = tr.id)::int AS "teamCount",
   (SELECT count(DISTINCT cc.pokemon_id) FROM public.caught_pokemon cc WHERE cc.trainer_id = tr.id)::int AS "uniqueSpeciesCount",
@@ -62,6 +67,11 @@ export type TrainerSummaryRow = {
 export type TrainerProfileRow = TrainerSummaryRow & {
   bio: string | null;
   isPublic: boolean;
+  showBag: boolean;
+  showFavorites: boolean;
+  showActivity: boolean;
+  showFriends: boolean;
+  showTeams: boolean;
   createdAt: Date | string;
   teamCount: number;
   uniqueSpeciesCount: number;
@@ -92,6 +102,11 @@ export function toTrainerProfile(
     ...toTrainerSummary(row),
     bio: row.bio,
     isPublic: row.isPublic,
+    showBag: row.showBag,
+    showFavorites: row.showFavorites,
+    showActivity: row.showActivity,
+    showFriends: row.showFriends,
+    showTeams: row.showTeams,
     createdAt: iso(row.createdAt),
     teamCount: row.teamCount,
     uniqueSpeciesCount: row.uniqueSpeciesCount,

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import type { Activity, TrainerProfile as TrainerProfileType } from '@masterpokedex/shared';
+import { useNavigate } from 'react-router-dom';
+import type { TrainerProfile as TrainerProfileType } from '@masterpokedex/shared';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Medal, Calendar, Edit, Sparkles, Users, Heart, Activity as ActivityIcon } from 'lucide-react';
+import { Medal, Calendar, Edit, Sparkles, Users, Heart, Activity as ActivityIcon, Backpack, Layers } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import UpdateTrainerForm from './UpdateTrainerForm';
 import TeamsPanel from './TeamsPanel';
 import FriendsPanel from './FriendsPanel';
 import PokemonCard from './PokemonCard';
+import ActivityFeed from './ActivityFeed';
 import { useActivityFeed, useMyFavorites } from '@/hooks/api/trainer';
 import { capitalize } from '../utils/helpers';
 import { resolveAsset } from '@/lib/assets';
@@ -25,56 +27,8 @@ const RANK_LABELS: Record<TrainerProfileType['rank'], string> = {
   champion: 'Champion',
 };
 
-const ACTIVITY_TEXT: Record<Activity['kind'], (a: Activity) => string> = {
-  caught: (a) => `caught ${a.payload.nickname ?? `#${a.payload.pokemonId}`}`,
-  shiny_caught: (a) => `caught a shiny ${a.payload.nickname ?? `#${a.payload.pokemonId}`} ✨`,
-  team_created: (a) => `created the team “${a.payload.teamName}”`,
-  friend_added: (a) => `became friends with @${a.payload.username}`,
-  badge_earned: () => 'earned a badge',
-};
-
-const ActivityFeed: React.FC = () => {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useActivityFeed();
-  const events = data?.pages.flatMap((page) => page.items) ?? [];
-
-  if (isLoading) return <p className="text-sm text-muted-foreground p-4">Loading activity…</p>;
-  if (events.length === 0) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center text-muted-foreground text-sm">
-          Nothing yet — catch a Pokémon or make a friend and it shows up here.
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      {events.map((event) => (
-        <div key={event.id} className="flex items-center gap-3 p-3 border rounded-md text-sm">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
-            <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <span className="font-medium">{event.trainer.displayName}</span>{' '}
-            {ACTIVITY_TEXT[event.kind]?.(event) ?? event.kind}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {new Date(event.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-      ))}
-      {hasNextPage && (
-        <div className="flex justify-center pt-2">
-          <Button variant="outline" size="sm" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-            {isFetchingNextPage ? 'Loading…' : 'Older activity'}
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
+/** Wrapper so the feed query only starts once the Activity tab mounts. */
+const MyActivityFeed: React.FC = () => <ActivityFeed query={useActivityFeed()} />;
 
 const FavoritesGrid: React.FC = () => {
   const { data: favorites, isLoading } = useMyFavorites();
@@ -82,8 +36,9 @@ const FavoritesGrid: React.FC = () => {
   if (!favorites || favorites.length === 0) {
     return (
       <Card>
-        <CardContent className="py-12 text-center text-muted-foreground text-sm">
-          No favorites yet — tap the heart on any Pokémon's page.
+        <CardContent className="py-12 text-center text-muted-foreground">
+          <p className="mb-2 font-medium text-foreground">No favorites yet</p>
+          <p className="text-sm">Tap the heart on any Pokémon's page.</p>
         </CardContent>
       </Card>
     );
@@ -109,6 +64,7 @@ interface TrainerProfileProps {
  */
 const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer }) => {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
@@ -145,7 +101,12 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                     Your title on the ladder from Rookie to Champion. Everyone starts as a
                     Rookie; the higher ranks are worn by the resident cast for now.
                   </HoverTip>
-                  {!profile.isPublic && <Badge variant="outline">Private</Badge>}
+                  {!profile.isPublic && (
+                    <HoverTip title="Private profile" trigger={<Badge variant="outline">Private</Badge>}>
+                      Only you and your friends can see this profile; it does not appear in
+                      the trainer directory. Change this under Edit Profile.
+                    </HoverTip>
+                  )}
                 </h3>
                 <p className="text-muted-foreground">
                   @{profile.username}
@@ -226,17 +187,31 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
       </Dialog>
 
       <Tabs defaultValue="teams" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="teams">Teams</TabsTrigger>
-          <TabsTrigger value="friends" className="gap-1">
-            <Users className="h-4 w-4" /> Friends
+        {/* Labels hide below sm so five icon tabs still fit a phone. */}
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="teams" className="gap-1" aria-label="Teams">
+            <Layers className="h-4 w-4" /> <span className="hidden sm:inline">Teams</span>
           </TabsTrigger>
-          <TabsTrigger value="favorites" className="gap-1">
-            <Heart className="h-4 w-4" /> Favorites
+          <TabsTrigger value="friends" className="gap-1" aria-label="Friends">
+            <Users className="h-4 w-4" /> <span className="hidden sm:inline">Friends</span>
           </TabsTrigger>
-          <TabsTrigger value="activity" className="gap-1">
-            <ActivityIcon className="h-4 w-4" /> Activity
+          <TabsTrigger value="favorites" className="gap-1" aria-label="Favorites">
+            <Heart className="h-4 w-4" /> <span className="hidden sm:inline">Favorites</span>
           </TabsTrigger>
+          <TabsTrigger value="activity" className="gap-1" aria-label="Activity">
+            <ActivityIcon className="h-4 w-4" /> <span className="hidden sm:inline">Activity</span>
+          </TabsTrigger>
+          {/* A plain button, not a TabsTrigger: it navigates to the Items page,
+              and Radix's automatic activation would fire that on arrow-key
+              focus if it lived inside the roving tablist. */}
+          <button
+            type="button"
+            onClick={() => navigate('/items')}
+            aria-label="Items"
+            className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Backpack className="h-4 w-4" /> <span className="hidden sm:inline">Items</span>
+          </button>
         </TabsList>
         <TabsContent value="teams">
           <TeamsPanel />
@@ -248,7 +223,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
           <FavoritesGrid />
         </TabsContent>
         <TabsContent value="activity">
-          <ActivityFeed />
+          <MyActivityFeed />
         </TabsContent>
       </Tabs>
     </div>

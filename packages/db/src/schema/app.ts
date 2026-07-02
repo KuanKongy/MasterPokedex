@@ -71,6 +71,13 @@ export const trainers = pgTable(
     badges: smallint('badges').notNull().default(0),
     isPublic: boolean('is_public').notNull().default(true),
     isGuest: boolean('is_guest').notNull().default(false),
+    // Per-section visibility on the public profile; is_public still gates the
+    // whole profile, these only trim what a permitted viewer gets to see.
+    showBag: boolean('show_bag').notNull().default(true),
+    showFavorites: boolean('show_favorites').notNull().default(true),
+    showActivity: boolean('show_activity').notNull().default(true),
+    showFriends: boolean('show_friends').notNull().default(true),
+    showTeams: boolean('show_teams').notNull().default(true),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },

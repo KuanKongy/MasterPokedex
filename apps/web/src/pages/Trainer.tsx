@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { HoverTip } from '@/components/HelpTip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { User, Medal, Search } from 'lucide-react';
+import SearchField from '../components/SearchField';
+import { User, Medal } from 'lucide-react';
 import { useMe, useMyFriends, useTrainers } from '@/hooks/api/trainer';
 import { resolveAsset } from '@/lib/assets';
 
@@ -81,32 +81,22 @@ const Trainer = () => {
               >
                 ← Back to trainer list
               </button>
-              <OtherTrainerProfile username={selectedUsername} />
+              <OtherTrainerProfile username={selectedUsername} onOpenTrainer={openTrainer} />
             </div>
           ) : (
             <div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                 <h2 className="text-2xl font-bold">Trainers</h2>
-                <form
-                  className="flex w-full sm:w-80"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSearch(searchInput.trim());
+                <SearchField
+                  value={searchInput}
+                  onChange={(value) => {
+                    setSearchInput(value);
+                    if (value === '') setSearch('');
                   }}
-                >
-                  <Input
-                    placeholder="Search by name or username…"
-                    value={searchInput}
-                    onChange={(e) => {
-                      setSearchInput(e.target.value);
-                      if (e.target.value === '') setSearch('');
-                    }}
-                    className="rounded-r-none"
-                  />
-                  <Button type="submit" className="rounded-l-none">
-                    <Search className="h-4 w-4" />
-                  </Button>
-                </form>
+                  onSubmit={() => setSearch(searchInput.trim())}
+                  placeholder="Search by name or username…"
+                  className="w-full sm:w-80"
+                />
               </div>
 
               {trainersLoading ? (

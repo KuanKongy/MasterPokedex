@@ -1,11 +1,27 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Medal, Sparkles, UserCheck, UserMinus, UserPlus, Clock, Check, X } from 'lucide-react';
-import { HoverTip } from './HelpTip';
+import {
+  Activity as ActivityIcon,
+  Backpack,
+  Check,
+  Clock,
+  Heart,
+  Medal,
+  Sparkles,
+  UserCheck,
+  UserPlus,
+  Users,
+  X,
+} from 'lucide-react';
+import HelpTip, { HoverTip } from './HelpTip';
 import { MemberCard } from './TeamsPanel';
+import ActivityFeed from './ActivityFeed';
+import ItemSprite from './ItemSprite';
+import PokemonCard from './PokemonCard';
 import LoadingSpinner from './LoadingSpinner';
 import { resolveAsset } from '@/lib/assets';
 import {
@@ -13,6 +29,10 @@ import {
   useRemoveFriend,
   useRequestFriend,
   useRespondToFriend,
+  useTrainerActivity,
+  useTrainerFavorites,
+  useTrainerFriends,
+  useTrainerItems,
   useTrainerProfile,
   useTrainerTeams,
 } from '@/hooks/api/trainer';
@@ -22,19 +42,27 @@ import { isApiError } from '@/lib/api';
 
 interface OtherTrainerProfileProps {
   username: string;
+  /** Opens another trainer's profile (friend rows); browsing is page state, not a route. */
+  onOpenTrainer?: (username: string) => void;
 }
 
 /**
  * A trainer's public page. What you see is what the API's visibility rules
- * allow: public profiles for everyone, private ones only for friends. The
+ * allow: public profiles for everyone, private ones only for friends, and
+ * each extra section only when its owner left the matching toggle on. The
  * friend button is driven entirely by `friendshipStatus` from the server.
  */
-const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) => {
+const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onOpenTrainer }) => {
   const { session } = useAuth();
   const { toast } = useToast();
   const { data: trainer, isLoading, error } = useTrainerProfile(username);
-  const { data: teams } = useTrainerTeams(username);
+  const { data: teams } = useTrainerTeams(username, trainer?.showTeams ?? false);
   const { data: friendships } = useMyFriends();
+  // Each section fetches only once the profile says its toggle is on.
+  const { data: bag } = useTrainerItems(username, trainer?.showBag ?? false);
+  const { data: favorites } = useTrainerFavorites(username, trainer?.showFavorites ?? false);
+  const { data: friends } = useTrainerFriends(username, trainer?.showFriends ?? false);
+  const activityQuery = useTrainerActivity(username, trainer?.showActivity ?? false);
   const requestFriend = useRequestFriend();
   const respondToFriend = useRespondToFriend();
   const removeFriend = useRemoveFriend();
@@ -189,22 +217,43 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
 
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Badges</div>
+                  <div className="text-muted-foreground text-sm">
+                    Badges
+                    <HelpTip title="Gym badges" faq="ranks" className="ml-1">
+                      The gym badges this trainer has earned, up to the games' 64. Residents
+                      came with theirs.
+                    </HelpTip>
+                  </div>
                   <div className="flex items-center gap-1 font-semibold">
                     <Medal className="h-4 w-4 text-yellow-500" />
                     {trainer.badges}
                   </div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Caught</div>
+                  <div className="text-muted-foreground text-sm">
+                    Caught
+                    <HelpTip title="Caught" className="ml-1">
+                      Every Pokémon on their teams, duplicates included.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold">{trainer.caughtCount}</div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Species</div>
+                  <div className="text-muted-foreground text-sm">
+                    Species
+                    <HelpTip title="Species" className="ml-1">
+                      How many distinct Pokémon are among their catches; six Pikachu count once.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold">{trainer.uniqueSpeciesCount}</div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Shinies</div>
+                  <div className="text-muted-foreground text-sm">
+                    Shinies
+                    <HelpTip title="Shinies" faq="shiny" className="ml-1">
+                      Pokémon caught in their rare alternate colouring.
+                    </HelpTip>
+                  </div>
                   <div className="flex items-center gap-1 font-semibold">
                     <Sparkles className="h-4 w-4 text-yellow-500" />
                     {trainer.shinyCount}
@@ -220,7 +269,8 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
         </CardContent>
       </Card>
 
-      {teams && teams.length > 0 ? (
+      {trainer.showTeams &&
+      (teams && teams.length > 0 ? (
         teams.map((team) => (
           <Card key={team.id}>
             <CardHeader className="pb-3">
@@ -254,6 +304,138 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username }) =
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground text-sm">
             No teams to show.
+          </CardContent>
+        </Card>
+      ))}
+
+      {trainer.showBag && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Backpack className="h-5 w-5" /> Bag
+              {bag && bag.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {bag.length}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!bag || bag.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Their bag is empty.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {bag.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 rounded-md border p-3">
+                    <Link
+                      to={`/items/${item.name}`}
+                      className="group flex flex-1 min-w-0 items-center gap-3"
+                    >
+                      <ItemSprite
+                        src={item.sprite}
+                        itemName={item.name}
+                        alt={item.displayName}
+                        className="h-8 w-8"
+                      />
+                      <span className="truncate font-medium group-hover:underline">
+                        {item.displayName}
+                      </span>
+                    </Link>
+                    <Badge variant="secondary" className="shrink-0 tabular-nums">
+                      ×{item.quantity}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {trainer.showFavorites && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Heart className="h-5 w-5" /> Favorites
+              {favorites && favorites.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {favorites.length}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!favorites || favorites.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No favorites yet.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {favorites.map((pokemon) => (
+                  <PokemonCard key={pokemon.id} pokemon={pokemon} />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {trainer.showActivity && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ActivityIcon className="h-5 w-5" /> Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActivityFeed
+              query={activityQuery}
+              emptyTitle="No activity yet"
+              emptyText="Nothing public from this trainer so far."
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {trainer.showFriends && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="h-5 w-5" /> Friends
+              {friends && friends.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {friends.length}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!friends || friends.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No friends to show.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {friends.map((friend) => (
+                  <button
+                    key={friend.id}
+                    type="button"
+                    onClick={() => onOpenTrainer?.(friend.username)}
+                    className="flex items-center gap-3 rounded-md border p-3 text-left transition-colors hover:bg-muted/50"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={friend.avatarUrl ? resolveAsset(friend.avatarUrl) : undefined}
+                        alt={friend.displayName}
+                      />
+                      <AvatarFallback>{friend.displayName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{friend.displayName}</span>
+                      <span className="block truncate text-sm text-muted-foreground">
+                        @{friend.username}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

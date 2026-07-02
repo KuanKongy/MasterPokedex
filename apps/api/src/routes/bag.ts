@@ -12,7 +12,8 @@ import { getAuth } from '../lib/auth';
  * so the bag never fills with empty slots.
  */
 
-const ITEM_COLUMNS = `
+/** Also used by /v1/trainers/:username/items so both bags stay one shape. */
+export const BAG_ITEM_COLUMNS = `
   i.id,
   i.name,
   i.display_name AS "displayName",
@@ -28,7 +29,7 @@ export const bagRoutes = new Hono<AppBindings>()
   .get('/', async (c) => {
     const { userId } = getAuth(c);
     const rows = await c.var.db.execute(sql`
-      SELECT ${sql.raw(ITEM_COLUMNS)}, ti.quantity
+      SELECT ${sql.raw(BAG_ITEM_COLUMNS)}, ti.quantity
       FROM public.trainer_items ti
       JOIN dex.items i ON i.id = ti.item_id
       JOIN dex.item_categories ic ON ic.id = i.category_id

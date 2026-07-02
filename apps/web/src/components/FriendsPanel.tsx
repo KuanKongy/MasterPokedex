@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Check, UserMinus, X } from 'lucide-react';
 import { useMyFriends, useRemoveFriend, useRespondToFriend } from '@/hooks/api/trainer';
 import { useToast } from '@/hooks/use-toast';
+import { HoverTip } from './HelpTip';
 import LoadingSpinner from './LoadingSpinner';
 import { resolveAsset } from '@/lib/assets';
 
@@ -45,7 +46,12 @@ const FriendRow: React.FC<{ friendship: Friendship; onOpenTrainer: (username: st
 
       {isIncomingRequest && (
         <div className="flex items-center gap-1">
-          <Badge variant="secondary">wants to be friends</Badge>
+          <HoverTip
+            title="Friend request"
+            trigger={<Badge variant="secondary">wants to be friends</Badge>}
+          >
+            They sent you a friend request. Accept with the check or decline with the cross.
+          </HoverTip>
           <Button
             size="icon"
             variant="outline"
@@ -76,7 +82,9 @@ const FriendRow: React.FC<{ friendship: Friendship; onOpenTrainer: (username: st
 
       {isOutgoingRequest && (
         <div className="flex items-center gap-2">
-          <Badge variant="outline">request sent</Badge>
+          <HoverTip title="Request sent" trigger={<Badge variant="outline">request sent</Badge>}>
+            Waiting for them to accept. You can cancel while it is pending.
+          </HoverTip>
           <Button size="sm" variant="ghost" onClick={() => remove.mutate(friendship.id)}>
             Cancel
           </Button>
