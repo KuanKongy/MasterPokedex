@@ -31,7 +31,18 @@ const NUMBER_FIELDS = [
   'baseExperience',
   'captureRate',
 ] as const;
-const BOOLEAN_FIELDS = ['isLegendary', 'isMythical', 'hasMega', 'hasGmax', 'isFullyEvolved'] as const;
+const BOOLEAN_FIELDS = [
+  'isLegendary',
+  'isMythical',
+  'hasMega',
+  'hasGmax',
+  'isFullyEvolved',
+  // Form-level facts, meaningful with forms=all: hasMega asks "does this
+  // species get a Mega", isMega asks "is this row the Mega itself".
+  'isMega',
+  'isGmax',
+  'isRegional',
+] as const;
 
 export const STRING_OPS = ['eq', 'neq', 'contains', 'startsWith', 'endsWith'] as const;
 export const NUMBER_OPS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte'] as const;
@@ -90,6 +101,7 @@ export type PokemonFilter = z.infer<typeof PokemonFilterSchema>;
 export const POKEMON_SORT_FIELDS = [
   'id',
   'name',
+  'generation',
   'total',
   'hp',
   'attack',
@@ -135,6 +147,9 @@ export const FILTER_FIELD_META: ReadonlyArray<{
   { field: 'ability', label: 'Ability', kind: 'string', ops: STRING_OPS },
   { field: 'hasMega', label: 'Has Mega Evolution', kind: 'boolean', ops: BOOLEAN_OPS },
   { field: 'hasGmax', label: 'Has Gigantamax', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'isMega', label: 'Is a Mega form', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'isGmax', label: 'Is a Gigantamax form', kind: 'boolean', ops: BOOLEAN_OPS },
+  { field: 'isRegional', label: 'Is a regional form', kind: 'boolean', ops: BOOLEAN_OPS },
   { field: 'isFullyEvolved', label: 'Fully evolved', kind: 'boolean', ops: BOOLEAN_OPS },
   {
     field: 'evolutionTrigger',
@@ -173,5 +188,7 @@ export const PokemonListQuerySchema = z.object({
   sort: PokemonSortFieldSchema.default('id'),
   dir: z.enum(['asc', 'desc']).default('asc'),
   filter: z.string().max(4096).optional(),
+  /** 'all' includes non-default forms (Megas, Gigantamax, regionals). */
+  forms: z.enum(['default', 'all']).default('default'),
 });
 export type PokemonListQuery = z.infer<typeof PokemonListQuerySchema>;

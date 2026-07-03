@@ -7,7 +7,12 @@ import {
   FILTER_ENTITIES,
   GROWTH_RATES,
   POKEMON_TYPES,
+  type AbilitySortField,
   type FilterEntity,
+  type ItemSortField,
+  type MoveSortField,
+  type PokemonSortField,
+  type SortDir,
 } from '@masterpokedex/shared';
 import { usePokemonList } from '@/hooks/api/pokemon';
 import { useAbilities, useItemSearch, useLocationSearch, useMoves } from '@/hooks/api/dex';
@@ -20,8 +25,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { capitalize } from '../utils/helpers';
+import { cn } from '@/lib/utils';
 import LoadingSpinner from '../components/LoadingSpinner';
 import HelpTip from '../components/HelpTip';
+import SortableHead from '../components/SortableHead';
 import { ENTITY_COLUMNS } from './advanced/columns';
 
 /**
@@ -95,6 +102,27 @@ const ENUM_OPTIONS: Record<string, readonly string[]> = {
   damageClass: DAMAGE_CLASSES,
 };
 
+/** Numeric columns read best highest-first, matching the list pages. */
+const ADV_DESC_FIRST = new Set([
+  'total',
+  'hp',
+  'attack',
+  'defense',
+  'specialAttack',
+  'specialDefense',
+  'speed',
+  'height',
+  'weight',
+  'baseExperience',
+  'power',
+  'accuracy',
+  'pp',
+  'priority',
+  'generation',
+  'pokemonCount',
+  'cost',
+]);
+
 const PokemonFilter: React.FC = () => {
   const [params, setParams] = useSearchParams();
   const rawEntity = params.get('entity');
@@ -106,8 +134,47 @@ const PokemonFilter: React.FC = () => {
   const [match, setMatch] = useState<'all' | 'any'>('all');
   const [applied, setApplied] = useState<AppliedFilter | null>(null);
   const [columns, setColumns] = useState<string[]>(defaultColumns(entity));
+  // Two presentations of the same column picker, kept side by side on purpose
+  // so the tidied checkboxes and the new pills can be compared live.
+  const [columnsStyle, setColumnsStyle] = useState<'checks' | 'pills'>('pills');
+
+  const toggleColumn = (key: string, on: boolean) =>
+    setColumns((current) =>
+      on
+        ? ENTITY_COLUMNS[entity].map((c) => c.key).filter((k) => current.includes(k) || k === key)
+        : current.filter((k) => k !== key),
+    );
+
+  // Sort state lives in the URL beside ?entity=; only values that map to a
+  // sortable column of the ACTIVE entity count, so a stale ?sort= from a
+  // previous entity falls back to the server's default order.
+  const sortParam = params.get('sort');
+  const sort =
+    sortParam && ENTITY_COLUMNS[entity].some((c) => c.sortField === sortParam) ? sortParam : null;
+  const dir: SortDir = params.get('dir') === 'desc' ? 'desc' : 'asc';
+
+  const patchParams = (patch: Record<string, string | null>) => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(patch)) {
+          if (value === null || value === '') next.delete(key);
+          else next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const handleSort = (field: string) => {
+    const nextDir: SortDir =
+      sort === field ? (dir === 'asc' ? 'desc' : 'asc') : ADV_DESC_FIRST.has(field) ? 'desc' : 'asc';
+    patchParams({ sort: field, dir: nextDir });
+  };
 
   const switchEntity = (next: FilterEntity) => {
+    // Wholesale rewrite on purpose: it clears sort/dir along with the filter.
     setParams(next === 'pokemon' ? {} : { entity: next }, { replace: true });
     setDrafts([newCondition(next)]);
     setApplied(null);
@@ -117,19 +184,41 @@ const PokemonFilter: React.FC = () => {
 
   const enabled = applied !== null;
   const pokemonQuery = usePokemonList(
-    { filter: (applied as never) ?? undefined, limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      // Advanced search covers the whole dex, battle forms included.
+      forms: 'all',
+      sort: (sort as PokemonSortField | null) ?? undefined,
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'pokemon' },
   );
   const moveQuery = useMoves(
-    { filter: (applied as never) ?? undefined, limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      sort: (sort as MoveSortField | null) ?? undefined,
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'move' },
   );
   const abilityQuery = useAbilities(
-    { filter: (applied as never) ?? undefined, limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      sort: (sort as AbilitySortField | null) ?? undefined,
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'ability' },
   );
   const itemQuery = useItemSearch(
-    { filter: (applied as never) ?? undefined, sort: 'name', limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      sort: (sort as ItemSortField | null) ?? 'name',
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'item' },
   );
   const locationQuery = useLocationSearch(
@@ -315,19 +404,21 @@ const PokemonFilter: React.FC = () => {
               <PlusCircle className="mr-2 h-4 w-4" />
               Add condition
             </Button>
-            <Button size="sm" onClick={() => setApplied(buildFilter(entity, drafts, match))}>
-              Apply filter
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDrafts([newCondition(entity)]);
-                setApplied(null);
-              }}
-            >
-              Reset
-            </Button>
+            <div className="ml-auto flex gap-2">
+              <Button size="sm" onClick={() => setApplied(buildFilter(entity, drafts, match))}>
+                Apply filter
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setDrafts([newCondition(entity)]);
+                  setApplied(null);
+                }}
+              >
+                Reset
+              </Button>
+            </div>
           </div>
 
           {appliedSummary && (
@@ -339,26 +430,64 @@ const PokemonFilter: React.FC = () => {
       </Card>
 
       <Card className="mb-6">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <CardTitle className="text-base">Columns</CardTitle>
+          <div className="inline-flex items-center gap-1 rounded-lg border p-0.5">
+            <Button
+              size="sm"
+              variant={columnsStyle === 'checks' ? 'secondary' : 'ghost'}
+              className="h-7 px-2 text-xs"
+              aria-pressed={columnsStyle === 'checks'}
+              onClick={() => setColumnsStyle('checks')}
+            >
+              Checks
+            </Button>
+            <Button
+              size="sm"
+              variant={columnsStyle === 'pills' ? 'secondary' : 'ghost'}
+              className="h-7 px-2 text-xs"
+              aria-pressed={columnsStyle === 'pills'}
+              onClick={() => setColumnsStyle('pills')}
+            >
+              Pills
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-4">
-          {ENTITY_COLUMNS[entity].map((column) => (
-            <label key={column.key} className="flex items-center gap-2 text-sm cursor-pointer">
-              <Checkbox
-                checked={columns.includes(column.key)}
-                onCheckedChange={(checked) =>
-                  setColumns((current) =>
-                    checked
-                      ? ENTITY_COLUMNS[entity].map((c) => c.key).filter((k) => current.includes(k) || k === column.key)
-                      : current.filter((k) => k !== column.key),
-                  )
-                }
-              />
-              {column.label}
-            </label>
-          ))}
-        </CardContent>
+        {columnsStyle === 'pills' ? (
+          <CardContent className="flex flex-wrap gap-2">
+            {ENTITY_COLUMNS[entity].map((column) => {
+              const active = columns.includes(column.key);
+              return (
+                <button
+                  key={column.key}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => toggleColumn(column.key, !active)}
+                  className={cn(
+                    'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+                    active
+                      ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
+                      : 'border-input text-muted-foreground hover:bg-muted',
+                  )}
+                >
+                  {column.label}
+                </button>
+              );
+            })}
+          </CardContent>
+        ) : (
+          <CardContent className="flex flex-wrap gap-x-5 gap-y-2.5">
+            {ENTITY_COLUMNS[entity].map((column) => (
+              <label key={column.key} className="flex cursor-pointer select-none items-center gap-2 text-sm">
+                <Checkbox
+                  checked={columns.includes(column.key)}
+                  onCheckedChange={(checked) => toggleColumn(column.key, checked === true)}
+                />
+                {column.label}
+              </label>
+            ))}
+          </CardContent>
+        )}
       </Card>
 
       {applied === null ? (
@@ -375,27 +504,49 @@ const PokemonFilter: React.FC = () => {
               {query.hasNextPage ? '+' : ''}
             </CardTitle>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
+          <CardContent
+            className={cn(
+              'overflow-x-auto',
+              query.isFetching && !query.isFetchingNextPage && 'opacity-60 transition-opacity',
+            )}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
-                  {activeColumns.map((column) => (
-                    <TableHead key={column.key}>
-                      {column.label}
-                      {column.help && (
-                        <HelpTip title={column.label} className="ml-1">
-                          {column.help}
-                        </HelpTip>
-                      )}
-                    </TableHead>
-                  ))}
+                  {activeColumns.map((column) =>
+                    column.sortField ? (
+                      <SortableHead
+                        key={column.key}
+                        field={column.sortField}
+                        label={column.label}
+                        sort={sort}
+                        dir={dir}
+                        onSort={handleSort}
+                        help={column.help}
+                        helpTitle={column.label}
+                        alignRight={column.alignRight}
+                        className={column.width}
+                      />
+                    ) : (
+                      <TableHead key={column.key} className={cn(column.width, column.alignRight && 'text-right')}>
+                        {column.label}
+                        {column.help && (
+                          <HelpTip title={column.label} className="ml-1">
+                            {column.help}
+                          </HelpTip>
+                        )}
+                      </TableHead>
+                    ),
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.map((row, index) => (
                   <TableRow key={(row as { id?: number }).id ?? index}>
                     {activeColumns.map((column) => (
-                      <TableCell key={column.key}>{column.render(row as never)}</TableCell>
+                      <TableCell key={column.key} className={cn(column.width, column.alignRight && 'text-right')}>
+                        {column.render(row as never)}
+                      </TableCell>
                     ))}
                   </TableRow>
                 ))}
@@ -410,7 +561,11 @@ const PokemonFilter: React.FC = () => {
 
             {query.hasNextPage && (
               <div className="flex justify-center mt-4">
-                <Button variant="outline" onClick={() => query.fetchNextPage()} disabled={query.isFetchingNextPage}>
+                <Button
+                  variant="outline"
+                  onClick={() => query.fetchNextPage()}
+                  disabled={query.isFetchingNextPage || query.isPlaceholderData}
+                >
                   {query.isFetchingNextPage ? 'Loading…' : 'Load more'}
                 </Button>
               </div>

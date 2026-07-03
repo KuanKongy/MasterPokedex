@@ -48,11 +48,15 @@ const FILTER_COLUMNS: Record<string, SQL> = {
   growthRate: sql`gr.name`,
   isLegendary: sql`s.is_legendary`,
   isMythical: sql`s.is_mythical`,
+  isMega: sql`p.is_mega`,
+  isGmax: sql`p.is_gmax`,
+  isRegional: sql`p.is_regional`,
 };
 
 const SORT_COLUMNS: Record<string, SQL> = {
   id: sql`p.id`,
   name: sql`p.name`,
+  generation: sql`p.generation_id`,
   total: sql`p.total`,
   hp: sql`p.hp`,
   attack: sql`p.attack`,
@@ -201,7 +205,9 @@ export const pokemonRoutes = new Hono<AppBindings>()
     const ascending = query.dir === 'asc';
     const cursor = decodeCursor(query.cursor);
 
-    const predicates: SQL[] = [sql`p.is_default`];
+    // forms=all lets the battle forms (Megas, Gigantamax, regionals) through;
+    // the default keeps the linear dex to one row per species.
+    const predicates: SQL[] = query.forms === 'all' ? [sql`true`] : [sql`p.is_default`];
 
     if (query.q) predicates.push(sql`p.name ILIKE ${`%${query.q}%`}`);
     if (query.generation) predicates.push(sql`p.generation_id = ${query.generation}`);
@@ -242,9 +248,10 @@ export const pokemonRoutes = new Hono<AppBindings>()
     let nextCursor: string | null = null;
     if (hasMore && last) {
       // The sort column is aliased to its camelCase name in POKEMON_COLUMNS, so
-      // the sort key doubles as the row key. Anything not a string or number
-      // (i.e. NULL) becomes an explicit null, which cursorPredicate handles.
-      const sortValue = last[query.sort];
+      // the sort key doubles as the row key, except generation whose row alias
+      // is generationId. Anything not a string or number (i.e. NULL) becomes
+      // an explicit null, which cursorPredicate handles.
+      const sortValue = last[query.sort === 'generation' ? 'generationId' : query.sort];
       nextCursor = encodeCursor({
         v: typeof sortValue === 'string' || typeof sortValue === 'number' ? sortValue : null,
         id: last.id,

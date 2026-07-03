@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   encodeFilter,
   type EvolutionNode,
@@ -22,6 +22,8 @@ export type PokemonListParams = {
   dir?: SortDir;
   filter?: PokemonFilter;
   limit?: number;
+  /** 'all' includes non-default forms (Megas, Gigantamax, regionals). */
+  forms?: 'default' | 'all';
 };
 
 function listQuery(params: PokemonListParams, cursor?: string): string {
@@ -31,6 +33,7 @@ function listQuery(params: PokemonListParams, cursor?: string): string {
   if (params.generation) search.set('generation', String(params.generation));
   if (params.sort) search.set('sort', params.sort);
   if (params.dir) search.set('dir', params.dir);
+  if (params.forms === 'all') search.set('forms', 'all');
   if (params.filter && params.filter.conditions.length > 0) {
     search.set('filter', encodeFilter(params.filter));
   }
@@ -48,6 +51,9 @@ export function usePokemonList(params: PokemonListParams = {}, options: { enable
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: options.enabled ?? true,
+    // Re-sorts and filter changes keep the previous rows on screen (dimmed by
+    // the caller) instead of blanking the list while the new order loads.
+    placeholderData: keepPreviousData,
   });
 }
 
