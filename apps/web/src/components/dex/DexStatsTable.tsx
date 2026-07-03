@@ -54,7 +54,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
         <TableHeader>
           <TableRow>
             <SortableHead field="id" label="#" sort={sort} dir={dir} onSort={onSort} className="w-20" />
-            <SortableHead field="name" label="Name" sort={sort} dir={dir} onSort={onSort} className="min-w-[14rem]" />
+            <SortableHead field="name" label="Name" sort={sort} dir={dir} onSort={onSort} className="w-64" />
             <TableHead className="min-w-[9rem]">Types</TableHead>
             {shownStats.map((col) => (
               <SortableHead

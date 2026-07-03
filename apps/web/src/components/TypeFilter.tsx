@@ -27,7 +27,9 @@ const TypeFilter: React.FC<TypeFilterProps> = ({ selectedType, setSelectedType }
           onClick={() => setSelectedType('all')}
           aria-pressed={selectedType === 'all'}
           className={cn(
-            'rounded-full transition-shadow',
+            // inline-flex: an inline button inherits line-height and grows a
+            // descender gap below the badge, which shifts the ring off-centre.
+            'inline-flex rounded-full transition-shadow',
             selectedType === 'all' && 'ring-2 ring-primary',
           )}
         >
@@ -43,7 +45,7 @@ const TypeFilter: React.FC<TypeFilterProps> = ({ selectedType, setSelectedType }
             onClick={() => setSelectedType(type)}
             aria-pressed={selectedType === type}
             className={cn(
-              'rounded-full transition-shadow',
+              'inline-flex rounded-full transition-shadow',
               selectedType === type && 'ring-2 ring-primary',
             )}
           >

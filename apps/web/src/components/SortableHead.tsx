@@ -1,8 +1,8 @@
 import React from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import type { SortDir } from '@masterpokedex/shared';
 import { TableHead } from '@/components/ui/table';
-import HelpTip from './HelpTip';
+import { HoverTip } from './HelpTip';
 import { cn } from '@/lib/utils';
 
 type SortableHeadProps<F extends string> = {
@@ -14,13 +14,19 @@ type SortableHeadProps<F extends string> = {
   onSort: (field: F) => void;
   alignRight?: boolean;
   help?: React.ReactNode;
-  /** HelpTip title when the abbreviated column label shouldn't be it. */
+  /** HoverTip title when the abbreviated column label shouldn't be it. */
   helpTitle?: string;
   /** Width class(es) so columns keep their size across sort flips. */
   className?: string;
 };
 
-/** A pokemondb-style clickable column header: click sorts, the arrow shows direction. */
+/**
+ * A pokemondb-style clickable column header. Two parallel arrows render
+ * always (constant width, no layout jump between sort states) with the
+ * active direction bold. The help text, when given, rides a plain hover on
+ * the whole header, arrows included; a question-mark glyph before the
+ * arrows read as clutter.
+ */
 function SortableHead<F extends string>({
   field,
   label,
@@ -32,6 +38,26 @@ function SortableHead<F extends string>({
   helpTitle,
   className,
 }: SortableHeadProps<F>) {
+  const content = (
+    <span className="inline-flex items-center gap-1">
+      {label}
+      <span className="flex items-center -space-x-0.5" aria-hidden="true">
+        <ArrowUp
+          className={cn(
+            'h-3 w-3',
+            sort === field && dir === 'asc' ? 'stroke-[3] text-foreground' : 'text-muted-foreground/40',
+          )}
+        />
+        <ArrowDown
+          className={cn(
+            'h-3 w-3',
+            sort === field && dir === 'desc' ? 'stroke-[3] text-foreground' : 'text-muted-foreground/40',
+          )}
+        />
+      </span>
+    </span>
+  );
+
   return (
     <TableHead
       onClick={() => onSort(field)}
@@ -42,26 +68,13 @@ function SortableHead<F extends string>({
         className,
       )}
     >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {help && <HelpTip title={helpTitle ?? label}>{help}</HelpTip>}
-        {/* Both arrows render always (constant width, no layout jump between
-            sort states); the active direction is the bold, full-colour one. */}
-        <span className="flex flex-col" aria-hidden="true">
-          <ChevronUp
-            className={cn(
-              '-mb-1 h-3 w-3',
-              sort === field && dir === 'asc' ? 'stroke-[3] text-foreground' : 'text-muted-foreground/40',
-            )}
-          />
-          <ChevronDown
-            className={cn(
-              '-mt-1 h-3 w-3',
-              sort === field && dir === 'desc' ? 'stroke-[3] text-foreground' : 'text-muted-foreground/40',
-            )}
-          />
-        </span>
-      </span>
+      {help ? (
+        <HoverTip clickThrough title={helpTitle ?? label} trigger={content}>
+          {help}
+        </HoverTip>
+      ) : (
+        content
+      )}
     </TableHead>
   );
 }

@@ -106,7 +106,7 @@ const Abilities: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <SortableHead field="name" label="Ability" sort={sort} dir={dir} onSort={handleSort} className="min-w-[11rem]" />
+                  <SortableHead field="name" label="Ability" sort={sort} dir={dir} onSort={handleSort} className="w-56" />
                   {visible.includes('effect') && <TableHead>Effect</TableHead>}
                   {visible.includes('gen') && (
                     <SortableHead
@@ -138,7 +138,7 @@ const Abilities: React.FC = () => {
               <TableBody>
                 {abilities.slice(0, shown).map((ability) => (
                   <TableRow key={ability.id}>
-                    <TableCell className="whitespace-nowrap font-medium">
+                    <TableCell className="w-56 font-medium">
                       <Link to={`/abilities/${ability.name}`} className="hover:underline">
                         {ability.displayName}
                       </Link>

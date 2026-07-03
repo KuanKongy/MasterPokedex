@@ -157,7 +157,7 @@ const ItemCatalogue: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableHead field="name" label="Item" sort={sort} dir={dir} onSort={handleSort} className="min-w-[12rem]" />
+                <SortableHead field="name" label="Item" sort={sort} dir={dir} onSort={handleSort} className="w-64" />
                 <SortableHead field="category" label="Category" sort={sort} dir={dir} onSort={handleSort} className="w-40" />
                 <SortableHead
                   field="cost"
@@ -176,7 +176,7 @@ const ItemCatalogue: React.FC = () => {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="whitespace-nowrap font-medium">
+                  <TableCell className="w-64 font-medium">
                     <Link to={`/items/${item.name}`} className="flex items-center gap-2 hover:underline">
                       <ItemSprite src={item.sprite} itemName={item.name} alt="" className="h-8 w-8" />
                       {item.displayName}

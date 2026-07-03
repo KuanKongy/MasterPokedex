@@ -151,7 +151,7 @@ const Moves: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <SortableHead field="name" label="Move" sort={sort} dir={dir} onSort={handleSort} className="min-w-[11rem]" />
+                  <SortableHead field="name" label="Move" sort={sort} dir={dir} onSort={handleSort} className="w-56" />
                   {visible.includes('type') && <TableHead className="w-28">Type</TableHead>}
                   {visible.includes('class') && (
                     <TableHead className="w-24">
@@ -218,7 +218,7 @@ const Moves: React.FC = () => {
               <TableBody>
                 {moves.slice(0, shown).map((move) => (
                   <TableRow key={move.id}>
-                    <TableCell className="whitespace-nowrap font-medium">
+                    <TableCell className="w-56 font-medium">
                       <Link to={`/moves/${move.name}`} className="hover:underline">
                         {move.displayName}
                       </Link>
