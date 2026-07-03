@@ -18,7 +18,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, ChevronRight, Heart, MapPin } from 'lucide-react';
+import CatchPokemonDialog from '../components/CatchPokemonDialog';
+import { ChevronLeft, ChevronRight, Heart, MapPin, Plus } from 'lucide-react';
 import { capitalize, formatHeight, formatWeight, getStatColor, formatStatName } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 import { TypeBadge, TYPE_BORDER } from '@/components/ui/type-badge';
@@ -51,6 +52,7 @@ const PokemonDetail: React.FC = () => {
   const { data: moves } = usePokemonMoves(pokemon?.id);
   const { data: favorites } = useMyFavorites();
   const setFavorite = useSetFavorite();
+  const [catching, setCatching] = useState<{ id: number; name: string } | null>(null);
 
   const isFavorite = !!pokemon && !!favorites?.some((f) => f.id === pokemon.id);
 
@@ -106,6 +108,15 @@ const PokemonDetail: React.FC = () => {
       return;
     }
     setFavorite.mutate({ pokemonId: pokemon.id, favorite: !isFavorite });
+  };
+
+  const handleCatch = () => {
+    if (!session) {
+      toast({ title: 'Sign in to catch Pokémon', description: 'Your teams live on your trainer account.' });
+      navigate('/login');
+      return;
+    }
+    setCatching({ id: pokemon.id, name: pokemon.name });
   };
 
   return (
@@ -167,15 +178,21 @@ const PokemonDetail: React.FC = () => {
               </p>
             )}
           </div>
-          <Button
-            variant={isFavorite ? 'default' : 'outline'}
-            onClick={handleFavorite}
-            disabled={setFavorite.isPending}
-            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart className={cn('mr-2 h-4 w-4', isFavorite && 'fill-current')} />
-            {isFavorite ? 'Favorited' : 'Favorite'}
-          </Button>
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={handleCatch}>
+              <Plus className="mr-2 h-4 w-4" />
+              Catch
+            </Button>
+            <Button
+              variant={isFavorite ? 'default' : 'outline'}
+              onClick={handleFavorite}
+              disabled={setFavorite.isPending}
+              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <Heart className={cn('mr-2 h-4 w-4', isFavorite && 'fill-current')} />
+              {isFavorite ? 'Favorited' : 'Favorite'}
+            </Button>
+          </div>
         </div>
         <div className="flex gap-2 mt-2">
           {pokemon.species.isLegendary && (
@@ -419,7 +436,17 @@ const PokemonDetail: React.FC = () => {
                       <div>
                         <div className="font-medium text-sm">{entry.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {entry.region ?? 'Unknown region'} · {[...entry.methods].join(', ')}
+                          {entry.region ? capitalize(entry.region) : 'Unknown region'}
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {[...entry.methods].map((method) => (
+                            <span
+                              key={method}
+                              className="rounded bg-muted px-1.5 py-0.5 text-[0.6875rem] capitalize text-muted-foreground"
+                            >
+                              {method.replace(/-/g, ' ')}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     </Link>
@@ -434,6 +461,8 @@ const PokemonDetail: React.FC = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <CatchPokemonDialog pokemon={catching} onClose={() => setCatching(null)} />
     </div>
   );
 };

@@ -6,7 +6,9 @@ import HelpTip, { HoverTip } from '../components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Search } from 'lucide-react';
+import { capitalize } from '../utils/helpers';
 import { cn } from '@/lib/utils';
 
 /**
@@ -24,17 +26,39 @@ const OTHER_REGION_ID = 0;
 const Locations: React.FC = () => {
   const { data: regions, isLoading } = useLocationCatalog();
   const [query, setQuery] = useState('');
+  const [kind, setKind] = useState('all');
+  const [areas, setAreas] = useState('any');
+
+  // Derived from the loaded data so kinds that never occur produce no option.
+  const kinds = useMemo(() => {
+    const set = new Set<string>();
+    for (const region of regions ?? []) for (const l of region.locations) if (l.kind) set.add(l.kind);
+    return [...set].sort();
+  }, [regions]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return regions ?? [];
+    if (!q && kind === 'all' && areas === 'any') return regions ?? [];
+    const matchesAreas = (l: { areaCount?: number; hasEncounters?: boolean }) =>
+      areas === 'any'
+        ? true
+        : areas === 'encounters'
+          ? !!l.hasEncounters
+          : areas === 'none'
+            ? (l.areaCount ?? 0) === 0
+            : (l.areaCount ?? 0) >= Number(areas);
     return (regions ?? [])
       .map((region) => ({
         ...region,
-        locations: region.locations.filter((l) => l.displayName.toLowerCase().includes(q)),
+        locations: region.locations.filter(
+          (l) =>
+            (!q || l.displayName.toLowerCase().includes(q)) &&
+            (kind === 'all' || l.kind === kind) &&
+            matchesAreas(l),
+        ),
       }))
       .filter((region) => region.locations.length > 0);
-  }, [regions, query]);
+  }, [regions, query, kind, areas]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -49,14 +73,42 @@ const Locations: React.FC = () => {
             </HelpTip>
           </p>
         </div>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter locations…"
-            className="pl-9"
-          />
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Filter locations…"
+              className="pl-9"
+            />
+          </div>
+          <Select value={kind} onValueChange={setKind}>
+            <SelectTrigger className="w-full sm:w-40" aria-label="Filter by kind">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All kinds</SelectItem>
+              {kinds.map((k) => (
+                <SelectItem key={k} value={k}>
+                  {capitalize(k.replace(/-/g, ' '))}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={areas} onValueChange={setAreas}>
+            <SelectTrigger className="w-full sm:w-44" aria-label="Filter by areas">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">All locations</SelectItem>
+              <SelectItem value="encounters">Has encounters</SelectItem>
+              <SelectItem value="1">1+ areas</SelectItem>
+              <SelectItem value="3">3+ areas</SelectItem>
+              <SelectItem value="5">5+ areas</SelectItem>
+              <SelectItem value="none">No areas</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -102,9 +154,18 @@ const Locations: React.FC = () => {
                     >
                       <span className="min-w-0 flex-1 truncate">{location.displayName}</span>
                       {location.kind && (
-                        <Badge variant="outline" className="shrink-0 capitalize text-[0.6875rem]">
-                          {location.kind}
-                        </Badge>
+                        <HoverTip
+                          title="Kind"
+                          className="shrink-0"
+                          trigger={
+                            <Badge variant="outline" className="capitalize text-[0.6875rem]">
+                              {location.kind}
+                            </Badge>
+                          }
+                        >
+                          What sort of place this is: a city, a route, a cave, a forest and so
+                          on, as the games classify it.
+                        </HoverTip>
                       )}
                       {location.hasEncounters && (
                         <HoverTip
@@ -127,7 +188,7 @@ const Locations: React.FC = () => {
             </Card>
           ))}
           {filtered.length === 0 && (
-            <p className="py-12 text-center text-muted-foreground">No locations match “{query.trim()}”.</p>
+            <p className="py-12 text-center text-muted-foreground">No locations match those filters.</p>
           )}
         </div>
       )}

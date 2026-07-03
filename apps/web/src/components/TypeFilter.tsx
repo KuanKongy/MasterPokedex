@@ -1,6 +1,7 @@
 import React from 'react';
 import { POKEMON_TYPES } from '@masterpokedex/shared';
 import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
 import { TypeBadge } from './ui/type-badge';
 import { LayoutGrid } from 'lucide-react';
 
@@ -18,18 +19,22 @@ const TypeFilter: React.FC<TypeFilterProps> = ({ selectedType, setSelectedType }
   return (
     <div className="space-y-2">
       <h3 className="font-medium">Filter by Type</h3>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Structurally identical to the type options below (button wrapping a
+            Badge), or line-height differences make it render a hair smaller. */}
         <button
           type="button"
           onClick={() => setSelectedType('all')}
           aria-pressed={selectedType === 'all'}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted/70',
-            selectedType === 'all' && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+            'rounded-full transition-shadow',
+            selectedType === 'all' && 'ring-2 ring-primary',
           )}
         >
-          <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />
-          All Types
+          <Badge className="gap-1 rounded-full border-transparent bg-muted text-foreground hover:bg-muted/70">
+            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
+            All Types
+          </Badge>
         </button>
         {POKEMON_TYPES.map((type) => (
           <button
@@ -39,7 +44,7 @@ const TypeFilter: React.FC<TypeFilterProps> = ({ selectedType, setSelectedType }
             aria-pressed={selectedType === type}
             className={cn(
               'rounded-full transition-shadow',
-              selectedType === type && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+              selectedType === type && 'ring-2 ring-primary',
             )}
           >
             <TypeBadge type={type} icon />

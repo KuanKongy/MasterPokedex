@@ -53,7 +53,7 @@ const Map = () => {
             setParams(region ? { region: region.name } : {}, { replace: true });
           }}
         >
-          <TabsList className="mb-4 flex overflow-x-auto justify-start w-full">
+          <TabsList className="mx-auto mb-4 flex w-fit max-w-full justify-start overflow-x-auto">
             {regions.map((region) => (
               <TabsTrigger key={region.id} value={region.id.toString()}>
                 {region.displayName}
@@ -70,9 +70,16 @@ const Map = () => {
                   {/* Counts as chips rather than a run-on sentence — three
                       numbers separated by middots read as one long caption. */}
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <Badge variant="secondary" className="font-normal">
-                      {region.locationCount} locations
-                    </Badge>
+                    <HoverTip
+                      title="Locations"
+                      trigger={
+                        <Badge variant="secondary" className="font-normal">
+                          {region.locationCount} locations
+                        </Badge>
+                      }
+                    >
+                      Named places in this region; the pins on the map below open each one.
+                    </HoverTip>
                     {region.areaCount > 0 && (
                       <HoverTip
                         title="Areas"
@@ -87,9 +94,17 @@ const Map = () => {
                       </HoverTip>
                     )}
                     {region.speciesCount > 0 && (
-                      <Badge variant="secondary" className="font-normal">
-                        {region.speciesCount} Pokémon found here
-                      </Badge>
+                      <HoverTip
+                        title="Pokémon found here"
+                        trigger={
+                          <Badge variant="secondary" className="font-normal">
+                            {region.speciesCount} Pokémon found here
+                          </Badge>
+                        }
+                      >
+                        Distinct species with at least one recorded wild encounter somewhere
+                        in this region.
+                      </HoverTip>
                     )}
                   </div>
                 </CardHeader>

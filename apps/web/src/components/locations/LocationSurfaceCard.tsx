@@ -32,7 +32,7 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
   const { data: location, isLoading, error } = useLocationDetail(locationId);
 
   return (
-    <Card className="flex h-[32rem] flex-col shadow-md">
+    <Card className="flex h-[28rem] flex-col shadow-md lg:h-[40rem]">
       <CardHeader className="flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div className="min-w-0">
           {location && (

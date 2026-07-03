@@ -66,31 +66,132 @@ function groupByMethod(encounters: AreaEncounter[]): Array<{ method: string; row
   }));
 }
 
-/** Every distinct Pokémon in an area, regardless of rod, weather or version. */
-function uniquePokemon(rows: AreaEncounter[]) {
-  const seen = new Map<number, string>();
-  for (const row of rows) if (!seen.has(row.pokemonId)) seen.set(row.pokemonId, row.pokemonName);
-  return [...seen]
-    .map(([pokemonId, pokemonName]) => ({ pokemonId, pokemonName }))
+type PokemonAggregate = {
+  pokemonId: number;
+  pokemonName: string;
+  types: AreaEncounter['types'];
+  minLevel: number;
+  maxLevel: number;
+  methods: string[];
+  bestRarity: AreaEncounter['rarity'];
+  bestChance: number;
+  versions: string[];
+  conditions: string[];
+};
+
+/**
+ * Every distinct Pokémon in an area, with its rows folded into one summary
+ * (level range, methods, best odds) so the chip has something to say on hover.
+ */
+function aggregatePokemon(rows: AreaEncounter[]): PokemonAggregate[] {
+  type Working = PokemonAggregate & {
+    methodSet: Set<string>;
+    versionSet: Set<string>;
+    conditionSet: Set<string>;
+  };
+  const seen = new Map<number, Working>();
+  for (const row of rows) {
+    let entry = seen.get(row.pokemonId);
+    if (!entry) {
+      entry = {
+        pokemonId: row.pokemonId,
+        pokemonName: row.pokemonName,
+        types: row.types,
+        minLevel: row.minLevel,
+        maxLevel: row.maxLevel,
+        methods: [],
+        bestRarity: row.rarity,
+        bestChance: row.chance,
+        versions: [],
+        conditions: [],
+        methodSet: new Set(),
+        versionSet: new Set(),
+        conditionSet: new Set(),
+      };
+      seen.set(row.pokemonId, entry);
+    }
+    entry.minLevel = Math.min(entry.minLevel, row.minLevel);
+    entry.maxLevel = Math.max(entry.maxLevel, row.maxLevel);
+    entry.methodSet.add(row.method);
+    for (const version of row.versions) entry.versionSet.add(version);
+    for (const condition of row.conditions) entry.conditionSet.add(condition);
+    if (row.rarity !== 'unknown' && (entry.bestRarity === 'unknown' || row.chance > entry.bestChance)) {
+      entry.bestRarity = row.rarity;
+      entry.bestChance = row.chance;
+    }
+  }
+  return [...seen.values()]
+    .map(({ methodSet, versionSet, conditionSet, ...entry }) => ({
+      ...entry,
+      methods: [...methodSet],
+      versions: [...versionSet],
+      conditions: [...conditionSet],
+    }))
     .sort((a, b) => a.pokemonId - b.pokemonId);
 }
 
-const PokemonChip: React.FC<{ pokemonId: number; pokemonName: string }> = ({ pokemonId, pokemonName }) => {
+const PokemonChip: React.FC<PokemonAggregate> = ({
+  pokemonId,
+  pokemonName,
+  types,
+  minLevel,
+  maxLevel,
+  methods,
+  bestRarity,
+  bestChance,
+  versions,
+  conditions,
+}) => {
   const { spriteStyle } = useSpritePref();
   return (
-    <Link
-      to={`/pokemon/${pokemonId}`}
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-sm transition-colors hover:border-pokebrand-extra/60"
+    <HoverTip
+      clickThrough
+      title={capitalize(pokemonName)}
+      trigger={
+        <Link
+          to={`/pokemon/${pokemonId}`}
+          className="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-sm transition-colors hover:border-pokebrand-extra/60"
+        >
+          <img
+            src={pokemonImage(pokemonId, spriteStyle)}
+            alt=""
+            loading="lazy"
+            onError={(e) => spriteFallback(e, pokemonId)}
+            className={cn('h-10 w-10 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+          />
+          {capitalize(pokemonName)}
+        </Link>
+      }
     >
-      <img
-        src={pokemonImage(pokemonId, spriteStyle)}
-        alt=""
-        loading="lazy"
-        onError={(e) => spriteFallback(e, pokemonId)}
-        className={cn('h-6 w-6 object-contain', spriteStyle === 'sprite' && 'pixelated')}
-      />
-      {capitalize(pokemonName)}
-    </Link>
+      <div className="space-y-1.5 text-xs">
+        <div className="flex gap-1">
+          {types.map((type) => (
+            <TypeBadge key={type} type={type} size="sm" />
+          ))}
+        </div>
+        <p>Levels {minLevel === maxLevel ? minLevel : `${minLevel}–${maxLevel}`}</p>
+        <p className="capitalize">{methods.map((method) => method.replace(/-/g, ' ')).join(', ')}</p>
+        <p className="capitalize">
+          {bestRarity === 'unknown'
+            ? 'Rarity unknown'
+            : `Up to ${bestChance}% (${bestRarity.replace('-', ' ')})`}
+        </p>
+        {versions.length > 0 && (
+          <div className="flex max-w-56 flex-wrap gap-1">
+            {versions.map((version) => (
+              <span key={version} className="rounded bg-muted px-1.5 py-0.5 text-[0.6875rem]">
+                {prettifyIdent(version)}
+              </span>
+            ))}
+          </div>
+        )}
+        {conditions.length > 0 && (
+          <p className="capitalize text-muted-foreground">
+            {conditions.map((condition) => condition.replace(/-/g, ' ')).join(', ')}
+          </p>
+        )}
+      </div>
+    </HoverTip>
   );
 };
 
@@ -131,7 +232,7 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                           alt=""
                           loading="lazy"
                           onError={(e) => spriteFallback(e, encounter.pokemonId)}
-                          className={cn('h-8 w-8 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                          className={cn('h-10 w-10 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                         />
                         {capitalize(encounter.pokemonName)}
                       </Link>
@@ -208,7 +309,7 @@ const DetailCompact: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                   alt=""
                   loading="lazy"
                   onError={(e) => spriteFallback(e, encounter.pokemonId)}
-                  className={cn('h-6 w-6 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                  className={cn('h-8 w-8 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                 />
                 <Link to={`/pokemon/${encounter.pokemonId}`} className="min-w-0 truncate hover:underline">
                   {capitalize(encounter.pokemonName)}
@@ -251,11 +352,11 @@ const AreaSection: React.FC<{ area: LocationArea; variant: 'full' | 'compact'; s
   showHeading,
 }) => {
   const [open, setOpen] = useState(false);
-  const pokemon = uniquePokemon(area.encounters);
+  const pokemon = aggregatePokemon(area.encounters);
 
   const body = (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {pokemon.map((p) => (
           <PokemonChip key={p.pokemonId} {...p} />
         ))}

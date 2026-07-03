@@ -60,15 +60,34 @@ const TypeChart: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Type chart</h1>
-      <p className="text-muted-foreground mb-8">
-        Attacking type on the left, defending type along the top — 2 is super effective, ½ not very, 0 no effect
+      <p className="text-muted-foreground mb-3">
+        Attacking type on the left, defending type along the top. 2 is super effective, ½ not very
+        effective, 0 no effect, and a blank cell is plain ×1.
       </p>
+      <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+        {[
+          { factor: 200, text: 'Super effective (×2)' },
+          { factor: 50, text: 'Not very effective (×½)' },
+          { factor: 0, text: 'No effect (×0)' },
+          { factor: 100, text: 'Normal damage (×1)' },
+        ].map(({ factor, text }) => {
+          const { className, label } = cellStyle(factor);
+          return (
+            <span key={factor} className="inline-flex items-center gap-1.5">
+              <span className={cn('flex h-5 w-5 items-center justify-center rounded text-sm font-bold', className)}>
+                {label}
+              </span>
+              {text}
+            </span>
+          );
+        })}
+      </div>
 
       {isLoading ? (
         <LoadingSpinner />
       ) : (
         <div className="overflow-x-auto pb-4">
-          <table className="border-separate border-spacing-0.5">
+          <table className="mx-auto border-separate border-spacing-0.5">
             <thead>
               <tr>
                 <th className="sticky left-0 z-10 bg-background p-1 text-right text-xs text-muted-foreground">

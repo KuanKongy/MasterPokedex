@@ -28,7 +28,8 @@ import { isApiError } from '@/lib/api';
 import { capitalize } from '../utils/helpers';
 
 interface CatchPokemonDialogProps {
-  pokemon: PokemonSummary | null;
+  /** Only id and name are read, so detail pages can pass their own shape. */
+  pokemon: Pick<PokemonSummary, 'id' | 'name'> | null;
   onClose: () => void;
 }
 

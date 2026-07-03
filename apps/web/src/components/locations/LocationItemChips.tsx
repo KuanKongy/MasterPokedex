@@ -37,7 +37,7 @@ const LocationItemChips: React.FC<{ items: LocationItem[]; compact?: boolean; li
                 src={item.sprite}
                 itemName={item.itemName ?? undefined}
                 alt=""
-                className={compact ? 'h-4 w-4' : 'h-5 w-5'}
+                className={compact ? 'h-5 w-5' : 'h-6 w-6'}
               />
               {item.itemDisplayName ?? item.label}
               {item.spots > 1 && <span className="text-muted-foreground">×{item.spots}</span>}

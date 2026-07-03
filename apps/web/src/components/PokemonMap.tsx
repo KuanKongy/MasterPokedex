@@ -204,7 +204,7 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
 
       {/* ── every location, and whichever one is open ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3" ref={panelRef}>
-        <Card className="flex h-[32rem] flex-col shadow-md">
+        <Card className="flex h-[28rem] flex-col shadow-md lg:h-[40rem]">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <MapPin className="h-4 w-4 text-pokebrand-red" />
@@ -265,7 +265,7 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
               onClose={() => setSelectedId(null)}
             />
           ) : (
-            <Card className="flex h-[32rem] items-center justify-center shadow-md">
+            <Card className="flex h-[28rem] items-center justify-center shadow-md lg:h-[40rem]">
               <div className="px-6 text-center">
                 <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground/60" />
                 <p className="font-semibold">Pick a location</p>

@@ -4,6 +4,7 @@ import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui
 import { Search } from 'lucide-react';
 import type { SearchKind, SearchResult } from '@masterpokedex/shared';
 import { useSearch } from '@/hooks/api/dex';
+import ItemSprite from '@/components/ItemSprite';
 import { pokemonImage, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +28,7 @@ function routeFor(result: SearchResult): string {
     case 'ability':
       return `/abilities/${result.name}`;
     case 'item':
-      return `/items?q=${encodeURIComponent(result.displayName)}`;
+      return `/items/${result.name}`;
     case 'location':
       return `/locations/${result.id}`;
     case 'type':
@@ -141,6 +142,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ variant = 'header', autoFocus, 
                       loading="lazy"
                       className={cn('h-8 w-8 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                     />
+                  ) : item.kind === 'item' ? (
+                    <ItemSprite src={item.image} itemName={item.name} alt="" className="h-8 w-8" />
                   ) : item.image ? (
                     <img src={item.image} alt="" loading="lazy" className="h-8 w-8 object-contain pixelated" />
                   ) : (

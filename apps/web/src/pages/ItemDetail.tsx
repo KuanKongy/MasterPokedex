@@ -47,14 +47,28 @@ const ItemDetail: React.FC = () => {
             <h1 className="text-2xl font-extrabold md:text-3xl">{item.displayName}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {item.categoryName && (
-                <Badge variant="secondary" className="capitalize">
-                  {item.categoryName}
-                </Badge>
+                <HoverTip
+                  title="Category"
+                  trigger={
+                    <Badge variant="secondary" className="capitalize">
+                      {item.categoryName}
+                    </Badge>
+                  }
+                >
+                  The dex's grouping for what the item does, finer than the bag pockets.
+                </HoverTip>
               )}
               {item.pocket && (
-                <Badge variant="outline" className="capitalize">
-                  {item.pocket.replace(/-/g, ' ')} pocket
-                </Badge>
+                <HoverTip
+                  title="Bag pocket"
+                  trigger={
+                    <Badge variant="outline" className="capitalize">
+                      {item.pocket.replace(/-/g, ' ')} pocket
+                    </Badge>
+                  }
+                >
+                  The pouch of the in-game bag this item is stored in.
+                </HoverTip>
               )}
               {item.cost !== null && item.cost > 0 && (
                 <HoverTip

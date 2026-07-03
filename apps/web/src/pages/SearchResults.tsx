@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { SearchKind, SearchResult } from '@masterpokedex/shared';
 import { useSearch } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ItemSprite from '../components/ItemSprite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { pokemonImage, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
@@ -27,7 +28,7 @@ function routeFor(result: SearchResult): string {
     case 'ability':
       return `/abilities/${result.name}`;
     case 'item':
-      return `/items?q=${encodeURIComponent(result.displayName)}`;
+      return `/items/${result.name}`;
     case 'location':
       return `/locations/${result.id}`;
     case 'type':
@@ -99,6 +100,8 @@ const SearchResults: React.FC = () => {
                           loading="lazy"
                           className={cn('h-10 w-10 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                         />
+                      ) : item.kind === 'item' ? (
+                        <ItemSprite src={item.image} itemName={item.name} alt="" className="h-10 w-10" />
                       ) : item.image ? (
                         <img src={item.image} alt="" loading="lazy" className="h-10 w-10 object-contain pixelated" />
                       ) : (

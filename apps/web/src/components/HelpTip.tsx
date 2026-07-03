@@ -102,30 +102,45 @@ const HelpTip: React.FC<TipProps> = ({ title, faq, className, children }) => {
 type HoverTipProps = TipProps & {
   /** What the tip explains; rendered as the trigger itself. */
   trigger: React.ReactNode;
+  /**
+   * When the trigger wraps something interactive (a Link chip), leave clicks
+   * alone: hover still opens the tip, but a click reaches the link instead of
+   * toggling the popover. The trigger also stops pretending to be a button,
+   * since the inner element is the focusable one.
+   */
+  clickThrough?: boolean;
 };
 
-export const HoverTip: React.FC<HoverTipProps> = ({ trigger, title, faq, className, children }) => {
+export const HoverTip: React.FC<HoverTipProps> = ({ trigger, title, faq, className, children, clickThrough }) => {
   const { open, setOpen, schedule, hold } = useTipState();
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <span
-          role="button"
-          tabIndex={0}
-          className={cn('inline-flex cursor-help items-center', className)}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            hold();
-            setOpen((current) => !current);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              e.stopPropagation();
-              setOpen((current) => !current);
-            }
-          }}
+          {...(clickThrough
+            ? {}
+            : {
+                role: 'button' as const,
+                tabIndex: 0,
+                onKeyDown: (e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpen((current) => !current);
+                  }
+                },
+              })}
+          className={cn('inline-flex items-center', !clickThrough && 'cursor-help', className)}
+          onClick={
+            clickThrough
+              ? undefined
+              : (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  hold();
+                  setOpen((current) => !current);
+                }
+          }
           onMouseEnter={() => schedule(true)}
           onMouseLeave={() => schedule(false)}
         >
