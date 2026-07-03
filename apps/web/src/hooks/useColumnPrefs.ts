@@ -10,17 +10,22 @@ export function useColumnPrefs(pageKey: string, allKeys: readonly string[], defa
   const [visible, setVisible] = useState<string[]>([...defaults]);
 
   useEffect(() => {
+    // Fall back to the defaults whenever the key changes and nothing is
+    // stored, or a page whose key varies (the advanced search's per-entity
+    // prefs) would keep showing the previous key's columns.
+    let next = [...defaults];
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw) as unknown;
         if (Array.isArray(parsed)) {
-          setVisible(parsed.filter((k): k is string => typeof k === 'string' && allKeys.includes(k)));
+          next = parsed.filter((k): k is string => typeof k === 'string' && allKeys.includes(k));
         }
       }
     } catch {
       // stay on defaults
     }
+    setVisible(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey]);
 

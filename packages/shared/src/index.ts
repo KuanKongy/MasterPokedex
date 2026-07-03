@@ -6,5 +6,6 @@ export * from './filters';
 export * from './moves';
 export * from './abilities';
 export * from './items';
+export * from './evolutions';
 export * from './search';
 export * from './entity-filters';

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type {
   AbilitySummary,
+  EvolutionSearchRow,
   ItemSummary,
   LocationSearchRow,
   MoveSummary,
@@ -48,7 +49,7 @@ export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
   { key: 'id', label: 'ID', defaultOn: true, sortField: 'id', width: 'w-16', render: (p) => `#${p.id}` },
   {
     key: 'name',
-    width: 'min-w-[10rem]',
+    width: 'w-56',
     label: 'Name',
     defaultOn: true,
     sortField: 'name',
@@ -88,8 +89,8 @@ export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
   { key: 'hp', label: 'HP', defaultOn: true, sortField: 'hp', width: 'w-20', alignRight: true, render: (p) => p.stats.hp },
   { key: 'attack', label: 'Attack', defaultOn: true, sortField: 'attack', width: 'w-20', alignRight: true, render: (p) => p.stats.attack },
   { key: 'defense', label: 'Defense', defaultOn: true, sortField: 'defense', width: 'w-20', alignRight: true, render: (p) => p.stats.defense },
-  { key: 'specialAttack', label: 'Sp. Atk', sortField: 'specialAttack', width: 'w-20', alignRight: true, render: (p) => p.stats.specialAttack },
-  { key: 'specialDefense', label: 'Sp. Def', sortField: 'specialDefense', width: 'w-20', alignRight: true, render: (p) => p.stats.specialDefense },
+  { key: 'specialAttack', label: 'Sp. Atk', defaultOn: true, sortField: 'specialAttack', width: 'w-20', alignRight: true, render: (p) => p.stats.specialAttack },
+  { key: 'specialDefense', label: 'Sp. Def', defaultOn: true, sortField: 'specialDefense', width: 'w-20', alignRight: true, render: (p) => p.stats.specialDefense },
   { key: 'speed', label: 'Speed', defaultOn: true, sortField: 'speed', width: 'w-20', alignRight: true, render: (p) => p.stats.speed },
   { key: 'height', label: 'Height', help: 'In the games\u2019 raw unit: decimetres (10 = 1 m).', sortField: 'height', width: 'w-24', alignRight: true, render: (p) => p.height },
   { key: 'weight', label: 'Weight', help: 'In the games\u2019 raw unit: hectograms (10 = 1 kg).', sortField: 'weight', width: 'w-24', alignRight: true, render: (p) => p.weight },
@@ -114,7 +115,7 @@ export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
 export const MOVE_COLUMNS: ColumnDef<MoveSummary>[] = [
   {
     key: 'name',
-    width: 'min-w-[10rem]',
+    width: 'w-56',
     label: 'Move',
     defaultOn: true,
     sortField: 'name',
@@ -154,7 +155,7 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
     defaultOn: true,
     render: (i) => <ItemSprite src={i.sprite} itemName={i.name} alt={i.displayName} className="w-8 h-8" />,
   },
-  { key: 'name', label: 'Name', defaultOn: true, sortField: 'name', width: 'min-w-[10rem]', render: (i) => <span className="font-medium">{i.displayName}</span> },
+  { key: 'name', label: 'Name', defaultOn: true, sortField: 'name', width: 'w-56', render: (i) => <span className="font-medium">{i.displayName}</span> },
   { key: 'category', label: 'Category', defaultOn: true, sortField: 'category', width: 'w-32', render: (i) => i.category ?? '—' },
   { key: 'cost', label: 'Cost', defaultOn: true, sortField: 'cost', width: 'w-24', alignRight: true, render: (i) => (i.cost ? `₽${i.cost}` : '—') },
   {
@@ -170,7 +171,7 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
 export const ABILITY_COLUMNS: ColumnDef<AbilitySummary>[] = [
   {
     key: 'name',
-    width: 'min-w-[11rem]',
+    width: 'w-56',
     label: 'Ability',
     defaultOn: true,
     sortField: 'name',
@@ -195,7 +196,7 @@ export const ABILITY_COLUMNS: ColumnDef<AbilitySummary>[] = [
 export const LOCATION_COLUMNS: ColumnDef<LocationSearchRow>[] = [
   {
     key: 'name',
-    width: 'min-w-[11rem]',
+    width: 'w-56',
     label: 'Location',
     defaultOn: true,
     render: (l) => (
@@ -220,6 +221,98 @@ export const LOCATION_COLUMNS: ColumnDef<LocationSearchRow>[] = [
   },
 ];
 
+export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
+  {
+    key: 'sprite',
+    label: 'Image',
+    defaultOn: true,
+    width: 'w-14',
+    render: (e) => (
+      <Link to={`/pokemon/${e.toId}`}>
+        {e.sprite && <img src={e.sprite} alt={e.toName} className="w-10 h-10 pixelated" />}
+      </Link>
+    ),
+  },
+  {
+    key: 'from',
+    label: 'From',
+    defaultOn: true,
+    width: 'w-40',
+    render: (e) =>
+      e.fromId ? (
+        <Link to={`/pokemon/${e.fromId}`} className="font-medium hover:underline">
+          {e.fromName}
+        </Link>
+      ) : (
+        <span className="text-muted-foreground">{'—'}</span>
+      ),
+  },
+  {
+    key: 'pokemon',
+    label: 'Evolves into',
+    defaultOn: true,
+    width: 'w-44',
+    render: (e) => (
+      <Link to={`/pokemon/${e.toId}`} className="font-medium hover:underline">
+        {e.toName}
+      </Link>
+    ),
+  },
+  {
+    key: 'trigger',
+    label: 'Trigger',
+    defaultOn: true,
+    width: 'w-32',
+    render: (e) => <span className="capitalize">{e.trigger?.replace(/-/g, ' ') ?? '—'}</span>,
+  },
+  {
+    key: 'item',
+    label: 'Item',
+    defaultOn: true,
+    width: 'w-36',
+    render: (e) =>
+      e.item ? (
+        <span className="capitalize">{e.item.replace(/-/g, ' ')}</span>
+      ) : (
+        <span className="text-muted-foreground">{'—'}</span>
+      ),
+  },
+  {
+    key: 'minLevel',
+    label: 'Level',
+    defaultOn: true,
+    width: 'w-20',
+    alignRight: true,
+    render: (e) => e.minLevel ?? '—',
+  },
+  {
+    key: 'minHappiness',
+    label: 'Friendship',
+    help: 'Needs this much friendship before it evolves; friendship evolutions level up with no level requirement.',
+    defaultOn: true,
+    width: 'w-24',
+    alignRight: true,
+    render: (e) => e.minHappiness ?? '—',
+  },
+  {
+    key: 'heldItem',
+    label: 'Held item',
+    width: 'w-36',
+    render: (e) =>
+      e.heldItem ? (
+        <span className="capitalize">{e.heldItem.replace(/-/g, ' ')}</span>
+      ) : (
+        <span className="text-muted-foreground">{'—'}</span>
+      ),
+  },
+  {
+    key: 'timeOfDay',
+    label: 'Time',
+    width: 'w-24',
+    render: (e) => <span className="capitalize">{e.timeOfDay ?? '—'}</span>,
+  },
+];
+
 // A registry keyed like ENTITY_FILTER_META; rows are typed per entity at the
 // use site, so the registry itself stays loosely typed.
 export const ENTITY_COLUMNS: Record<FilterEntity, ColumnDef<never>[]> = {
@@ -228,4 +321,5 @@ export const ENTITY_COLUMNS: Record<FilterEntity, ColumnDef<never>[]> = {
   ability: ABILITY_COLUMNS as ColumnDef<never>[],
   item: ITEM_COLUMNS as ColumnDef<never>[],
   location: LOCATION_COLUMNS as ColumnDef<never>[],
+  evolution: EVOLUTION_COLUMNS as ColumnDef<never>[],
 };

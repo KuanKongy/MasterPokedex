@@ -6,6 +6,8 @@ import {
   type AbilitySummary,
   type DamageClass,
   type EvolutionChain,
+  type EvolutionFilter,
+  type EvolutionSearchRow,
   type ItemFilter,
   type ItemSortField,
   type ItemSummary,
@@ -90,6 +92,43 @@ export function useAllMoves() {
     queryKey: ['moves', 'all'],
     queryFn: () => fetchAll<MoveSummary>('/v1/moves', 200),
     staleTime: Infinity,
+  });
+}
+
+/**
+ * All 541 evolution families in three requests, cached for the session; the
+ * Evolutions page filters and sorts them client-side like Moves does.
+ */
+export function useAllEvolutionChains() {
+  return useQuery({
+    queryKey: ['evolution-chains', 'all'],
+    queryFn: () => fetchAll<EvolutionChain>('/v1/evolution-chains', 200),
+    staleTime: Infinity,
+  });
+}
+
+/** The advanced search's Evolutions entity: one row per evolution edge. */
+export function useEvolutionSearch(
+  params: { filter?: EvolutionFilter; limit?: number },
+  options: { enabled?: boolean } = {},
+) {
+  return useInfiniteQuery({
+    queryKey: ['evolutions', 'search', params],
+    queryFn: ({ pageParam }) => {
+      const search = new URLSearchParams();
+      if (params.filter && params.filter.conditions.length > 0) {
+        search.set('filter', JSON.stringify(params.filter));
+      }
+      search.set('limit', String(params.limit ?? 50));
+      if (pageParam) search.set('cursor', pageParam);
+      return apiFetch<{ items: EvolutionSearchRow[]; nextCursor: string | null }>(
+        `/v1/evolutions/search?${search.toString()}`,
+      );
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled: options.enabled ?? true,
+    placeholderData: keepPreviousData,
   });
 }
 

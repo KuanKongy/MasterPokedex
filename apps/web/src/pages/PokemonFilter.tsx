@@ -4,6 +4,7 @@ import {
   DAMAGE_CLASSES,
   ENTITY_FILTER_META,
   ENTITY_LABELS,
+  EVOLUTION_TRIGGERS,
   FILTER_ENTITIES,
   GROWTH_RATES,
   POKEMON_TYPES,
@@ -15,7 +16,8 @@ import {
   type SortDir,
 } from '@masterpokedex/shared';
 import { usePokemonList } from '@/hooks/api/pokemon';
-import { useAbilities, useItemSearch, useLocationSearch, useMoves } from '@/hooks/api/dex';
+import { useAbilities, useEvolutionSearch, useItemSearch, useLocationSearch, useMoves } from '@/hooks/api/dex';
+import { useColumnPrefs } from '@/hooks/useColumnPrefs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -100,7 +102,10 @@ const ENUM_OPTIONS: Record<string, readonly string[]> = {
   type: POKEMON_TYPES,
   growthRate: GROWTH_RATES,
   damageClass: DAMAGE_CLASSES,
+  evolutionTrigger: EVOLUTION_TRIGGERS,
 };
+
+const COLUMNS_STYLE_KEY = 'masterpokedex.advancedColumnsStyle';
 
 /** Numeric columns read best highest-first, matching the list pages. */
 const ADV_DESC_FIRST = new Set([
@@ -133,17 +138,30 @@ const PokemonFilter: React.FC = () => {
   const [drafts, setDrafts] = useState<DraftCondition[]>([newCondition(entity)]);
   const [match, setMatch] = useState<'all' | 'any'>('all');
   const [applied, setApplied] = useState<AppliedFilter | null>(null);
-  const [columns, setColumns] = useState<string[]>(defaultColumns(entity));
+  // Column choices persist per entity, like every other data page.
+  const { visible: columns, toggle: toggleColumn } = useColumnPrefs(
+    `advanced-${entity}`,
+    ENTITY_COLUMNS[entity].map((c) => c.key),
+    defaultColumns(entity),
+  );
   // Two presentations of the same column picker, kept side by side on purpose
-  // so the tidied checkboxes and the new pills can be compared live.
-  const [columnsStyle, setColumnsStyle] = useState<'checks' | 'pills'>('pills');
-
-  const toggleColumn = (key: string, on: boolean) =>
-    setColumns((current) =>
-      on
-        ? ENTITY_COLUMNS[entity].map((c) => c.key).filter((k) => current.includes(k) || k === key)
-        : current.filter((k) => k !== key),
-    );
+  // so the tidied checkboxes and the new pills can be compared live; the pick
+  // is a preference, so it sticks.
+  const [columnsStyle, setColumnsStyleState] = useState<'checks' | 'pills'>(() => {
+    try {
+      return window.localStorage.getItem(COLUMNS_STYLE_KEY) === 'checks' ? 'checks' : 'pills';
+    } catch {
+      return 'pills';
+    }
+  });
+  const setColumnsStyle = (style: 'checks' | 'pills') => {
+    setColumnsStyleState(style);
+    try {
+      window.localStorage.setItem(COLUMNS_STYLE_KEY, style);
+    } catch {
+      // preference just won't stick
+    }
+  };
 
   // Sort state lives in the URL beside ?entity=; only values that map to a
   // sortable column of the ACTIVE entity count, so a stale ?sort= from a
@@ -178,7 +196,7 @@ const PokemonFilter: React.FC = () => {
     setParams(next === 'pokemon' ? {} : { entity: next }, { replace: true });
     setDrafts([newCondition(next)]);
     setApplied(null);
-    setColumns(defaultColumns(next));
+    // Column choices reload from the per-entity preference automatically.
     setMatch('all');
   };
 
@@ -225,6 +243,10 @@ const PokemonFilter: React.FC = () => {
     { filter: (applied as never) ?? undefined, limit: 50 },
     { enabled: enabled && entity === 'location' },
   );
+  const evolutionQuery = useEvolutionSearch(
+    { filter: (applied as never) ?? undefined, limit: 50 },
+    { enabled: enabled && entity === 'evolution' },
+  );
   const query =
     entity === 'pokemon'
       ? pokemonQuery
@@ -234,7 +256,9 @@ const PokemonFilter: React.FC = () => {
           ? abilityQuery
           : entity === 'location'
             ? locationQuery
-            : itemQuery;
+            : entity === 'evolution'
+              ? evolutionQuery
+              : itemQuery;
 
   const results = enabled ? (query.data?.pages.flatMap((p) => p.items as never[]) ?? []) : [];
   const activeColumns = ENTITY_COLUMNS[entity].filter((c) => columns.includes(c.key));

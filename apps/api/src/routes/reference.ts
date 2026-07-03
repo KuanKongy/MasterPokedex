@@ -3,8 +3,10 @@ import { sql, type SQL } from 'drizzle-orm';
 import {
   ItemListQuerySchema,
   PokemonTypeSchema,
+  decodeEvolutionFilter,
   decodeItemFilter,
   type EvolutionChain,
+  type EvolutionFilterCondition,
   type ItemFilterCondition,
 } from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
@@ -29,6 +31,55 @@ const ITEM_SORT_COLUMNS: Record<string, SQL> = {
 
 function itemConditionToSql(condition: ItemFilterCondition): SQL {
   const column = ITEM_FILTER_COLUMNS[condition.field];
+  if (!column) {
+    throw ApiError.badRequest(`Field "${condition.field}" is not filterable`);
+  }
+  switch (condition.op) {
+    case 'eq':
+      return sql`${column} = ${condition.value}`;
+    case 'neq':
+      return sql`${column} IS DISTINCT FROM ${condition.value}`;
+    case 'gt':
+      return sql`${column} > ${condition.value}`;
+    case 'gte':
+      return sql`${column} >= ${condition.value}`;
+    case 'lt':
+      return sql`${column} < ${condition.value}`;
+    case 'lte':
+      return sql`${column} <= ${condition.value}`;
+    case 'contains':
+      return sql`${column} ILIKE ${`%${condition.value}%`}`;
+    case 'startsWith':
+      return sql`${column} ILIKE ${`${condition.value}%`}`;
+    case 'endsWith':
+      return sql`${column} ILIKE ${`%${condition.value}`}`;
+    default: {
+      const exhaustive: never = condition;
+      throw ApiError.badRequest(`Unsupported operator on ${JSON.stringify(exhaustive)}`);
+    }
+  }
+}
+
+/**
+ * One row per evolution edge. `pokemon` is the species the edge evolves
+ * INTO (dex.evolution hangs off the evolved species); `from` is its parent
+ * via species.evolves_from_species_id. Friendship is not a trigger of its
+ * own upstream, so `needsFriendship` reads minimum_happiness instead.
+ */
+const EVOLUTION_FILTER_COLUMNS: Record<string, SQL> = {
+  pokemon: sql`COALESCE(s.display_name, s.name)`,
+  from: sql`COALESCE(p.display_name, p.name)`,
+  trigger: sql`e.trigger`,
+  item: sql`e.trigger_item`,
+  heldItem: sql`e.held_item`,
+  timeOfDay: sql`e.time_of_day`,
+  minLevel: sql`e.minimum_level`,
+  minHappiness: sql`e.minimum_happiness`,
+  needsFriendship: sql`(e.minimum_happiness IS NOT NULL)`,
+};
+
+function evolutionConditionToSql(condition: EvolutionFilterCondition): SQL {
+  const column = EVOLUTION_FILTER_COLUMNS[condition.field];
   if (!column) {
     throw ApiError.badRequest(`Field "${condition.field}" is not filterable`);
   }
@@ -229,12 +280,64 @@ export const referenceRoutes = new Hono<AppBindings>()
   })
 
   /**
+   * GET /v1/evolutions/search — the advanced search's Evolutions entity:
+   * one row per evolution edge, keyset-paged by the edge's own id.
+   */
+  .get('/evolutions/search', async (c) => {
+    const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 50) || 50, 1), 200);
+    const after = Number(c.req.query('cursor') ?? 0) || 0;
+    const filter = decodeEvolutionFilter(c.req.query('filter'));
+
+    const predicates: SQL[] = [sql`e.id > ${after}`];
+    if (filter.conditions.length > 0) {
+      const parts = filter.conditions.map(evolutionConditionToSql);
+      const joiner = filter.match === 'any' ? sql` OR ` : sql` AND `;
+      predicates.push(sql`(${sql.join(parts, joiner)})`);
+    }
+
+    const rows = (await c.var.db.execute(sql`
+      SELECT
+        e.id,
+        s.evolution_chain_id AS "chainId",
+        p.id AS "fromId",
+        COALESCE(p.display_name, p.name) AS "fromName",
+        s.id AS "toId",
+        COALESCE(s.display_name, s.name) AS "toName",
+        dp.sprite,
+        e.trigger,
+        e.trigger_item      AS item,
+        e.held_item         AS "heldItem",
+        e.minimum_level     AS "minLevel",
+        e.minimum_happiness AS "minHappiness",
+        e.time_of_day       AS "timeOfDay"
+      FROM dex.evolution e
+      JOIN dex.species s ON s.id = e.evolved_species_id
+      LEFT JOIN dex.species p ON p.id = s.evolves_from_species_id
+      LEFT JOIN LATERAL (
+        SELECT dp.sprite FROM dex.pokemon dp
+        WHERE dp.species_id = s.id AND dp.is_default
+        LIMIT 1
+      ) dp ON true
+      WHERE ${sql.join(predicates, sql` AND `)}
+      ORDER BY e.id
+      LIMIT ${limit + 1}
+    `)) as unknown as ({ id: number } & Record<string, unknown>)[];
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const nextCursor = hasMore && page.length > 0 ? String(page.at(-1)!.id) : null;
+    return c.json({ items: page, nextCursor });
+  })
+
+  /**
    * GET /v1/evolution-chains — the chains index, paged by chain id (a plain
    * integer keyset: chain ids are stable and strictly ordered, so no
    * sort-value blob is needed). `q` keeps chains where ANY member matches.
    */
   .get('/evolution-chains', async (c) => {
-    const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 20) || 20, 1), 50);
+    // 200 cap so the Evolutions page can load all 541 chains in three
+    // requests and filter/sort them client-side.
+    const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 20) || 20, 1), 200);
     const after = Number(c.req.query('cursor') ?? 0) || 0;
     const q = c.req.query('q');
 

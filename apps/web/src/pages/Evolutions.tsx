@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { MegaSummary } from '@masterpokedex/shared';
-import { useEvolutionChains, useGmax, useMegas } from '@/hooks/api/dex';
+import type { EvolutionChain, MegaSummary } from '@masterpokedex/shared';
+import { useAllEvolutionChains, useGmax, useMegas } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EvolutionTree from '../components/pokemon/EvolutionTree';
 import { evolutionCondition } from '../components/pokemon/evolution-utils';
@@ -10,12 +10,37 @@ import SearchField from '../components/SearchField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { TypeBadge } from '../components/ui/type-badge';
 import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { capitalize } from '../utils/helpers';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
+
+const PAGE_SIZE = 20;
+const MAIN_TRIGGERS = new Set(['level-up', 'use-item', 'trade']);
+
+/** How every non-base member of the family evolves, folded for filtering. */
+function chainFacts(chain: EvolutionChain) {
+  const triggers = new Set<string>();
+  let friendship = false;
+  for (const node of chain.nodes) {
+    if (node.from == null) continue;
+    const methods: Array<{ trigger?: string | null; minHappiness?: number | null }> =
+      node.methods.length > 0 ? node.methods : [node];
+    for (const method of methods) {
+      if (method.trigger) triggers.add(method.trigger);
+      if (method.minHappiness != null) friendship = true;
+    }
+  }
+  return { triggers, friendship };
+}
+
+function baseName(chain: EvolutionChain): string {
+  const base = chain.nodes.find((node) => node.from == null) ?? chain.nodes[0];
+  return base?.name ?? '';
+}
 
 /**
  * Every evolution family, one card per chain: the browsable index behind the
@@ -28,8 +53,24 @@ import { cn } from '@/lib/utils';
 const Evolutions: React.FC = () => {
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
-  const [searchInput, setSearchInput] = useState(q);
+  const method = params.get('method') ?? 'all';
+  const sortParam = params.get('sort');
+  const sort = sortParam === 'name' || sortParam === 'size' ? sortParam : 'dex';
   const { spriteStyle } = useSpritePref();
+
+  const patch = (patchObj: Record<string, string | null>) => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(patchObj)) {
+          if (value === null || value === '' || value === 'all') next.delete(key);
+          else next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   const [alwaysShowForms] = useBooleanPref(ALWAYS_SHOW_MEGAS);
   const [megaOverride, setMegaOverride] = useState<boolean | null>(null);
@@ -37,11 +78,29 @@ const Evolutions: React.FC = () => {
   const showMegas = megaOverride ?? alwaysShowForms;
   const showGmax = gmaxOverride ?? alwaysShowForms;
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useEvolutionChains({
-    q: q || undefined,
-    limit: 20,
-  });
-  const chains = data?.pages.flatMap((page) => page.items) ?? [];
+  // All 541 families load once and filter/sort client-side, like Moves.
+  const { data: allChains, isLoading } = useAllEvolutionChains();
+  const chains = useMemo(() => {
+    const ql = q.trim().toLowerCase();
+    const filtered = (allChains ?? []).filter((chain) => {
+      if (ql && !chain.nodes.some((node) => node.name.toLowerCase().includes(ql))) return false;
+      if (method === 'all') return true;
+      const facts = chainFacts(chain);
+      if (method === 'friendship') return facts.friendship;
+      if (method === 'other') return [...facts.triggers].some((t) => !MAIN_TRIGGERS.has(t));
+      return facts.triggers.has(method);
+    });
+    if (sort === 'name') {
+      return [...filtered].sort((a, b) => baseName(a).localeCompare(baseName(b)));
+    }
+    if (sort === 'size') {
+      return [...filtered].sort((a, b) => b.nodes.length - a.nodes.length || a.chainId - b.chainId);
+    }
+    return filtered;
+  }, [allChains, q, method, sort]);
+
+  const [shown, setShown] = useState(PAGE_SIZE);
+  useEffect(() => setShown(PAGE_SIZE), [q, method, sort]);
 
   const { data: megas } = useMegas();
   const { data: gmaxes } = useGmax();
@@ -65,16 +124,39 @@ const Evolutions: React.FC = () => {
       <p className="text-muted-foreground mb-8">Every family, base form to final evolution</p>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchField
-          value={searchInput}
-          onChange={(value) => {
-            setSearchInput(value);
-            if (value === '') setParams({}, { replace: true });
-          }}
-          onSubmit={() => setParams(searchInput.trim() ? { q: searchInput.trim() } : {}, { replace: true })}
-          placeholder="Find a family (e.g. eevee)…"
-          className="w-full max-w-md"
-        />
+        <div className="flex w-full flex-wrap gap-2 lg:w-auto">
+          {/* Filters as you type; the whole list is client-side. */}
+          <SearchField
+            value={q}
+            onChange={(value) => patch({ q: value || null })}
+            onSubmit={() => undefined}
+            placeholder="Find a family (e.g. eevee)…"
+            className="w-full sm:max-w-xs"
+          />
+          <Select value={method} onValueChange={(value) => patch({ method: value })}>
+            <SelectTrigger className="w-full sm:w-44" aria-label="Filter by evolution method">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any method</SelectItem>
+              <SelectItem value="level-up">Level up</SelectItem>
+              <SelectItem value="use-item">Use item</SelectItem>
+              <SelectItem value="trade">Trade</SelectItem>
+              <SelectItem value="friendship">Friendship</SelectItem>
+              <SelectItem value="other">Something stranger</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={(value) => patch({ sort: value === 'dex' ? null : value })}>
+            <SelectTrigger className="w-full sm:w-48" aria-label="Sort families">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="dex">Dex order</SelectItem>
+              <SelectItem value="name">Family name A to Z</SelectItem>
+              <SelectItem value="size">Biggest families first</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="flex items-center gap-2">
             <Switch id="chains-show-megas" checked={showMegas} onCheckedChange={setMegaOverride} />
@@ -96,7 +178,7 @@ const Evolutions: React.FC = () => {
       ) : (
         <>
           <div className="space-y-4">
-            {chains.map((chain) => {
+            {chains.slice(0, shown).map((chain) => {
               const speciesIds = new Set(chain.nodes.map((node) => node.id));
               const battleForms = chain.nodes.flatMap((node) =>
                 (formsBySpecies.get(node.id) ?? []).filter((form) => speciesIds.has(form.speciesId)),
@@ -160,12 +242,12 @@ const Evolutions: React.FC = () => {
             })}
           </div>
           {chains.length === 0 && (
-            <p className="py-12 text-center text-muted-foreground">No families match that search.</p>
+            <p className="py-12 text-center text-muted-foreground">No families match those filters.</p>
           )}
-          {hasNextPage && (
+          {chains.length > shown && (
             <div className="mt-6 flex justify-center">
-              <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                {isFetchingNextPage ? 'Loading…' : 'Load more families'}
+              <Button variant="outline" onClick={() => setShown((n) => n + PAGE_SIZE)}>
+                Show more families ({chains.length - shown} remaining)
               </Button>
             </div>
           )}
