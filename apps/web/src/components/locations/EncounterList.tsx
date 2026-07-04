@@ -16,7 +16,8 @@ import { cn } from '@/lib/utils';
 const prettifyIdent = (value: string) => value.split('-').map(capitalize).join(' ');
 
 /** Plain-words explanations for the encounter methods that need one. */
-const METHOD_HELP: Record<string, string> = {
+/** Exported so PokemonDetail's location chips can explain the same methods. */
+export const METHOD_HELP: Record<string, string> = {
   walk: 'Walking in tall grass or on a cave floor: the ordinary random encounter.',
   surf: 'Met while riding a Pokémon across water.',
   'old-rod': 'Fishing with the weakest rod; mostly Magikarp country.',
@@ -166,7 +167,7 @@ const PokemonChip: React.FC<PokemonAggregate> = ({
       <div className="space-y-1.5 text-xs">
         <div className="flex gap-1">
           {types.map((type) => (
-            <TypeBadge key={type} type={type} size="sm" />
+            <TypeBadge key={type} type={type} size="sm" link />
           ))}
         </div>
         <p>Levels {minLevel === maxLevel ? minLevel : `${minLevel}–${maxLevel}`}</p>
@@ -240,7 +241,7 @@ const DetailTables: React.FC<{ rows: AreaEncounter[] }> = ({ rows }) => {
                     <TableCell>
                       <div className="flex gap-1">
                         {encounter.types.map((type) => (
-                          <TypeBadge key={type} type={type} size="sm" />
+                          <TypeBadge key={type} type={type} size="sm" link />
                         ))}
                       </div>
                     </TableCell>

@@ -22,45 +22,59 @@ const LocationItemChips: React.FC<{ items: LocationItem[]; compact?: boolean; li
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {shown.map((item) => (
-        <HoverTip
-          key={item.label}
-          title={item.itemDisplayName ?? item.label}
-          trigger={
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border py-1 transition-colors hover:border-pokebrand-extra/60',
-                compact ? 'px-2 text-xs' : 'px-2.5 text-sm',
-              )}
-            >
-              <ItemSprite
-                src={item.sprite}
-                itemName={item.itemName ?? undefined}
-                alt=""
-                className={compact ? 'h-5 w-5' : 'h-6 w-6'}
-              />
-              {item.itemDisplayName ?? item.label}
-              {item.spots > 1 && <span className="text-muted-foreground">×{item.spots}</span>}
-              {item.hidden && <EyeOff className="h-3 w-3 text-muted-foreground" />}
-            </span>
-          }
-        >
-          {item.note ?? `Found in ${item.spots} spot${item.spots === 1 ? '' : 's'} here.`}
-          {item.hidden && (
-            <span className="mt-1 block text-xs">
-              At least one of them is a hidden item, invisible on the ground.
-            </span>
-          )}
-          {item.itemName && (
-            <Link
-              to={`/items/${item.itemName}`}
-              className="mt-2 inline-block text-xs font-medium underline"
-            >
-              Open {item.itemDisplayName ?? item.label} →
-            </Link>
-          )}
-        </HoverTip>
-      ))}
+      {shown.map((item) => {
+        const chipClass = cn(
+          'inline-flex items-center gap-1.5 rounded-full border py-1 transition-colors hover:border-pokebrand-extra/60',
+          compact ? 'px-2 text-xs' : 'px-2.5 text-sm',
+        );
+        const chipContent = (
+          <>
+            <ItemSprite
+              src={item.sprite}
+              itemName={item.itemName ?? undefined}
+              alt=""
+              className={compact ? 'h-5 w-5' : 'h-6 w-6'}
+            />
+            {item.itemDisplayName ?? item.label}
+            {item.spots > 1 && <span className="text-muted-foreground">×{item.spots}</span>}
+            {item.hidden && <EyeOff className="h-3 w-3 text-muted-foreground" />}
+          </>
+        );
+        return (
+          <HoverTip
+            key={item.label}
+            title={item.itemDisplayName ?? item.label}
+            // A resolved chip is itself the link: hover still explains, the
+            // click goes to the item page (clickThrough), and the popover
+            // keeps its own link for touch screens.
+            clickThrough={!!item.itemName}
+            trigger={
+              item.itemName ? (
+                <Link to={`/items/${item.itemName}`} className={chipClass}>
+                  {chipContent}
+                </Link>
+              ) : (
+                <span className={chipClass}>{chipContent}</span>
+              )
+            }
+          >
+            {item.note ?? `Found in ${item.spots} spot${item.spots === 1 ? '' : 's'} here.`}
+            {item.hidden && (
+              <span className="mt-1 block text-xs">
+                At least one of them is a hidden item, invisible on the ground.
+              </span>
+            )}
+            {item.itemName && (
+              <Link
+                to={`/items/${item.itemName}`}
+                className="mt-2 inline-block text-xs font-medium underline"
+              >
+                Open {item.itemDisplayName ?? item.label} →
+              </Link>
+            )}
+          </HoverTip>
+        );
+      })}
       {rest > 0 && <span className="self-center text-xs text-muted-foreground">+{rest} more</span>}
     </div>
   );

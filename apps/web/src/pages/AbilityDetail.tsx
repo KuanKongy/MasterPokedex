@@ -89,7 +89,7 @@ const AbilityDetail: React.FC = () => {
                 <TableCell>
                   <div className="flex gap-1">
                     {entry.types.map((type) => (
-                      <TypeBadge key={type} type={type} size="sm" />
+                      <TypeBadge key={type} type={type} size="sm" link />
                     ))}
                   </div>
                 </TableCell>

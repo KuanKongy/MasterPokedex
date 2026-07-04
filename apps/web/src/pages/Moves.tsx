@@ -225,7 +225,7 @@ const Moves: React.FC = () => {
                     </TableCell>
                     {visible.includes('type') && (
                       <TableCell>
-                        <TypeBadge type={move.type} size="sm" icon />
+                        <TypeBadge type={move.type} size="sm" icon link />
                       </TableCell>
                     )}
                     {visible.includes('class') && <TableCell className="capitalize">{move.damageClass}</TableCell>}
@@ -239,7 +239,7 @@ const Moves: React.FC = () => {
                     )}
                     {visible.includes('effect') && (
                       <TableCell className="max-w-md text-sm text-muted-foreground">
-                        <span className="line-clamp-1">{move.shortEffect ?? ''}</span>
+                        <span>{move.shortEffect ?? ''}</span>
                       </TableCell>
                     )}
                   </TableRow>

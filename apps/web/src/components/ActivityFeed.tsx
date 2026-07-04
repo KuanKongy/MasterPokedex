@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Activity } from '@masterpokedex/shared';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
@@ -10,11 +11,28 @@ import { cn } from '@/lib/utils';
 /** Feeds longer than this start out height-capped with their own scroller. */
 const COLLAPSE_AT = 6;
 
-export const ACTIVITY_TEXT: Record<Activity['kind'], (a: Activity) => string> = {
-  caught: (a) => `caught ${a.payload.nickname ?? `#${a.payload.pokemonId}`}`,
-  shiny_caught: (a) => `caught a shiny ${a.payload.nickname ?? `#${a.payload.pokemonId}`} ✨`,
-  team_created: (a) => `created the team “${a.payload.teamName}”`,
-  friend_added: (a) => `became friends with @${a.payload.username}`,
+const pokemonLink = (a: Activity) => (
+  <Link to={`/pokemon/${a.payload.pokemonId}`} className="font-medium hover:underline">
+    {String(a.payload.nickname ?? `#${a.payload.pokemonId}`)}
+  </Link>
+);
+
+/** What each event reads as; names link to the thing they name. */
+export const ACTIVITY_TEXT: Record<Activity['kind'], (a: Activity) => React.ReactNode> = {
+  caught: (a) => <>caught {pokemonLink(a)}</>,
+  shiny_caught: (a) => <>caught a shiny {pokemonLink(a)} ✨</>,
+  team_created: (a) => <>created the team “{String(a.payload.teamName ?? '')}”</>,
+  friend_added: (a) =>
+    a.payload.username ? (
+      <>
+        became friends with{' '}
+        <Link to={`/trainer/${a.payload.username}`} className="font-medium hover:underline">
+          @{String(a.payload.username)}
+        </Link>
+      </>
+    ) : (
+      <>made a new friend</>
+    ),
   badge_earned: () => 'earned a badge',
 };
 
@@ -60,12 +78,16 @@ const ActivityFeed: React.FC<{ query: FeedQuery; emptyTitle?: string; emptyText?
       <div className={cn('space-y-2', collapsible && !expanded && 'max-h-96 overflow-y-auto pr-1')}>
         {events.map((event) => (
           <div key={event.id} className="flex items-center gap-3 p-3 border rounded-md text-sm">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
-              <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <Link to={`/trainer/${event.trainer.username}`} className="shrink-0">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
+                <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="flex-1">
-              <span className="font-medium">{event.trainer.displayName}</span>{' '}
+              <Link to={`/trainer/${event.trainer.username}`} className="font-medium hover:underline">
+                {event.trainer.displayName}
+              </Link>{' '}
               {ACTIVITY_TEXT[event.kind]?.(event) ?? event.kind}
             </div>
             <span className="text-xs text-muted-foreground">

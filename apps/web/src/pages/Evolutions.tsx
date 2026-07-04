@@ -3,10 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { EvolutionChain, MegaSummary } from '@masterpokedex/shared';
 import { useAllEvolutionChains, useGmax, useMegas } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
-import EvolutionTree from '../components/pokemon/EvolutionTree';
-import { evolutionCondition } from '../components/pokemon/evolution-utils';
-import { megaCaption } from '../components/pokemon/mega-stones';
+import EvolutionTree, { PhraseParts } from '../components/pokemon/EvolutionTree';
+import { evolutionConditionParts } from '../components/pokemon/evolution-utils';
+import { megaCaption, megaStoneOf, megaStoneSlug } from '../components/pokemon/mega-stones';
 import SearchField from '../components/SearchField';
+import GenerationFilter from '../components/dex/GenerationFilter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -52,10 +53,18 @@ function baseName(chain: EvolutionChain): string {
  * forms on as parallel dashed branches. The forms come from the two global
  * lists (they carry speciesId), joined to the chains client-side.
  */
+/** National-dex id spans per generation, for filtering families by member. */
+const GEN_RANGES: Array<[number, number]> = [
+  [1, 151], [152, 251], [252, 386], [387, 493], [494, 649],
+  [650, 721], [722, 809], [810, 905], [906, 1025],
+];
+
 const Evolutions: React.FC = () => {
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
   const method = params.get('method') ?? 'all';
+  const rawGen = params.get('gen');
+  const gen = rawGen && /^[1-9]$/.test(rawGen) ? rawGen : 'all';
   const sortParam = params.get('sort');
   const sort = sortParam === 'name' || sortParam === 'size' ? sortParam : 'dex';
   const { spriteStyle } = useSpritePref();
@@ -91,6 +100,11 @@ const Evolutions: React.FC = () => {
     const ql = q.trim().toLowerCase();
     const filtered = (allChains ?? []).filter((chain) => {
       if (ql && !chain.nodes.some((node) => node.name.toLowerCase().includes(ql))) return false;
+      if (gen !== 'all') {
+        const [lo, hi] = GEN_RANGES[Number(gen) - 1]!;
+        // A family belongs to a generation if any member debuted in it.
+        if (!chain.nodes.some((node) => node.id >= lo && node.id <= hi)) return false;
+      }
       if (method === 'all') return true;
       if (method === 'mega') return chain.nodes.some((node) => megaSpecies.has(node.id));
       if (method === 'gmax') return chain.nodes.some((node) => gmaxSpecies.has(node.id));
@@ -107,10 +121,10 @@ const Evolutions: React.FC = () => {
       return [...filtered].sort((a, b) => b.nodes.length - a.nodes.length || a.chainId - b.chainId);
     }
     return filtered;
-  }, [allChains, q, method, sort]);
+  }, [allChains, q, gen, method, sort]);
 
   const [shown, setShown] = useState(PAGE_SIZE);
-  useEffect(() => setShown(PAGE_SIZE), [q, method, sort]);
+  useEffect(() => setShown(PAGE_SIZE), [q, gen, method, sort]);
 
   const formsBySpecies = useMemo(() => {
     const map = new Map<number, Array<MegaSummary & { formKind: 'mega' | 'gmax' }>>();
@@ -140,6 +154,11 @@ const Evolutions: React.FC = () => {
           onSubmit={() => undefined}
           placeholder="Find a family (e.g. eevee)…"
           className="w-full sm:w-64"
+        />
+        <GenerationFilter
+          value={gen}
+          onChange={(next) => patch({ gen: next })}
+          className="w-full sm:w-44"
         />
         <Select value={method} onValueChange={(value) => patch({ method: value })}>
           <SelectTrigger
@@ -251,16 +270,28 @@ const Evolutions: React.FC = () => {
                   name: capitalize(node.name),
                   types: node.types,
                   formKind: undefined as 'mega' | 'gmax' | undefined,
-                  caption: node.from != null ? evolutionCondition(node) : null,
+                  caption: node.from != null ? <PhraseParts parts={evolutionConditionParts(node)} /> : null,
                 })),
-                ...battleForms.map((form) => ({
-                  id: form.id,
-                  from: form.speciesId,
-                  name: form.formLabel ?? capitalize(form.name),
-                  types: form.types,
-                  formKind: form.formKind as 'mega' | 'gmax' | undefined,
-                  caption: form.formKind === 'mega' ? megaCaption(form.name) : 'Gigantamax Factor',
-                })),
+                ...battleForms.map((form) => {
+                  const stone = form.formKind === 'mega' ? megaStoneOf(form.name) : null;
+                  return {
+                    id: form.id,
+                    from: form.speciesId,
+                    name: form.formLabel ?? capitalize(form.name),
+                    types: form.types,
+                    formKind: form.formKind as 'mega' | 'gmax' | undefined,
+                    caption:
+                      form.formKind === 'mega' ? (
+                        stone ? (
+                          <PhraseParts parts={[{ text: stone, itemSlug: megaStoneSlug(stone) }]} />
+                        ) : (
+                          megaCaption(form.name)
+                        )
+                      ) : (
+                        'Gigantamax Factor'
+                      ),
+                  };
+                }),
               ];
               return (
                 <Card key={chain.chainId}>
@@ -281,7 +312,7 @@ const Evolutions: React.FC = () => {
                             alt={node.name}
                             loading="lazy"
                             onError={(e) => spriteFallback(e, node.id, node.formKind ? node.from ?? undefined : undefined)}
-                            className={cn('h-24 w-24 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                            className={cn('h-28 w-28 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                           />
                           <span className="mt-1 w-full truncate text-center text-sm font-medium">
                             {node.name}

@@ -4,7 +4,8 @@ import { Sparkles } from 'lucide-react';
 import type { EvolutionNode, PokemonDetail } from '@masterpokedex/shared';
 import { Card, CardContent } from '@/components/ui/card';
 import HelpTip, { HoverTip } from '../HelpTip';
-import { evolutionCondition } from './evolution-utils';
+import { evolutionConditionParts } from './evolution-utils';
+import { PhraseParts } from './EvolutionTree';
 import { FUSION_BY_FORM, fusionsOf } from './fusions';
 import { megaStoneOf, megaStoneSlug } from './mega-stones';
 import { capitalize } from '../../utils/helpers';
@@ -103,7 +104,11 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
           A trait some individuals carry, mostly from Max Raid Dens. With it, Dynamaxing takes
           this changed shape instead of simple growth.
         </HoverTip>
-        , then Dynamax it in a Max Raid or a Gym battle with a Dynamax Band.
+        , then Dynamax it in a Max Raid or a Gym battle with a{' '}
+        <Link to="/items/dynamax-band" className="font-medium text-pokebrand-red hover:underline">
+          Dynamax Band
+        </Link>
+        .
       </>,
     );
   }
@@ -115,7 +120,7 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         <Link to={`/pokemon/${parent.id}`} className="font-medium text-pokebrand-red hover:underline">
           {capitalize(parent.name)}
         </Link>
-        : {evolutionCondition(node!, { limit: 6 })}.
+        : <PhraseParts parts={evolutionConditionParts(node!, { limit: 6 })} />.
       </>,
     );
     if (pokemon.isRegional) {
@@ -200,6 +205,10 @@ const HowToGet: React.FC<Props> = ({ pokemon, evolution, encounterLocations, enc
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
           <Sparkles className="h-5 w-5 text-pokebrand-red" />
           How to get one
+          <HelpTip title="How to get one" faq="how-to-get-one">
+            Every route to this Pokémon the dex knows: wild encounters, evolution steps,
+            fusions and battle-only forms, condensed to a sentence each.
+          </HelpTip>
         </h2>
         <ul className="space-y-1.5 text-sm text-muted-foreground">
           {lines.map((line, index) => (

@@ -42,12 +42,12 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
   return (
     <div>
       {heading ? (
-        <div className="mb-3 flex items-center justify-between gap-3 border-b pb-2">
+        <div className="mb-3 flex min-h-[49px] items-center justify-between gap-3 border-b pb-2">
           <div className="flex min-w-0 items-baseline gap-3">{heading}</div>
           {columnToggle}
         </div>
       ) : (
-        <div className="mb-2 flex justify-end">{columnToggle}</div>
+        <div className="mb-3 flex min-h-[49px] items-center justify-end border-b pb-2">{columnToggle}</div>
       )}
       <div className="overflow-x-auto rounded-md border">
       <Table>
@@ -82,7 +82,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
                     alt=""
                     loading="lazy"
                     onError={(e) => spriteFallback(e, p.id)}
-                    className={cn('h-8 w-8 object-contain', spriteStyle === 'sprite' && 'pixelated')}
+                    className={cn('h-12 w-12 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                   />
                   {p.formLabel ?? capitalize(p.name)}
                 </Link>
@@ -90,7 +90,7 @@ const DexStatsTable: React.FC<DexStatsTableProps> = ({ pokemon, sort, dir, onSor
               <TableCell>
                 <div className="flex gap-1">
                   {p.types.map((type) => (
-                    <TypeBadge key={type} type={type} size="sm" />
+                    <TypeBadge key={type} type={type} size="sm" link />
                   ))}
                 </div>
               </TableCell>

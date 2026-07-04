@@ -5,10 +5,10 @@ import { usePokemonForms } from '@/hooks/api/dex';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import EvolutionTree from './EvolutionTree';
-import { megaCaption } from './mega-stones';
+import EvolutionTree, { PhraseParts } from './EvolutionTree';
+import { megaCaption, megaStoneOf, megaStoneSlug } from './mega-stones';
 import HelpTip from '../HelpTip';
-import { evolutionCondition } from './evolution-utils';
+import { evolutionConditionParts } from './evolution-utils';
 import { capitalize } from '../../utils/helpers';
 import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
@@ -18,7 +18,7 @@ type ChainNode = {
   id: number;
   from: number | null;
   name: string;
-  caption: string | null;
+  caption: React.ReactNode;
   highlighted: boolean;
   /** Set on battle-only forms: dashed border and a label instead of a number. */
   formKind?: 'mega' | 'gmax';
@@ -59,16 +59,23 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
     id: evo.id,
     from: evo.from,
     name: capitalize(evo.name),
-    caption: evo.from !== null ? evolutionCondition(evo) : null,
+    caption: evo.from !== null ? <PhraseParts parts={evolutionConditionParts(evo)} /> : null,
     highlighted: evo.id === speciesId,
   }));
 
   for (const mega of megas) {
+    const stone = megaStoneOf(mega.name);
     nodes.push({
       id: mega.id,
       from: mega.speciesId ?? null,
       name: mega.formLabel ?? capitalize(mega.name),
-      caption: megaCaption(mega.name),
+      // The stone is an item page of its own; Rayquaza and the stoneless
+      // Z-A Megas keep their plain caption.
+      caption: stone ? (
+        <PhraseParts parts={[{ text: stone, itemSlug: megaStoneSlug(stone) }]} />
+      ) : (
+        megaCaption(mega.name)
+      ),
       highlighted: mega.id === pokemonId,
       formKind: 'mega',
       baseId: mega.speciesId,
@@ -130,7 +137,7 @@ const EvolutionChainCard: React.FC<{ evolution: EvolutionNode[]; pokemonId: numb
                   node.formKind && 'border-dashed',
                 )}
               >
-                <div className="w-32 h-32 flex items-center justify-center">
+                <div className="w-36 h-36 flex items-center justify-center">
                   <img
                     src={pokemonImage(node.id, spriteStyle)}
                     alt={node.name}

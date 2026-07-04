@@ -1,12 +1,38 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { PhrasePart } from './evolution-utils';
 
 export type EvolutionTreeNode = {
   id: number;
   from: number | null;
-  caption: string | null;
+  caption: React.ReactNode;
 };
+
+/**
+ * A condition phrase with its item names linked — "use Water Stone" opens the
+ * stone's page. stopPropagation so a caption click never counts as a click
+ * on whatever card or row the tree sits in.
+ */
+export const PhraseParts: React.FC<{ parts: PhrasePart[] }> = ({ parts }) => (
+  <>
+    {parts.map((part, index) =>
+      part.itemSlug ? (
+        <Link
+          key={index}
+          to={`/items/${part.itemSlug}`}
+          className="text-pokebrand-red hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part.text}
+        </Link>
+      ) : (
+        <React.Fragment key={index}>{part.text}</React.Fragment>
+      ),
+    )}
+  </>
+);
 
 type Props<N extends EvolutionTreeNode> = {
   nodes: N[];

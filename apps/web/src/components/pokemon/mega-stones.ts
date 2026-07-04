@@ -64,6 +64,18 @@ export function megaStoneSlug(stone: string): string {
   return stone.toLowerCase().replace(/ /g, '-');
 }
 
+/**
+ * The reverse road, for an item's page: which Mega form a stone slug
+ * unlocks ("charizardite-x" → charizard-mega-x), or null for any item that
+ * is not one of the 46 stones.
+ */
+export function megaFormOfStoneSlug(slug: string): string | null {
+  for (const [form, stone] of Object.entries(MEGA_STONES)) {
+    if (megaStoneSlug(stone) === slug) return form;
+  }
+  return null;
+}
+
 /** The chain caption for a Mega node: the stone by name where one exists. */
 export function megaCaption(formName: string): string {
   if (formName === 'rayquaza-mega') return 'Knows Dragon Ascent';

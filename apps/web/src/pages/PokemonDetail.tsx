@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   useEvolutionChain,
   usePokemon,
@@ -14,6 +14,7 @@ import FormsSection from '../components/pokemon/FormsSection';
 import EvolutionChainCard from '../components/pokemon/EvolutionChainCard';
 import HowToGet from '../components/pokemon/HowToGet';
 import HelpTip, { HoverTip } from '../components/HelpTip';
+import { METHOD_HELP } from '../components/locations/EncounterList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ const STAT_LABELS: Record<(typeof STAT_KEYS)[number], string> = {
 const PokemonDetail: React.FC = () => {
   const { id: idOrName } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { session } = useAuth();
   const { toast } = useToast();
   const { spriteStyle } = useSpritePref();
@@ -104,7 +106,7 @@ const PokemonDetail: React.FC = () => {
   const handleFavorite = () => {
     if (!session) {
       toast({ title: 'Sign in to keep favorites', description: 'Favorites live on your trainer account.' });
-      navigate('/login');
+      navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
     setFavorite.mutate({ pokemonId: pokemon.id, favorite: !isFavorite });
@@ -113,7 +115,7 @@ const PokemonDetail: React.FC = () => {
   const handleCatch = () => {
     if (!session) {
       toast({ title: 'Sign in to catch Pokémon', description: 'Your teams live on your trainer account.' });
-      navigate('/login');
+      navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
     setCatching({ id: pokemon.id, name: pokemon.name });
@@ -216,16 +218,18 @@ const PokemonDetail: React.FC = () => {
             TYPE_BORDER[primaryType] ?? TYPE_BORDER.normal,
           )}
         >
-          <CardContent className="flex items-center justify-center p-8">
+          <CardContent className="flex h-full items-center justify-center p-4">
             <img
               src={pokemonImage(pokemon.id, spriteStyle)}
               alt={pokemon.name}
               // A form with no art of its own borrows the species' — the Koraidon
               // and Miraidon ride builds are states of one design, not designs.
               onError={(e) => spriteFallback(e, pokemon.id, pokemon.speciesId)}
+              // Fills whatever height the sibling columns give the card;
+              // object-contain keeps the ratio, so width is the real cap.
               className={cn(
-                'object-contain animate-fade-in',
-                spriteStyle === 'sprite' ? 'h-48 w-48 pixelated' : 'h-64 w-64',
+                'h-full max-h-[32rem] w-full object-contain animate-fade-in',
+                spriteStyle === 'sprite' && 'pixelated',
               )}
             />
           </CardContent>
@@ -277,16 +281,28 @@ const PokemonDetail: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Types</h3>
+              <h3 className="font-semibold mb-2">
+                Types
+                <HelpTip title="Types" faq="types" className="ml-1">
+                  Its elemental type or pair of types; they decide the matchups below and
+                  which moves get the same-type damage bonus.
+                </HelpTip>
+              </h3>
               <div className="flex gap-2 flex-wrap">
                 {pokemon.types.map((type) => (
-                  <TypeBadge key={type} type={type} />
+                  <TypeBadge key={type} type={type} link />
                 ))}
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Abilities</h3>
+              <h3 className="font-semibold mb-2">
+                Abilities
+                <HelpTip title="Abilities" className="ml-1">
+                  Passive powers that work on their own; a wild Pokémon has one of the
+                  non-hidden ones. Click an ability for its full effect and holders.
+                </HelpTip>
+              </h3>
               <div className="flex gap-2 flex-wrap">
                 {pokemon.abilities.map((ability) => {
                   const badge = (
@@ -295,13 +311,20 @@ const PokemonDetail: React.FC = () => {
                       {ability.isHidden && ' (Hidden)'}
                     </Badge>
                   );
+                  // The hidden badge's click opens its explainer, so the link
+                  // to the ability page lives inside the tip instead.
                   return ability.isHidden ? (
                     <HoverTip key={`${ability.slot}-${ability.name}`} title="Hidden ability" trigger={badge}>
                       The rarer extra ability, normally only from special encounters and
-                      raids; a wild Pokémon has one of the others.
+                      raids; a wild Pokémon has one of the others.{' '}
+                      <Link to={`/abilities/${ability.name}`} className="font-medium text-pokebrand-red hover:underline">
+                        Open ability →
+                      </Link>
                     </HoverTip>
                   ) : (
-                    <React.Fragment key={`${ability.slot}-${ability.name}`}>{badge}</React.Fragment>
+                    <Link key={`${ability.slot}-${ability.name}`} to={`/abilities/${ability.name}`}>
+                      {badge}
+                    </Link>
                   );
                 })}
               </div>
@@ -322,7 +345,7 @@ const PokemonDetail: React.FC = () => {
                     <span className="text-muted-foreground mr-1">Weak to:</span>
                     {pokemon.matchups.weakTo.map((m) => (
                       <span key={m.type} className="flex items-center gap-0.5">
-                        <TypeBadge type={m.type} />
+                        <TypeBadge type={m.type} link />
                         <span className="text-xs text-muted-foreground">×{m.factor}</span>
                       </span>
                     ))}
@@ -333,7 +356,7 @@ const PokemonDetail: React.FC = () => {
                     <span className="text-muted-foreground mr-1">Resists:</span>
                     {pokemon.matchups.resists.map((m) => (
                       <span key={m.type} className="flex items-center gap-0.5">
-                        <TypeBadge type={m.type} />
+                        <TypeBadge type={m.type} link />
                         <span className="text-xs text-muted-foreground">×{m.factor}</span>
                       </span>
                     ))}
@@ -343,7 +366,7 @@ const PokemonDetail: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-1">
                     <span className="text-muted-foreground mr-1">Immune to:</span>
                     {pokemon.matchups.immuneTo.map((type) => (
-                      <TypeBadge key={type} type={type} />
+                      <TypeBadge key={type} type={type} link />
                     ))}
                   </div>
                 )}
@@ -439,14 +462,28 @@ const PokemonDetail: React.FC = () => {
                           {entry.region ? capitalize(entry.region) : 'Unknown region'}
                         </div>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {[...entry.methods].map((method) => (
-                            <span
-                              key={method}
-                              className="rounded bg-muted px-1.5 py-0.5 text-[0.6875rem] capitalize text-muted-foreground"
-                            >
-                              {method.replace(/-/g, ' ')}
-                            </span>
-                          ))}
+                          {[...entry.methods].map((method) =>
+                            METHOD_HELP[method] ? (
+                              <HoverTip
+                                key={method}
+                                title={capitalize(method.replace(/-/g, ' '))}
+                                trigger={
+                                  <span className="rounded bg-muted px-1.5 py-0.5 text-[0.6875rem] capitalize text-muted-foreground">
+                                    {method.replace(/-/g, ' ')}
+                                  </span>
+                                }
+                              >
+                                {METHOD_HELP[method]}
+                              </HoverTip>
+                            ) : (
+                              <span
+                                key={method}
+                                className="rounded bg-muted px-1.5 py-0.5 text-[0.6875rem] capitalize text-muted-foreground"
+                              >
+                                {method.replace(/-/g, ' ')}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     </Link>
