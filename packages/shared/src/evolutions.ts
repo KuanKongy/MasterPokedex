@@ -98,6 +98,21 @@ export function decodeEvolutionFilter(raw: string | undefined | null): Evolution
   return EvolutionFilterSchema.parse(parsed);
 }
 
+/** Sortable columns of GET /v1/evolutions/search; names match the filter fields. */
+export const EVOLUTION_SORT_FIELDS = [
+  'id',
+  'pokemon',
+  'from',
+  'trigger',
+  'item',
+  'heldItem',
+  'minLevel',
+  'minHappiness',
+  'timeOfDay',
+] as const;
+export const EvolutionSortFieldSchema = z.enum(EVOLUTION_SORT_FIELDS);
+export type EvolutionSortField = z.infer<typeof EvolutionSortFieldSchema>;
+
 export const EvolutionSearchRowSchema = z.object({
   id: z.number().int().positive(),
   chainId: z.number().int().positive().nullable(),

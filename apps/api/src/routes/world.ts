@@ -3,6 +3,7 @@ import { sql, type SQL } from 'drizzle-orm';
 import { decodeLocationFilter, rarityFromChance, type LocationFilterCondition } from '@masterpokedex/shared';
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
+import { decodeCursor, encodeCursor, keysetPredicate } from '../lib/pagination';
 
 /** Same whitelist discipline as routes/pokemon.ts — see the comment there. */
 const LOCATION_FILTER_COLUMNS: Record<string, SQL> = {
@@ -10,6 +11,32 @@ const LOCATION_FILTER_COLUMNS: Record<string, SQL> = {
   region: sql`r.display_name`,
   kind: sql`lm.kind`,
   areaCount: sql`(SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)`,
+};
+
+/**
+ * Sort whitelist for /locations/search; booleans sort as ints so the cursor
+ * can carry the last row's value. Keys mirror LOCATION_SORT_FIELDS, and the
+ * second map names the response field holding each row's sort value.
+ */
+const LOCATION_SORT_COLUMNS: Record<string, SQL> = {
+  id: sql`l.id`,
+  name: sql`l.display_name`,
+  region: sql`r.display_name`,
+  kind: sql`lm.kind`,
+  areaCount: sql`(SELECT count(*) FROM dex.location_areas la WHERE la.location_id = l.id)`,
+  hasEncounters: sql`(EXISTS(
+    SELECT 1 FROM dex.location_areas la
+    JOIN dex.encounters e ON e.location_area_id = la.id
+    WHERE la.location_id = l.id
+  ))::int`,
+};
+const LOCATION_SORT_VALUE_KEYS: Record<string, string> = {
+  id: 'id',
+  name: 'displayName',
+  region: 'regionName',
+  kind: 'kind',
+  areaCount: 'areaCount',
+  hasEncounters: 'hasEncounters',
 };
 
 function locationConditionToSql(condition: LocationFilterCondition): SQL {
@@ -176,21 +203,28 @@ export const worldRoutes = new Hono<AppBindings>()
   })
 
   /**
-   * GET /v1/locations/search — the advanced-search entity: flat, filterable
-   * rows with a plain integer keyset. Registered before /locations/:id so
-   * "search" never resolves as an id.
+   * GET /v1/locations/search — the advanced-search entity: flat, filterable,
+   * sortable rows on the shared opaque keyset cursor. Registered before
+   * /locations/:id so "search" never resolves as an id.
    */
   .get('/locations/search', async (c) => {
     const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 50) || 50, 1), 200);
-    const after = Number(c.req.query('cursor') ?? 0) || 0;
+    const sort = c.req.query('sort') ?? 'id';
+    const sortColumn = LOCATION_SORT_COLUMNS[sort];
+    if (!sortColumn) throw ApiError.badRequest(`Cannot sort locations by "${sort}"`);
+    const ascending = c.req.query('dir') !== 'desc';
+    const cursor = decodeCursor(c.req.query('cursor'));
     const filter = decodeLocationFilter(c.req.query('filter'));
 
-    const predicates: SQL[] = [sql`l.id > ${after}`];
+    const predicates: SQL[] = [sql`true`];
     if (filter.conditions.length > 0) {
       const parts = filter.conditions.map(locationConditionToSql);
       const joiner = filter.match === 'any' ? sql` OR ` : sql` AND `;
       predicates.push(sql`(${sql.join(parts, joiner)})`);
     }
+    if (cursor) predicates.push(keysetPredicate(cursor, sortColumn, sql`l.id`, ascending));
+
+    const direction = ascending ? sql`ASC` : sql`DESC`;
 
     const rows = (await c.var.db.execute(sql`
       SELECT
@@ -209,13 +243,30 @@ export const worldRoutes = new Hono<AppBindings>()
       LEFT JOIN dex.regions r ON r.id = l.region_id
       LEFT JOIN dex.location_meta lm ON lm.location_id = l.id
       WHERE ${sql.join(predicates, sql` AND `)}
-      ORDER BY l.id
+      ORDER BY ${sortColumn} ${direction} NULLS LAST, l.id ${direction}
       LIMIT ${limit + 1}
-    `)) as unknown as { id: number }[];
+    `)) as unknown as ({ id: number } & Record<string, unknown>)[];
 
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, limit) : rows;
-    return c.json({ items: page, nextCursor: hasMore ? String(page.at(-1)!.id) : null });
+    const last = page.at(-1);
+
+    let nextCursor: string | null = null;
+    if (hasMore && last) {
+      const sortValue = last[LOCATION_SORT_VALUE_KEYS[sort]!];
+      nextCursor = encodeCursor({
+        // Booleans ride as the same 0/1 the ::int sort column compares.
+        v:
+          typeof sortValue === 'boolean'
+            ? Number(sortValue)
+            : typeof sortValue === 'string' || typeof sortValue === 'number'
+              ? sortValue
+              : null,
+        id: last.id,
+      });
+    }
+
+    return c.json({ items: page, nextCursor });
   })
 
   /** GET /v1/locations/:id — areas, their encounter tables, and map neighbours. */

@@ -8,11 +8,13 @@ import {
   type EvolutionChain,
   type EvolutionFilter,
   type EvolutionSearchRow,
+  type EvolutionSortField,
   type ItemFilter,
   type ItemSortField,
   type ItemSummary,
   type LocationFilter,
   type LocationSearchRow,
+  type LocationSortField,
   type MegaSummary,
   type MoveDetail,
   type MoveFilter,
@@ -109,7 +111,7 @@ export function useAllEvolutionChains() {
 
 /** The advanced search's Evolutions entity: one row per evolution edge. */
 export function useEvolutionSearch(
-  params: { filter?: EvolutionFilter; limit?: number },
+  params: { filter?: EvolutionFilter; sort?: EvolutionSortField; dir?: SortDir; limit?: number },
   options: { enabled?: boolean } = {},
 ) {
   return useInfiniteQuery({
@@ -119,6 +121,8 @@ export function useEvolutionSearch(
       if (params.filter && params.filter.conditions.length > 0) {
         search.set('filter', JSON.stringify(params.filter));
       }
+      if (params.sort) search.set('sort', params.sort);
+      if (params.dir) search.set('dir', params.dir);
       search.set('limit', String(params.limit ?? 50));
       if (pageParam) search.set('cursor', pageParam);
       return apiFetch<{ items: EvolutionSearchRow[]; nextCursor: string | null }>(
@@ -177,7 +181,7 @@ export function useAbilities(
 }
 
 export function useLocationSearch(
-  params: { filter?: LocationFilter; limit?: number },
+  params: { filter?: LocationFilter; sort?: LocationSortField; dir?: SortDir; limit?: number },
   options: { enabled?: boolean } = {},
 ) {
   return useInfiniteQuery({
@@ -187,6 +191,8 @@ export function useLocationSearch(
       if (params.filter && params.filter.conditions.length > 0) {
         search.set('filter', JSON.stringify(params.filter));
       }
+      if (params.sort) search.set('sort', params.sort);
+      if (params.dir) search.set('dir', params.dir);
       search.set('limit', String(params.limit ?? 50));
       if (pageParam) search.set('cursor', pageParam);
       return apiFetch<{ items: LocationSearchRow[]; nextCursor: string | null }>(
@@ -235,19 +241,21 @@ export function useEvolutionChains(params: { q?: string; limit?: number } = {}) 
   });
 }
 
-export function useMegas() {
+export function useMegas(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['megas'],
     queryFn: () => apiFetch<{ items: MegaSummary[] }>('/v1/pokemon/megas'),
     staleTime: Infinity,
+    enabled: options.enabled ?? true,
   });
 }
 
-export function useGmax() {
+export function useGmax(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['gmax'],
     queryFn: () => apiFetch<{ items: MegaSummary[] }>('/v1/pokemon/gmax'),
     staleTime: Infinity,
+    enabled: options.enabled ?? true,
   });
 }
 

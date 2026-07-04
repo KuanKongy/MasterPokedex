@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from './badge';
 import { cn } from '@/lib/utils';
 import type { PokemonTypeName } from '@masterpokedex/shared';
@@ -60,11 +61,17 @@ interface TypeBadgeProps {
   /** Show the type's glyph before the label (leaf for grass, flame for fire…). */
   icon?: boolean;
   size?: 'sm' | 'md';
+  /**
+   * Make the badge a link to its type page. Opt-in because many badges
+   * already sit inside a card's own Link (nested anchors are invalid HTML);
+   * only free-standing badges should set it.
+   */
+  link?: boolean;
   className?: string;
 }
 
-const TypeBadge: React.FC<TypeBadgeProps> = ({ type, icon = false, size = 'md', className }) => {
-  return (
+const TypeBadge: React.FC<TypeBadgeProps> = ({ type, icon = false, size = 'md', link = false, className }) => {
+  const badge = (
     <Badge
       className={cn(
         'capitalize rounded-full border-transparent text-white transition-[filter] hover:brightness-110',
@@ -79,6 +86,17 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type, icon = false, size = 'md', 
       {icon && <TypeIcon type={type} className={size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5'} />}
       {type}
     </Badge>
+  );
+  if (!link) return badge;
+  return (
+    <Link
+      to={`/types/${type}`}
+      aria-label={`${type} type`}
+      className="inline-flex"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {badge}
+    </Link>
   );
 };
 

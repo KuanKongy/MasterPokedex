@@ -176,6 +176,15 @@ export function decodeLocationFilter(raw: string | undefined | null): LocationFi
   return LocationFilterSchema.parse(parsed);
 }
 
+/**
+ * Sortable columns of GET /v1/locations/search. `name` sorts the display
+ * name, like every other list; `hasEncounters` sorts Yes before No when
+ * descending.
+ */
+export const LOCATION_SORT_FIELDS = ['id', 'name', 'region', 'kind', 'areaCount', 'hasEncounters'] as const;
+export const LocationSortFieldSchema = z.enum(LOCATION_SORT_FIELDS);
+export type LocationSortField = z.infer<typeof LocationSortFieldSchema>;
+
 /** One flat row of GET /v1/locations/search. */
 export const LocationSearchRowSchema = z.object({
   id: z.number().int().positive(),

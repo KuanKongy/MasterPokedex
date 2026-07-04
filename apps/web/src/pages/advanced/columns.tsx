@@ -12,6 +12,7 @@ import type { FilterEntity } from '@masterpokedex/shared';
 import { Badge } from '@/components/ui/badge';
 import { TypeBadge } from '@/components/ui/type-badge';
 import ItemSprite from '@/components/ItemSprite';
+import { spriteFallback } from '@/prefs/SpritePrefContext';
 import { capitalize } from '../../utils/helpers';
 
 /**
@@ -37,12 +38,19 @@ export type ColumnDef<Row> = {
 export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
   {
     key: 'image',
-    width: 'w-14',
+    width: 'w-16',
     label: 'Image',
     defaultOn: true,
     render: (p) => (
       <Link to={`/pokemon/${p.id}`}>
-        {p.sprite && <img src={p.sprite} alt={p.name} className="w-10 h-10 pixelated" />}
+        {p.sprite && (
+          <img
+            src={p.sprite}
+            alt={p.name}
+            onError={(e) => spriteFallback(e, p.id)}
+            className="w-12 h-12 pixelated"
+          />
+        )}
       </Link>
     ),
   },
@@ -73,7 +81,7 @@ export const POKEMON_COLUMNS: ColumnDef<PokemonSummary>[] = [
     render: (p) => (
       <div className="flex gap-1">
         {p.types.map((type) => (
-          <TypeBadge key={type} type={type} size="sm" />
+          <TypeBadge key={type} type={type} size="sm" link />
         ))}
       </div>
     ),
@@ -130,7 +138,7 @@ export const MOVE_COLUMNS: ColumnDef<MoveSummary>[] = [
     width: 'w-28',
     label: 'Type',
     defaultOn: true,
-    render: (m) => <TypeBadge type={m.type} size="sm" icon />,
+    render: (m) => <TypeBadge type={m.type} size="sm" icon link />,
   },
   { key: 'damageClass', label: 'Class', defaultOn: true, width: 'w-24', render: (m) => capitalize(m.damageClass) },
   { key: 'power', label: 'Power', defaultOn: true, sortField: 'power', width: 'w-20', alignRight: true, render: (m) => m.power ?? '—' },
@@ -143,7 +151,7 @@ export const MOVE_COLUMNS: ColumnDef<MoveSummary>[] = [
     label: 'Effect',
     defaultOn: true,
     render: (m) => (
-      <span className="line-clamp-1 max-w-md text-sm text-muted-foreground">{m.shortEffect ?? ''}</span>
+      <span className="block max-w-md text-sm text-muted-foreground">{m.shortEffect ?? ''}</span>
     ),
   },
 ];
@@ -153,9 +161,24 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
     key: 'image',
     label: 'Image',
     defaultOn: true,
-    render: (i) => <ItemSprite src={i.sprite} itemName={i.name} alt={i.displayName} className="w-8 h-8" />,
+    render: (i) => (
+      <Link to={`/items/${i.name}`}>
+        <ItemSprite src={i.sprite} itemName={i.name} alt={i.displayName} className="w-8 h-8" />
+      </Link>
+    ),
   },
-  { key: 'name', label: 'Name', defaultOn: true, sortField: 'name', width: 'w-56', render: (i) => <span className="font-medium">{i.displayName}</span> },
+  {
+    key: 'name',
+    label: 'Name',
+    defaultOn: true,
+    sortField: 'name',
+    width: 'w-56',
+    render: (i) => (
+      <Link to={`/items/${i.name}`} className="font-medium hover:underline">
+        {i.displayName}
+      </Link>
+    ),
+  },
   { key: 'category', label: 'Category', defaultOn: true, sortField: 'category', width: 'w-32', render: (i) => i.category ?? '—' },
   { key: 'cost', label: 'Cost', defaultOn: true, sortField: 'cost', width: 'w-24', alignRight: true, render: (i) => (i.cost ? `₽${i.cost}` : '—') },
   {
@@ -163,7 +186,7 @@ export const ITEM_COLUMNS: ColumnDef<ItemSummary>[] = [
     label: 'Effect',
     defaultOn: true,
     render: (i) => (
-      <span className="line-clamp-1 max-w-md text-sm text-muted-foreground">{i.effect ?? ''}</span>
+      <span className="block max-w-md text-sm text-muted-foreground">{i.effect ?? ''}</span>
     ),
   },
 ];
@@ -186,7 +209,7 @@ export const ABILITY_COLUMNS: ColumnDef<AbilitySummary>[] = [
     label: 'Effect',
     defaultOn: true,
     render: (a) => (
-      <span className="line-clamp-2 max-w-xl text-sm text-muted-foreground">{a.shortEffect ?? ''}</span>
+      <span className="block max-w-xl text-sm text-muted-foreground">{a.shortEffect ?? ''}</span>
     ),
   },
   { key: 'generation', label: 'Gen', defaultOn: true, sortField: 'generation', width: 'w-16', alignRight: true, render: (a) => a.generation ?? '—' },
@@ -199,24 +222,29 @@ export const LOCATION_COLUMNS: ColumnDef<LocationSearchRow>[] = [
     width: 'w-56',
     label: 'Location',
     defaultOn: true,
+    sortField: 'name',
     render: (l) => (
       <Link to={`/locations/${l.id}`} className="font-medium hover:underline">
         {l.displayName}
       </Link>
     ),
   },
-  { key: 'region', label: 'Region', defaultOn: true, render: (l) => l.regionName ?? '—' },
+  { key: 'region', label: 'Region', defaultOn: true, sortField: 'region', width: 'w-32', render: (l) => l.regionName ?? '—' },
   {
     key: 'kind',
     label: 'Kind',
     defaultOn: true,
+    sortField: 'kind',
+    width: 'w-28',
     render: (l) => <span className="capitalize">{l.kind ?? '—'}</span>,
   },
-  { key: 'areaCount', label: 'Areas', defaultOn: true, width: 'w-20', alignRight: true, render: (l) => l.areaCount },
+  { key: 'areaCount', label: 'Areas', defaultOn: true, sortField: 'areaCount', width: 'w-20', alignRight: true, render: (l) => l.areaCount },
   {
     key: 'hasEncounters',
     label: 'Encounters',
+    help: 'Whether any of its areas has a recorded wild encounter table.',
     defaultOn: true,
+    sortField: 'hasEncounters',
     render: (l) => (l.hasEncounters ? <Badge variant="secondary">Yes</Badge> : <span className="text-muted-foreground">No</span>),
   },
 ];
@@ -226,10 +254,17 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'sprite',
     label: 'Image',
     defaultOn: true,
-    width: 'w-14',
+    width: 'w-16',
     render: (e) => (
       <Link to={`/pokemon/${e.toId}`}>
-        {e.sprite && <img src={e.sprite} alt={e.toName} className="w-10 h-10 pixelated" />}
+        {e.sprite && (
+          <img
+            src={e.sprite}
+            alt={e.toName}
+            onError={(ev) => spriteFallback(ev, e.toId)}
+            className="w-12 h-12 pixelated"
+          />
+        )}
       </Link>
     ),
   },
@@ -237,6 +272,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'from',
     label: 'From',
     defaultOn: true,
+    sortField: 'from',
     width: 'w-40',
     render: (e) =>
       e.fromId ? (
@@ -251,6 +287,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'pokemon',
     label: 'Evolves into',
     defaultOn: true,
+    sortField: 'pokemon',
     width: 'w-44',
     render: (e) => (
       <Link to={`/pokemon/${e.toId}`} className="font-medium hover:underline">
@@ -262,6 +299,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'trigger',
     label: 'Trigger',
     defaultOn: true,
+    sortField: 'trigger',
     width: 'w-32',
     render: (e) => <span className="capitalize">{e.trigger?.replace(/-/g, ' ') ?? '—'}</span>,
   },
@@ -269,6 +307,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'item',
     label: 'Item',
     defaultOn: true,
+    sortField: 'item',
     width: 'w-36',
     render: (e) =>
       e.item ? (
@@ -281,6 +320,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     key: 'minLevel',
     label: 'Level',
     defaultOn: true,
+    sortField: 'minLevel',
     width: 'w-20',
     alignRight: true,
     render: (e) => e.minLevel ?? '—',
@@ -290,6 +330,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
     label: 'Friendship',
     help: 'Needs this much friendship before it evolves; friendship evolutions level up with no level requirement.',
     defaultOn: true,
+    sortField: 'minHappiness',
     width: 'w-24',
     alignRight: true,
     render: (e) => e.minHappiness ?? '—',
@@ -297,6 +338,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
   {
     key: 'heldItem',
     label: 'Held item',
+    sortField: 'heldItem',
     width: 'w-36',
     render: (e) =>
       e.heldItem ? (
@@ -308,6 +350,7 @@ export const EVOLUTION_COLUMNS: ColumnDef<EvolutionSearchRow>[] = [
   {
     key: 'timeOfDay',
     label: 'Time',
+    sortField: 'timeOfDay',
     width: 'w-24',
     render: (e) => <span className="capitalize">{e.timeOfDay ?? '—'}</span>,
   },

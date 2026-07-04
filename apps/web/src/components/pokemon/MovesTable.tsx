@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import type { PokemonMove } from '@masterpokedex/shared';
+import type { PokemonMove, SortDir } from '@masterpokedex/shared';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { TypeBadge } from '../ui/type-badge';
 import HelpTip from '../HelpTip';
+import SortableHead from '../SortableHead';
 import { capitalize } from '../../utils/helpers';
-import { cn } from '@/lib/utils';
 
-const METHOD_SECTIONS: Array<{ method: string; title: string; note: string; help: string }> = [
+/** Exported so MoveDetail's learner sections can reuse the same explainers. */
+export const METHOD_SECTIONS: Array<{ method: string; title: string; note: string; help: string }> = [
   {
     method: 'level-up',
     title: 'Moves learnt by level up',
@@ -36,7 +36,10 @@ const METHOD_SECTIONS: Array<{ method: string; title: string; note: string; help
   },
 ];
 
-type SortKey = 'level' | 'name' | 'power' | 'accuracy' | 'pp';
+type SortKey = 'level' | 'name' | 'type' | 'class' | 'power' | 'accuracy' | 'pp';
+
+/** Numeric columns read best highest-first, like the list pages. */
+const DESC_FIRST: ReadonlySet<SortKey> = new Set(['power', 'accuracy', 'pp']);
 
 const COLLAPSED_ROWS = 10;
 
@@ -65,6 +68,10 @@ const MethodSection: React.FC<{ title: string; note: string; help?: string; move
       switch (sortKey) {
         case 'level':
           return compareNullable(a.levelLearnedAt, b.levelLearnedAt, dir) || a.name.localeCompare(b.name);
+        case 'type':
+          return a.type.localeCompare(b.type) * dir || a.name.localeCompare(b.name);
+        case 'class':
+          return a.damageClass.localeCompare(b.damageClass) * dir || a.name.localeCompare(b.name);
         case 'power':
           return compareNullable(a.power, b.power, dir) || a.name.localeCompare(b.name);
         case 'accuracy':
@@ -80,25 +87,14 @@ const MethodSection: React.FC<{ title: string; note: string; help?: string; move
 
   const shown = expanded ? sorted : sorted.slice(0, COLLAPSED_ROWS);
 
-  const header = (key: SortKey, label: string, alignRight = false, help?: string) => (
-    <TableHead
-      onClick={() => {
-        if (sortKey === key) setDir((d) => (d === 1 ? -1 : 1));
-        else {
-          setSortKey(key);
-          setDir(1);
-        }
-      }}
-      aria-sort={sortKey === key ? (dir === 1 ? 'ascending' : 'descending') : undefined}
-      className={cn('cursor-pointer select-none whitespace-nowrap hover:text-foreground', alignRight && 'text-right')}
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {help && <HelpTip title={label}>{help}</HelpTip>}
-        {sortKey === key && (dir === 1 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-      </span>
-    </TableHead>
-  );
+  const dirName: SortDir = dir === 1 ? 'asc' : 'desc';
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) setDir((d) => (d === 1 ? -1 : 1));
+    else {
+      setSortKey(key);
+      setDir(DESC_FIRST.has(key) ? -1 : 1);
+    }
+  };
 
   return (
     <section className="mb-6 last:mb-0">
@@ -113,19 +109,52 @@ const MethodSection: React.FC<{ title: string; note: string; help?: string; move
         <Table>
           <TableHeader>
             <TableRow>
-              {showLevel && header('level', 'Lv.')}
-              {header('name', 'Move')}
-              <TableHead>Type</TableHead>
-              <TableHead>
-                Class
-                <HelpTip title="Damage class" className="ml-1">
-                  Physical moves use Attack, special moves use Sp. Attack, and status moves
-                  deal no direct damage.
-                </HelpTip>
-              </TableHead>
-              {header('power', 'Power', true, 'The move’s base damage; “—” means variable or no direct damage.')}
-              {header('accuracy', 'Acc.', true, 'Chance to hit, in percent; “—” never misses.')}
-              {header('pp', 'PP', true, 'Power Points: how many times the move can be used before resting.')}
+              {showLevel && (
+                <SortableHead field="level" label="Lv." sort={sortKey} dir={dirName} onSort={handleSort} className="w-14" />
+              )}
+              <SortableHead field="name" label="Move" sort={sortKey} dir={dirName} onSort={handleSort} className="w-48" />
+              <SortableHead field="type" label="Type" sort={sortKey} dir={dirName} onSort={handleSort} className="w-28" />
+              <SortableHead
+                field="class"
+                label="Class"
+                helpTitle="Damage class"
+                help="Physical moves use Attack, special moves use Sp. Attack, and status moves deal no direct damage."
+                sort={sortKey}
+                dir={dirName}
+                onSort={handleSort}
+                className="w-24"
+              />
+              <SortableHead
+                field="power"
+                label="Power"
+                help="The move’s base damage; “—” means variable or no direct damage."
+                sort={sortKey}
+                dir={dirName}
+                onSort={handleSort}
+                alignRight
+                className="w-20"
+              />
+              <SortableHead
+                field="accuracy"
+                label="Acc."
+                helpTitle="Accuracy"
+                help="Chance to hit, in percent; “—” never misses."
+                sort={sortKey}
+                dir={dirName}
+                onSort={handleSort}
+                alignRight
+                className="w-20"
+              />
+              <SortableHead
+                field="pp"
+                label="PP"
+                help="Power Points: how many times the move can be used before resting."
+                sort={sortKey}
+                dir={dirName}
+                onSort={handleSort}
+                alignRight
+                className="w-20"
+              />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -144,7 +173,7 @@ const MethodSection: React.FC<{ title: string; note: string; help?: string; move
                   )}
                 </TableCell>
                 <TableCell>
-                  <TypeBadge type={move.type} size="sm" icon />
+                  <TypeBadge type={move.type} size="sm" icon link />
                 </TableCell>
                 <TableCell className="capitalize">{move.damageClass}</TableCell>
                 <TableCell className="text-right">{move.power ?? '—'}</TableCell>

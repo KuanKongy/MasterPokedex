@@ -12,7 +12,7 @@ import {
 import type { AppBindings } from '../types';
 import { ApiError } from '../lib/errors';
 import { evolutionMethods } from '../lib/evolution';
-import { decodeCursor, encodeCursor, type Cursor } from '../lib/pagination';
+import { decodeCursor, encodeCursor, keysetPredicate } from '../lib/pagination';
 
 /** Same whitelist discipline as routes/pokemon.ts — see the comment there. */
 const ITEM_FILTER_COLUMNS: Record<string, SQL> = {
@@ -109,13 +109,32 @@ function evolutionConditionToSql(condition: EvolutionFilterCondition): SQL {
   }
 }
 
-function itemCursorPredicate(cursor: Cursor, sortColumn: SQL, ascending: boolean): SQL {
-  const cmp = ascending ? sql`>` : sql`<`;
-  if (cursor.v === null) {
-    return sql`(${sortColumn} IS NULL AND i.id ${cmp} ${cursor.id})`;
-  }
-  return sql`(${sortColumn} ${cmp} ${cursor.v} OR (${sortColumn} = ${cursor.v} AND i.id ${cmp} ${cursor.id}))`;
-}
+/**
+ * Sort whitelist for /evolutions/search, mirroring EVOLUTION_SORT_FIELDS;
+ * the value map names the response field carrying each row's sort value.
+ */
+const EVOLUTION_SORT_COLUMNS: Record<string, SQL> = {
+  id: sql`e.id`,
+  pokemon: sql`COALESCE(s.display_name, s.name)`,
+  from: sql`COALESCE(p.display_name, p.name)`,
+  trigger: sql`e.trigger`,
+  item: sql`e.trigger_item`,
+  heldItem: sql`e.held_item`,
+  minLevel: sql`e.minimum_level`,
+  minHappiness: sql`e.minimum_happiness`,
+  timeOfDay: sql`e.time_of_day`,
+};
+const EVOLUTION_SORT_VALUE_KEYS: Record<string, string> = {
+  id: 'id',
+  pokemon: 'toName',
+  from: 'fromName',
+  trigger: 'trigger',
+  item: 'item',
+  heldItem: 'heldItem',
+  minLevel: 'minLevel',
+  minHappiness: 'minHappiness',
+  timeOfDay: 'timeOfDay',
+};
 
 export const referenceRoutes = new Hono<AppBindings>()
   .get('/types', async (c) => {
@@ -188,7 +207,7 @@ export const referenceRoutes = new Hono<AppBindings>()
       predicates.push(sql`(${sql.join(parts, joiner)})`);
     }
 
-    if (cursor) predicates.push(itemCursorPredicate(cursor, sortColumn, ascending));
+    if (cursor) predicates.push(keysetPredicate(cursor, sortColumn, sql`i.id`, ascending));
 
     const direction = ascending ? sql`ASC` : sql`DESC`;
 
@@ -281,19 +300,26 @@ export const referenceRoutes = new Hono<AppBindings>()
 
   /**
    * GET /v1/evolutions/search — the advanced search's Evolutions entity:
-   * one row per evolution edge, keyset-paged by the edge's own id.
+   * one row per evolution edge, sortable, on the shared opaque keyset cursor.
    */
   .get('/evolutions/search', async (c) => {
     const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 50) || 50, 1), 200);
-    const after = Number(c.req.query('cursor') ?? 0) || 0;
+    const sort = c.req.query('sort') ?? 'id';
+    const sortColumn = EVOLUTION_SORT_COLUMNS[sort];
+    if (!sortColumn) throw ApiError.badRequest(`Cannot sort evolutions by "${sort}"`);
+    const ascending = c.req.query('dir') !== 'desc';
+    const cursor = decodeCursor(c.req.query('cursor'));
     const filter = decodeEvolutionFilter(c.req.query('filter'));
 
-    const predicates: SQL[] = [sql`e.id > ${after}`];
+    const predicates: SQL[] = [sql`true`];
     if (filter.conditions.length > 0) {
       const parts = filter.conditions.map(evolutionConditionToSql);
       const joiner = filter.match === 'any' ? sql` OR ` : sql` AND `;
       predicates.push(sql`(${sql.join(parts, joiner)})`);
     }
+    if (cursor) predicates.push(keysetPredicate(cursor, sortColumn, sql`e.id`, ascending));
+
+    const direction = ascending ? sql`ASC` : sql`DESC`;
 
     const rows = (await c.var.db.execute(sql`
       SELECT
@@ -319,13 +345,23 @@ export const referenceRoutes = new Hono<AppBindings>()
         LIMIT 1
       ) dp ON true
       WHERE ${sql.join(predicates, sql` AND `)}
-      ORDER BY e.id
+      ORDER BY ${sortColumn} ${direction} NULLS LAST, e.id ${direction}
       LIMIT ${limit + 1}
     `)) as unknown as ({ id: number } & Record<string, unknown>)[];
 
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, limit) : rows;
-    const nextCursor = hasMore && page.length > 0 ? String(page.at(-1)!.id) : null;
+    const last = page.at(-1);
+
+    let nextCursor: string | null = null;
+    if (hasMore && last) {
+      const sortValue = last[EVOLUTION_SORT_VALUE_KEYS[sort]!];
+      nextCursor = encodeCursor({
+        v: typeof sortValue === 'string' || typeof sortValue === 'number' ? sortValue : null,
+        id: last.id,
+      });
+    }
+
     return c.json({ items: page, nextCursor });
   })
 

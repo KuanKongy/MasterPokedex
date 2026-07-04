@@ -1,3 +1,4 @@
+import { sql, type SQL } from 'drizzle-orm';
 import { ApiError } from './errors';
 
 /**
@@ -36,6 +37,21 @@ export function decodeCursor(raw: string | undefined): Cursor | null {
   } catch {
     throw ApiError.badRequest('Invalid cursor');
   }
+}
+
+/**
+ * The WHERE clause that continues `ORDER BY sortColumn <dir> NULLS LAST,
+ * idColumn <dir>` past `cursor`. Null sort values sit in the tail whichever
+ * the direction, so a non-null cursor must keep them reachable (the final
+ * `IS NULL` arm) and a null cursor means the page is inside that tail,
+ * ordered by id alone.
+ */
+export function keysetPredicate(cursor: Cursor, sortColumn: SQL, idColumn: SQL, ascending: boolean): SQL {
+  const cmp = ascending ? sql`>` : sql`<`;
+  if (cursor.v === null) {
+    return sql`(${sortColumn} IS NULL AND ${idColumn} ${cmp} ${cursor.id})`;
+  }
+  return sql`(${sortColumn} ${cmp} ${cursor.v} OR (${sortColumn} = ${cursor.v} AND ${idColumn} ${cmp} ${cursor.id}) OR ${sortColumn} IS NULL)`;
 }
 
 /**
