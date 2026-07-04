@@ -71,6 +71,17 @@ export function useUpdateProfile() {
   });
 }
 
+/**
+ * Deletes the account: trainer row, teams, bag, friendships, favorites,
+ * activity and the login itself. The caller signs out and clears the query
+ * cache afterwards; there is nothing left to invalidate piecemeal.
+ */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: () => apiFetch<void>('/v1/me', { method: 'DELETE', auth: true }),
+  });
+}
+
 // ── Teams & caught Pokémon ────────────────────────────────────────────────────
 
 export function useMyTeams() {

@@ -167,7 +167,9 @@ const Header: React.FC = () => {
                   <User className="mr-2 h-4 w-4" />
                   My profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/items')}>
+                {/* The nav's Items entry is the catalogue; the bag lives on
+                    the trainer page's Bag tab. */}
+                <DropdownMenuItem onClick={() => navigate('/trainer?tab=bag')}>
                   <ShoppingBag className="mr-2 h-4 w-4" />
                   My bag
                 </DropdownMenuItem>

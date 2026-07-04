@@ -1,5 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { TrainerProfile } from '@masterpokedex/shared';
@@ -7,6 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   Form,
   FormControl,
@@ -23,10 +36,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useUpdateProfile } from '@/hooks/api/trainer';
+import { useDeleteAccount, useUpdateProfile } from '@/hooks/api/trainer';
 import { useRegions } from '@/hooks/api/world';
 import { useTypes } from '@/hooks/api/pokemon';
+import HelpTip from './HelpTip';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/auth/AuthProvider';
 import { isApiError } from '@/lib/api';
 import { capitalize } from '../utils/helpers';
 
@@ -69,8 +84,30 @@ const NONE = 'none';
 const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer, onClose }) => {
   const { toast } = useToast();
   const update = useUpdateProfile();
+  const deleteAccount = useDeleteAccount();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: regions } = useRegions();
   const { data: types } = useTypes();
+
+  const handleDeleteAccount = () => {
+    deleteAccount.mutate(undefined, {
+      onSuccess: async () => {
+        toast({ title: 'Account deleted', description: 'Your trainer data is gone. Safe travels.' });
+        queryClient.clear();
+        await signOut();
+        navigate('/');
+      },
+      onError: (err) => {
+        toast({
+          title: 'Could not delete account',
+          description: isApiError(err) ? err.message : 'Please try again.',
+          variant: 'destructive',
+        });
+      },
+    });
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -246,7 +283,13 @@ const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer, onClose 
         />
 
         <div className="space-y-2 rounded-md border p-3">
-          <p className="text-sm font-medium">Profile sections</p>
+          <p className="text-sm font-medium">
+            Profile sections
+            <HelpTip title="Profile sections" faq="privacy" className="ml-1">
+              Five switches, one per section of your public profile; a section that is off is
+              hidden from everyone but you, friends included.
+            </HelpTip>
+          </p>
           <FormDescription>
             What a permitted viewer sees on your profile. These only matter while your profile is
             public or shared with friends.
@@ -275,6 +318,43 @@ const UpdateTrainerForm: React.FC<UpdateTrainerFormProps> = ({ trainer, onClose 
           <Button type="submit" disabled={update.isPending}>
             {update.isPending ? 'Saving…' : 'Save changes'}
           </Button>
+        </div>
+
+        <div className="space-y-2 rounded-md border border-destructive/50 p-3">
+          <p className="text-sm font-medium text-destructive">Danger zone</p>
+          <div className="flex items-center justify-between gap-4">
+            <FormDescription>
+              Deleting your account removes everything attached to it: profile, teams, caught
+              Pokémon, bag, friendships, favorites and activity. There is no undo.
+            </FormDescription>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="destructive" size="sm" className="shrink-0">
+                  Delete account
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete @{trainer.username} forever?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Your trainer profile and everything on it, teams, caught Pokémon, bag,
+                    friendships, favorites and activity, will be permanently removed, and your
+                    sign-in with it. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep my account</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={deleteAccount.isPending}
+                    onClick={handleDeleteAccount}
+                  >
+                    {deleteAccount.isPending ? 'Deleting…' : 'Delete everything'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </form>
     </Form>

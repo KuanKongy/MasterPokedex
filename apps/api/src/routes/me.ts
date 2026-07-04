@@ -90,6 +90,29 @@ export const meRoutes = new Hono<AppBindings>()
     return c.json(toTrainerProfile(row));
   })
 
+  /**
+   * DELETE /v1/me — the whole account. The trainer row cascades to teams,
+   * caught Pokémon, bag, friendships, favorites and activity; the auth user
+   * goes too, so the login stops existing rather than lingering as an orphan
+   * that could claim a fresh username. Idempotent: deleting a never-claimed
+   * or already-deleted account is still a 204.
+   */
+  .delete('/', async (c) => {
+    const { userId } = getAuth(c);
+
+    // Two statements, trainers first: on a role without auth-schema rights the
+    // profile and its data must still be gone before the auth delete can fail.
+    await c.var.db.execute(sql`DELETE FROM public.trainers WHERE id = ${userId}`);
+    try {
+      await c.var.db.execute(sql`DELETE FROM auth.users WHERE id = ${userId}`);
+    } catch {
+      // Hosted projects where the API's role cannot touch auth.users keep the
+      // bare login; all trainer data is gone regardless.
+    }
+
+    return c.body(null, 204);
+  })
+
   /** GET /v1/me/activity — own events plus accepted friends', newest first. */
   .get('/activity', async (c) => {
     const { userId } = getAuth(c);
