@@ -73,6 +73,13 @@ export type UpdateProfileInput = z.infer<typeof UpdateProfileInputSchema>;
 export const ClaimUsernameInputSchema = z.object({
   username: UsernameSchema,
   displayName: z.string().min(1).max(40),
+  /** Prefilled from the OAuth provider's photo (Google) when there is one. */
+  avatarUrl: z
+    .string()
+    .url()
+    .refine((u) => /^https?:\/\//i.test(u), 'Avatar URL must use http or https')
+    .nullable()
+    .optional(),
 });
 export type ClaimUsernameInput = z.infer<typeof ClaimUsernameInputSchema>;
 

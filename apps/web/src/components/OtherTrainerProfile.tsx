@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -8,6 +8,8 @@ import {
   Activity as ActivityIcon,
   Backpack,
   Check,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Heart,
   Medal,
@@ -39,6 +41,7 @@ import {
 import { useAuth } from '@/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { isApiError } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface OtherTrainerProfileProps {
   username: string;
@@ -55,6 +58,7 @@ interface OtherTrainerProfileProps {
 const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onOpenTrainer }) => {
   const { session } = useAuth();
   const { toast } = useToast();
+  const [bagExpanded, setBagExpanded] = useState(false);
   const { data: trainer, isLoading, error } = useTrainerProfile(username);
   const { data: teams } = useTrainerTeams(username, trainer?.showTeams ?? false);
   const { data: friendships } = useMyFriends();
@@ -320,33 +324,57 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             {!bag || bag.length === 0 ? (
               <p className="text-sm text-muted-foreground">Their bag is empty.</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {bag.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 rounded-md border p-3">
-                    <Link
-                      to={`/items/${item.name}`}
-                      className="group flex flex-1 min-w-0 items-center gap-3"
-                    >
-                      <ItemSprite
-                        src={item.sprite}
-                        itemName={item.name}
-                        alt={item.displayName}
-                        className="h-8 w-8"
-                      />
-                      <span className="truncate font-medium group-hover:underline">
-                        {item.displayName}
-                      </span>
-                    </Link>
-                    <Badge variant="secondary" className="shrink-0 tabular-nums">
-                      ×{item.quantity}
-                    </Badge>
+              <>
+                {/* A packed bag stays a window: height-capped with its own
+                    scroller until expanded. */}
+                <div
+                  className={cn(
+                    'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3',
+                    bag.length > 9 && !bagExpanded && 'max-h-72 overflow-y-auto pr-1',
+                  )}
+                >
+                  {bag.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 rounded-md border p-3">
+                      <Link
+                        to={`/items/${item.name}`}
+                        className="group flex flex-1 min-w-0 items-center gap-3"
+                      >
+                        <ItemSprite
+                          src={item.sprite}
+                          itemName={item.name}
+                          alt={item.displayName}
+                          className="h-8 w-8"
+                        />
+                        <span className="truncate font-medium group-hover:underline">
+                          {item.displayName}
+                        </span>
+                      </Link>
+                      <Badge variant="secondary" className="shrink-0 tabular-nums">
+                        ×{item.quantity}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+                {bag.length > 9 && (
+                  <div className="flex justify-center">
+                    <Button variant="ghost" size="sm" onClick={() => setBagExpanded((value) => !value)}>
+                      {bagExpanded ? (
+                        <>
+                          Collapse <ChevronUp className="ml-1 h-4 w-4" />
+                        </>
+                      ) : (
+                        <>
+                          Expand <ChevronDown className="ml-1 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

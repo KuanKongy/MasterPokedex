@@ -10,6 +10,7 @@ import { BOOLEAN_OPS, NUMBER_OPS, STRING_OPS } from './filters';
 
 export const EVOLUTION_TRIGGERS = [
   'level-up',
+  'in-battle-level-up',
   'trade',
   'use-item',
   'shed',
@@ -25,6 +26,7 @@ export const EVOLUTION_TRIGGERS = [
   'use-move',
   'three-defeated-bisharp',
   'gimmighoul-coins',
+  'meltan-candies',
 ] as const;
 export const EvolutionTriggerSchema = z.enum(EVOLUTION_TRIGGERS);
 export type EvolutionTrigger = z.infer<typeof EvolutionTriggerSchema>;

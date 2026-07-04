@@ -89,9 +89,15 @@ export function methodPhrase(m: MergedMethod): string {
   }
   if (m.trigger === 'use-item' && m.item) return join(itemPhrase(m.item));
   if (m.item) return join(itemPhrase(m.item));
-  if (m.minLevel) return join(`Lv. ${m.minLevel}`);
+  // Only plain level-ups collapse to a bare "Lv. N"; the strange triggers
+  // below keep their own words, or Maushold reads like an ordinary level-up.
+  if (m.minLevel && (!m.trigger || m.trigger === 'level-up')) return join(`Lv. ${m.minLevel}`);
 
   switch (m.trigger) {
+    case 'in-battle-level-up':
+      return join(m.minLevel ? `Lv. ${m.minLevel}, levelled up in battle` : 'level up in battle');
+    case 'meltan-candies':
+      return 'feed 400 Meltan Candies in Pokémon GO';
     case 'shed':
       return 'level up with an empty party slot and a Poké Ball';
     case 'spin':
@@ -121,6 +127,7 @@ export function methodPhrase(m: MergedMethod): string {
   }
 
   if (m.needsMultiplayer) return join('trade');
+  if (m.minLevel) return join(`Lv. ${m.minLevel}`);
   if (m.minSteps) return join(`walk ${m.minSteps} steps`);
   if (extras.length) return join('level up');
   return m.trigger ? pretty(m.trigger) : 'Evolution';

@@ -54,8 +54,8 @@ export const meRoutes = new Hono<AppBindings>()
     // The unique index on username races for us: a duplicate surfaces as
     // `username_taken` through the constraint mapping in lib/errors.ts.
     await c.var.db.execute(sql`
-      INSERT INTO public.trainers (id, username, display_name)
-      VALUES (${userId}, ${input.username}, ${input.displayName})
+      INSERT INTO public.trainers (id, username, display_name, avatar_url)
+      VALUES (${userId}, ${input.username}, ${input.displayName}, ${input.avatarUrl ?? null})
     `);
 
     const row = await fetchOwnProfile(c.var.db, userId);

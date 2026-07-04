@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Activity } from '@masterpokedex/shared';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { resolveAsset } from '@/lib/assets';
+import { cn } from '@/lib/utils';
+
+/** Feeds longer than this start out height-capped with their own scroller. */
+const COLLAPSE_AT = 6;
 
 export const ACTIVITY_TEXT: Record<Activity['kind'], (a: Activity) => string> = {
   caught: (a) => `caught ${a.payload.nickname ?? `#${a.payload.pokemonId}`}`,
@@ -33,6 +38,8 @@ const ActivityFeed: React.FC<{ query: FeedQuery; emptyTitle?: string; emptyText?
 }) => {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = query;
   const events = data?.pages.flatMap((page) => page.items) ?? [];
+  const [expanded, setExpanded] = useState(false);
+  const collapsible = events.length > COLLAPSE_AT;
 
   if (isLoading) return <p className="text-sm text-muted-foreground p-4">Loading activity…</p>;
   if (events.length === 0) {
@@ -48,26 +55,45 @@ const ActivityFeed: React.FC<{ query: FeedQuery; emptyTitle?: string; emptyText?
 
   return (
     <div className="space-y-2">
-      {events.map((event) => (
-        <div key={event.id} className="flex items-center gap-3 p-3 border rounded-md text-sm">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
-            <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <span className="font-medium">{event.trainer.displayName}</span>{' '}
-            {ACTIVITY_TEXT[event.kind]?.(event) ?? event.kind}
+      {/* A long feed stays a window, not a wall: height-capped with its own
+          scroller until expanded. */}
+      <div className={cn('space-y-2', collapsible && !expanded && 'max-h-96 overflow-y-auto pr-1')}>
+        {events.map((event) => (
+          <div key={event.id} className="flex items-center gap-3 p-3 border rounded-md text-sm">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={event.trainer.avatarUrl ? resolveAsset(event.trainer.avatarUrl) : undefined} alt={event.trainer.displayName} />
+              <AvatarFallback>{event.trainer.displayName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <span className="font-medium">{event.trainer.displayName}</span>{' '}
+              {ACTIVITY_TEXT[event.kind]?.(event) ?? event.kind}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {new Date(event.createdAt).toLocaleDateString()}
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {new Date(event.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-      ))}
-      {hasNextPage && (
-        <div className="flex justify-center pt-2">
-          <Button variant="outline" size="sm" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-            {isFetchingNextPage ? 'Loading…' : 'Older activity'}
-          </Button>
+        ))}
+      </div>
+      {(collapsible || hasNextPage) && (
+        <div className="flex justify-center gap-2 pt-2">
+          {collapsible && (
+            <Button variant="ghost" size="sm" onClick={() => setExpanded((value) => !value)}>
+              {expanded ? (
+                <>
+                  Collapse <ChevronUp className="ml-1 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Expand <ChevronDown className="ml-1 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          )}
+          {hasNextPage && (
+            <Button variant="outline" size="sm" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+              {isFetchingNextPage ? 'Loading…' : 'Older activity'}
+            </Button>
+          )}
         </div>
       )}
     </div>

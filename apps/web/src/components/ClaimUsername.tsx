@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { UserPlus } from 'lucide-react';
 import { useClaimUsername } from '@/hooks/api/trainer';
+import { useAuth } from '@/auth/AuthProvider';
 import { isApiError } from '@/lib/api';
 
 /**
@@ -25,14 +26,22 @@ import { isApiError } from '@/lib/api';
  */
 const ClaimUsername: React.FC = () => {
   const claim = useClaimUsername();
+  const { session } = useAuth();
+  // Google (and other OAuth) accounts arrive with a name and a photo; use
+  // them as the starting point instead of empty fields.
+  const metadata = (session?.user.user_metadata ?? {}) as { full_name?: string; avatar_url?: string };
+  const oauthAvatar =
+    typeof metadata.avatar_url === 'string' && /^https?:\/\//i.test(metadata.avatar_url)
+      ? metadata.avatar_url
+      : undefined;
 
   const form = useForm<ClaimUsernameInput>({
     resolver: zodResolver(ClaimUsernameInputSchema),
-    defaultValues: { username: '', displayName: '' },
+    defaultValues: { username: '', displayName: metadata.full_name?.slice(0, 40) ?? '' },
   });
 
   const onSubmit = (input: ClaimUsernameInput) => {
-    claim.mutate(input, {
+    claim.mutate({ ...input, avatarUrl: oauthAvatar }, {
       onError: (err) => {
         if (isApiError(err, 'username_taken')) {
           form.setError('username', { message: 'That username is already taken' });

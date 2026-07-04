@@ -19,7 +19,9 @@ import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefC
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 20;
-const MAIN_TRIGGERS = new Set(['level-up', 'use-item', 'trade']);
+/** Maushold's in-battle-level-up is still a level-up to anyone browsing. */
+const LEVEL_TRIGGERS = new Set(['level-up', 'in-battle-level-up']);
+const MAIN_TRIGGERS = new Set([...LEVEL_TRIGGERS, 'use-item', 'trade']);
 
 /** How every non-base member of the family evolves, folded for filtering. */
 function chainFacts(chain: EvolutionChain) {
@@ -75,18 +77,26 @@ const Evolutions: React.FC = () => {
   const [alwaysShowForms] = useBooleanPref(ALWAYS_SHOW_MEGAS);
   const [megaOverride, setMegaOverride] = useState<boolean | null>(null);
   const [gmaxOverride, setGmaxOverride] = useState<boolean | null>(null);
-  const showMegas = megaOverride ?? alwaysShowForms;
-  const showGmax = gmaxOverride ?? alwaysShowForms;
+  // Filtering for Mega or Gigantamax families implies wanting to see them.
+  const showMegas = megaOverride ?? (method === 'mega' || alwaysShowForms);
+  const showGmax = gmaxOverride ?? (method === 'gmax' || alwaysShowForms);
 
   // All 541 families load once and filter/sort client-side, like Moves.
   const { data: allChains, isLoading } = useAllEvolutionChains();
+  const { data: megas } = useMegas();
+  const { data: gmaxes } = useGmax();
+  const megaSpecies = useMemo(() => new Set((megas?.items ?? []).map((f) => f.speciesId)), [megas]);
+  const gmaxSpecies = useMemo(() => new Set((gmaxes?.items ?? []).map((f) => f.speciesId)), [gmaxes]);
   const chains = useMemo(() => {
     const ql = q.trim().toLowerCase();
     const filtered = (allChains ?? []).filter((chain) => {
       if (ql && !chain.nodes.some((node) => node.name.toLowerCase().includes(ql))) return false;
       if (method === 'all') return true;
+      if (method === 'mega') return chain.nodes.some((node) => megaSpecies.has(node.id));
+      if (method === 'gmax') return chain.nodes.some((node) => gmaxSpecies.has(node.id));
       const facts = chainFacts(chain);
       if (method === 'friendship') return facts.friendship;
+      if (method === 'level-up') return [...facts.triggers].some((t) => LEVEL_TRIGGERS.has(t));
       if (method === 'other') return [...facts.triggers].some((t) => !MAIN_TRIGGERS.has(t));
       return facts.triggers.has(method);
     });
@@ -102,8 +112,6 @@ const Evolutions: React.FC = () => {
   const [shown, setShown] = useState(PAGE_SIZE);
   useEffect(() => setShown(PAGE_SIZE), [q, method, sort]);
 
-  const { data: megas } = useMegas();
-  const { data: gmaxes } = useGmax();
   const formsBySpecies = useMemo(() => {
     const map = new Map<number, Array<MegaSummary & { formKind: 'mega' | 'gmax' }>>();
     const add = (forms: MegaSummary[] | undefined, formKind: 'mega' | 'gmax') => {
@@ -123,41 +131,94 @@ const Evolutions: React.FC = () => {
       <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Evolution chains</h1>
       <p className="text-muted-foreground mb-8">Every family, base form to final evolution</p>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-          {/* Filters as you type; the whole list is client-side. */}
-          <SearchField
-            value={q}
-            onChange={(value) => patch({ q: value || null })}
-            onSubmit={() => undefined}
-            placeholder="Find a family (e.g. eevee)…"
-            className="w-full sm:max-w-xs"
-          />
-          <Select value={method} onValueChange={(value) => patch({ method: value })}>
-            <SelectTrigger className="w-full sm:w-44" aria-label="Filter by evolution method">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any method</SelectItem>
-              <SelectItem value="level-up">Level up</SelectItem>
-              <SelectItem value="use-item">Use item</SelectItem>
-              <SelectItem value="trade">Trade</SelectItem>
-              <SelectItem value="friendship">Friendship</SelectItem>
-              <SelectItem value="other">Something stranger</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sort} onValueChange={(value) => patch({ sort: value === 'dex' ? null : value })}>
-            <SelectTrigger className="w-full sm:w-48" aria-label="Sort families">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="dex">Dex order</SelectItem>
-              <SelectItem value="name">Family name A to Z</SelectItem>
-              <SelectItem value="size">Biggest families first</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      {/* One row on desktop: search, method, sort, then the form switches. */}
+      <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+        {/* Filters as you type; the whole list is client-side. */}
+        <SearchField
+          value={q}
+          onChange={(value) => patch({ q: value || null })}
+          onSubmit={() => undefined}
+          placeholder="Find a family (e.g. eevee)…"
+          className="w-full sm:w-64"
+        />
+        <Select value={method} onValueChange={(value) => patch({ method: value })}>
+          <SelectTrigger
+            className="w-full sm:w-44 [&_.item-help]:hidden"
+            aria-label="Filter by evolution method"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any method</SelectItem>
+            <SelectItem value="level-up">
+              <span className="flex flex-col items-start">
+                Level up
+                <span className="item-help text-xs text-muted-foreground">
+                  Plain levels, time of day, and in-battle levels
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="use-item">
+              <span className="flex flex-col items-start">
+                Use item
+                <span className="item-help text-xs text-muted-foreground">
+                  Evolution stones and the like
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="trade">
+              <span className="flex flex-col items-start">
+                Trade
+                <span className="item-help text-xs text-muted-foreground">
+                  With or without a held item
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="friendship">
+              <span className="flex flex-col items-start">
+                Friendship
+                <span className="item-help text-xs text-muted-foreground">
+                  Level up with high friendship
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="mega">
+              <span className="flex flex-col items-start">
+                Mega Stone
+                <span className="item-help text-xs text-muted-foreground">
+                  Families with a Mega Evolution
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="gmax">
+              <span className="flex flex-col items-start">
+                Gigantamax
+                <span className="item-help text-xs text-muted-foreground">
+                  Families with the Gigantamax Factor
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="other">
+              <span className="flex flex-col items-start">
+                Something stranger
+                <span className="item-help text-xs text-muted-foreground">
+                  Shed, spin, critical hits and other one-offs
+                </span>
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sort} onValueChange={(value) => patch({ sort: value === 'dex' ? null : value })}>
+          <SelectTrigger className="w-full sm:w-48" aria-label="Sort families">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="dex">Dex order</SelectItem>
+            <SelectItem value="name">Family name A to Z</SelectItem>
+            <SelectItem value="size">Biggest families first</SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:ml-auto">
           <div className="flex items-center gap-2">
             <Switch id="chains-show-megas" checked={showMegas} onCheckedChange={setMegaOverride} />
             <Label htmlFor="chains-show-megas" className="cursor-pointer text-sm text-muted-foreground">
