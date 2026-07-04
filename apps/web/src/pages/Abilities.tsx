@@ -9,6 +9,7 @@ import {
 import { useAllAbilities } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SearchField from '../components/SearchField';
+import GenerationFilter from '../components/dex/GenerationFilter';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ColumnToggle from '../components/ColumnToggle';
@@ -40,6 +41,8 @@ const PAGE_SIZE = 100;
 const Abilities: React.FC = () => {
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
+  const rawGen = params.get('gen');
+  const gen = rawGen && /^[1-9]$/.test(rawGen) ? rawGen : 'all';
   const sortParam = params.get('sort');
   const sort: AbilitySortField = (ABILITY_SORT_FIELDS as readonly string[]).includes(sortParam ?? '')
     ? (sortParam as AbilitySortField)
@@ -73,13 +76,15 @@ const Abilities: React.FC = () => {
   const abilities = useMemo(() => {
     const ql = q.trim().toLowerCase();
     const filtered = (allAbilities ?? []).filter(
-      (a) => !ql || a.displayName.toLowerCase().includes(ql) || a.name.toLowerCase().includes(ql),
+      (a) =>
+        (!ql || a.displayName.toLowerCase().includes(ql) || a.name.toLowerCase().includes(ql)) &&
+        (gen === 'all' || a.generation === Number(gen)),
     );
     return filtered.sort(makeComparator(ABILITY_SORT_GETTERS[sort], dir));
-  }, [allAbilities, q, sort, dir]);
+  }, [allAbilities, q, gen, sort, dir]);
 
   const [shown, setShown] = useState(PAGE_SIZE);
-  useEffect(() => setShown(PAGE_SIZE), [q, sort, dir]);
+  useEffect(() => setShown(PAGE_SIZE), [q, gen, sort, dir]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -93,8 +98,9 @@ const Abilities: React.FC = () => {
           onChange={(value) => patch({ q: value || null })}
           onSubmit={() => undefined}
           placeholder="Search abilities…"
-          className="w-full max-w-md"
+          className="flex-1"
         />
+        <GenerationFilter value={gen} onChange={(next) => patch({ gen: next === 'all' ? null : next })} />
         <ColumnToggle columns={ABILITY_TABLE_COLUMNS} visible={visible} onToggle={toggle} />
       </div>
 
@@ -145,7 +151,7 @@ const Abilities: React.FC = () => {
                     </TableCell>
                     {visible.includes('effect') && (
                       <TableCell className="max-w-xl text-sm text-muted-foreground">
-                        <span className="line-clamp-2">{ability.shortEffect ?? ''}</span>
+                        <span>{ability.shortEffect ?? ''}</span>
                       </TableCell>
                     )}
                     {visible.includes('gen') && (

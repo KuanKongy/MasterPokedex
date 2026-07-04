@@ -149,7 +149,12 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-md">
+        {/* On lg this card is an overlay of its cell: the cell contributes no
+            height, so the row ends exactly where the map card does, whatever
+            height this region's art has; the list scrolls past that. Phones
+            stack the cards, so a fixed height takes over there. */}
+        <div className="relative h-[28rem] lg:h-auto">
+        <Card className="flex h-full flex-col shadow-md lg:absolute lg:inset-0">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Star className="h-4 w-4 text-pokebrand-red" />
@@ -161,13 +166,13 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
             </CardTitle>
             <CardDescription>The places worth knowing about in {region.displayName}</CardDescription>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="min-h-0 flex-1 p-0">
             {notable.length === 0 ? (
               <p className="px-6 pb-6 text-sm text-muted-foreground">
                 Nothing curated for this region yet — everything it has is in the list below.
               </p>
             ) : (
-              <ScrollArea className="h-[22rem]">
+              <ScrollArea className="h-full">
                 <div className="divide-y">
                   {notable.map((location) => (
                     <button
@@ -200,6 +205,7 @@ const PokemonMap: React.FC<PokemonMapProps> = ({ region }) => {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* ── every location, and whichever one is open ── */}

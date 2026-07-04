@@ -5,7 +5,7 @@ import { useSearch } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ItemSprite from '../components/ItemSprite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { pokemonImage, useSpritePref } from '@/prefs/SpritePrefContext';
+import { pokemonImage, spriteFallback, useSpritePref } from '@/prefs/SpritePrefContext';
 import { cn } from '@/lib/utils';
 
 const KIND_LABELS: Record<SearchKind, string> = {
@@ -18,6 +18,21 @@ const KIND_LABELS: Record<SearchKind, string> = {
 };
 
 const KIND_ORDER: SearchKind[] = ['pokemon', 'move', 'ability', 'item', 'location', 'type'];
+
+/**
+ * Where "See all" continues a capped kind: each list page filters on ?q=.
+ * Types never reach the cap (there are 18), so they carry no link.
+ */
+const KIND_SEE_ALL: Partial<Record<SearchKind, (q: string) => string>> = {
+  pokemon: (q) => `/?q=${encodeURIComponent(q)}`,
+  move: (q) => `/moves?q=${encodeURIComponent(q)}`,
+  ability: (q) => `/abilities?q=${encodeURIComponent(q)}`,
+  item: (q) => `/items?q=${encodeURIComponent(q)}`,
+  location: (q) => `/locations?q=${encodeURIComponent(q)}`,
+};
+
+/** The per-kind cap this page requests; a kind that fills it likely has more. */
+const KIND_LIMIT = 20;
 
 function routeFor(result: SearchResult): string {
   switch (result.kind) {
@@ -81,8 +96,22 @@ const SearchResults: React.FC = () => {
           {grouped.map(({ kind, items }) => (
             <Card key={kind}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  {KIND_LABELS[kind]} <span className="text-sm font-normal text-muted-foreground">({items.length})</span>
+                <CardTitle className="flex items-baseline justify-between gap-2 text-lg">
+                  <span>
+                    {KIND_LABELS[kind]}{' '}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({items.length}
+                      {items.length >= KIND_LIMIT ? '+' : ''})
+                    </span>
+                  </span>
+                  {items.length >= KIND_LIMIT && KIND_SEE_ALL[kind] && (
+                    <Link
+                      to={KIND_SEE_ALL[kind]!(q)}
+                      className="text-sm font-normal text-pokebrand-red hover:underline"
+                    >
+                      See all →
+                    </Link>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -98,6 +127,7 @@ const SearchResults: React.FC = () => {
                           src={pokemonImage(item.id, spriteStyle)}
                           alt=""
                           loading="lazy"
+                          onError={(e) => spriteFallback(e, item.id)}
                           className={cn('h-10 w-10 object-contain', spriteStyle === 'sprite' && 'pixelated')}
                         />
                       ) : item.kind === 'item' ? (

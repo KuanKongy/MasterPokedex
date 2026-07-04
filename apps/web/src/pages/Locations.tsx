@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLocationCatalog } from '@/hooks/api/world';
 import LoadingSpinner from '../components/LoadingSpinner';
 import HelpTip, { HoverTip } from '../components/HelpTip';
@@ -23,11 +23,30 @@ import { cn } from '@/lib/utils';
  */
 const OTHER_REGION_ID = 0;
 
+const AREA_FILTERS = ['any', 'encounters', 'none', '1', '3', '5'] as const;
+
 const Locations: React.FC = () => {
   const { data: regions, isLoading } = useLocationCatalog();
-  const [query, setQuery] = useState('');
-  const [kind, setKind] = useState('all');
-  const [areas, setAreas] = useState('any');
+  // Filters ride the URL so Back keeps them and searches deep-link (?q=).
+  const [params, setParams] = useSearchParams();
+  const query = params.get('q') ?? '';
+  const kind = params.get('kind') ?? 'all';
+  const rawAreas = params.get('areas');
+  const areas = (AREA_FILTERS as readonly string[]).includes(rawAreas ?? '') ? rawAreas! : 'any';
+
+  const patchParams = (patch: Record<string, string | null>) => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(patch)) {
+          if (value === null || value === '') next.delete(key);
+          else next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   // Derived from the loaded data so kinds that never occur produce no option.
   const kinds = useMemo(() => {
@@ -78,12 +97,12 @@ const Locations: React.FC = () => {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => patchParams({ q: e.target.value || null })}
               placeholder="Filter locations…"
               className="pl-9"
             />
           </div>
-          <Select value={kind} onValueChange={setKind}>
+          <Select value={kind} onValueChange={(next) => patchParams({ kind: next === 'all' ? null : next })}>
             <SelectTrigger className="w-full sm:w-40" aria-label="Filter by kind">
               <SelectValue />
             </SelectTrigger>
@@ -96,7 +115,7 @@ const Locations: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
-          <Select value={areas} onValueChange={setAreas}>
+          <Select value={areas} onValueChange={(next) => patchParams({ areas: next === 'any' ? null : next })}>
             <SelectTrigger className="w-full sm:w-44" aria-label="Filter by areas">
               <SelectValue />
             </SelectTrigger>

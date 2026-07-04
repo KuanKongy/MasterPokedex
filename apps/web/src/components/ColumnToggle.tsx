@@ -10,11 +10,13 @@ type ColumnToggleProps = {
   onToggle: (key: string, on: boolean) => void;
 };
 
-/** The little display-settings gear every data table carries. */
+/** The little display-settings gear every data table carries. Default
+    button size (h-10), so it stands as tall as the inputs and selects it
+    shares a toolbar with. */
 const ColumnToggle: React.FC<ColumnToggleProps> = ({ columns, visible, onToggle }) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="outline" size="sm" aria-label="Display settings">
+      <Button variant="outline" aria-label="Display settings">
         <Settings2 className="h-4 w-4 sm:mr-1.5" />
         <span className="hidden sm:inline">Columns</span>
       </Button>

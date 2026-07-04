@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   DAMAGE_CLASSES,
+  ENTITY_FILTER_DECODERS,
   ENTITY_FILTER_META,
   ENTITY_LABELS,
   EVOLUTION_TRIGGERS,
@@ -9,8 +10,10 @@ import {
   GROWTH_RATES,
   POKEMON_TYPES,
   type AbilitySortField,
+  type EvolutionSortField,
   type FilterEntity,
   type ItemSortField,
+  type LocationSortField,
   type MoveSortField,
   type PokemonSortField,
   type SortDir,
@@ -126,6 +129,10 @@ const ADV_DESC_FIRST = new Set([
   'generation',
   'pokemonCount',
   'cost',
+  'areaCount',
+  'hasEncounters',
+  'minLevel',
+  'minHappiness',
 ]);
 
 const PokemonFilter: React.FC = () => {
@@ -135,9 +142,33 @@ const PokemonFilter: React.FC = () => {
     ? (rawEntity as FilterEntity)
     : 'pokemon';
 
-  const [drafts, setDrafts] = useState<DraftCondition[]>([newCondition(entity)]);
-  const [match, setMatch] = useState<'all' | 'any'>('all');
-  const [applied, setApplied] = useState<AppliedFilter | null>(null);
+  // A shared link carries its conditions as ?filter=; decode once on mount
+  // through the active entity's strict decoder, treating anything malformed
+  // or empty as "no filter". Lazy useState keeps the parse off re-renders.
+  const [initialFilter] = useState<AppliedFilter | null>(() => {
+    const raw = params.get('filter');
+    if (!raw) return null;
+    try {
+      const decoded = ENTITY_FILTER_DECODERS[entity](raw);
+      return decoded.conditions.length > 0 ? (decoded as AppliedFilter) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [drafts, setDrafts] = useState<DraftCondition[]>(() =>
+    initialFilter
+      ? initialFilter.conditions.map((c) => ({
+          id: `c${++conditionSeq}`,
+          field: String(c.field),
+          op: String(c.op),
+          // Booleans serialize to the builder's 'true'/'false' convention.
+          value: String(c.value),
+        }))
+      : [newCondition(entity)],
+  );
+  const [match, setMatch] = useState<'all' | 'any'>(initialFilter?.match ?? 'all');
+  const [applied, setApplied] = useState<AppliedFilter | null>(initialFilter);
   // Column choices persist per entity, like every other data page.
   const { visible: columns, toggle: toggleColumn } = useColumnPrefs(
     `advanced-${entity}`,
@@ -240,11 +271,21 @@ const PokemonFilter: React.FC = () => {
     { enabled: enabled && entity === 'item' },
   );
   const locationQuery = useLocationSearch(
-    { filter: (applied as never) ?? undefined, limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      sort: (sort as LocationSortField | null) ?? undefined,
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'location' },
   );
   const evolutionQuery = useEvolutionSearch(
-    { filter: (applied as never) ?? undefined, limit: 50 },
+    {
+      filter: (applied as never) ?? undefined,
+      sort: (sort as EvolutionSortField | null) ?? undefined,
+      dir: sort ? dir : undefined,
+      limit: 50,
+    },
     { enabled: enabled && entity === 'evolution' },
   );
   const query =
@@ -429,7 +470,15 @@ const PokemonFilter: React.FC = () => {
               Add condition
             </Button>
             <div className="ml-auto flex gap-2">
-              <Button size="sm" onClick={() => setApplied(buildFilter(entity, drafts, match))}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const built = buildFilter(entity, drafts, match);
+                  setApplied(built);
+                  // Carry the conditions in the URL so results can be shared.
+                  patchParams({ filter: built.conditions.length > 0 ? JSON.stringify(built) : null });
+                }}
+              >
                 Apply filter
               </Button>
               <Button
@@ -438,6 +487,7 @@ const PokemonFilter: React.FC = () => {
                 onClick={() => {
                   setDrafts([newCondition(entity)]);
                   setApplied(null);
+                  patchParams({ filter: null });
                 }}
               >
                 Reset

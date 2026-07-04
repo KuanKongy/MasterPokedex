@@ -84,7 +84,13 @@ const ItemInventory: React.FC = () => {
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
           <p className="mb-2 font-medium text-foreground">Your bag is empty</p>
-          <p className="text-sm">Add items from the catalogue tab.</p>
+          <p className="text-sm">
+            Add items from the{' '}
+            <Link to="/items" className="underline">
+              catalogue
+            </Link>
+            .
+          </p>
         </CardContent>
       </Card>
     );
@@ -139,7 +145,7 @@ const ItemInventory: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate group-hover:underline">{item.displayName}</div>
                     {item.effect && (
-                      <div className="text-xs text-muted-foreground line-clamp-2">{item.effect}</div>
+                      <div className="text-xs text-muted-foreground">{item.effect}</div>
                     )}
                   </div>
                 </Link>

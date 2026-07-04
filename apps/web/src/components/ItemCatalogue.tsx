@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ITEM_SORT_FIELDS, type ItemSortField, type SortDir } from '@masterpokedex/shared';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -14,7 +14,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import ItemSprite from './ItemSprite';
 import SearchField from './SearchField';
-import SegmentedToggle from './SegmentedToggle';
+import SortPicker, { type SortPickerOption } from './SortPicker';
 import SortableHead from './SortableHead';
 import { HoverTip } from './HelpTip';
 import { LayoutGrid, List, PackagePlus } from 'lucide-react';
@@ -30,7 +30,14 @@ const ALL = 'all';
 /** Price reads best highest-first, so its first click sorts descending. */
 const DESC_FIRST = new Set<ItemSortField>(['cost']);
 
-const ITEM_VIEWS = [
+const SORT_OPTIONS: ReadonlyArray<SortPickerOption<ItemSortField>> = [
+  { value: 'name', label: 'Name' },
+  { value: 'category', label: 'Category' },
+  { value: 'cost', label: 'Price', help: 'Shop price in Poké Dollars; free items sort together' },
+];
+
+/** Exported: the Items page renders the switch beside its title, Pokédex-style. */
+export const ITEM_VIEWS = [
   { value: 'cards', label: 'Cards', icon: LayoutGrid },
   { value: 'table', label: 'Table', icon: List },
 ] as const;
@@ -41,21 +48,27 @@ const ITEM_VIEWS = [
  * free-text "add item" form: items are reference data, not user input.
  */
 const ItemCatalogue: React.FC = () => {
-  // The omnisearch deep-links here as /items?q=<name>.
+  // The omnisearch deep-links here as /items?q=<name>. Search, category,
+  // view and sort all ride the URL, so Back and shared links keep the state.
   const [params, setParams] = useSearchParams();
-  const initialQuery = params.get('q') ?? '';
+  const search = params.get('q') ?? '';
+  const category = params.get('category') ?? ALL;
   const view = params.get('view') === 'table' ? 'table' : 'cards';
   const sortParam = params.get('sort');
   const sort: ItemSortField = (ITEM_SORT_FIELDS as readonly string[]).includes(sortParam ?? '')
     ? (sortParam as ItemSortField)
     : 'name';
   const dir: SortDir = params.get('dir') === 'desc' ? 'desc' : 'asc';
-  const [searchInput, setSearchInput] = useState(initialQuery);
-  const [search, setSearch] = useState(initialQuery);
-  const [category, setCategory] = useState(ALL);
+  // The box is a local mirror so typing doesn't refetch until submit; it
+  // follows the URL when Back or a deep link changes ?q= underneath it.
+  const [searchInput, setSearchInput] = useState(search);
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
   const { session } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
 
   const patchParams = (patchObj: Record<string, string | null>) => {
     setParams(
@@ -89,16 +102,16 @@ const ItemCatalogue: React.FC = () => {
   } = useItemCatalogue({
     category: category === ALL ? undefined : category,
     q: search || undefined,
-    // The card grid keeps the server's name order; only the table sorts.
-    sort: view === 'table' ? sort : undefined,
-    dir: view === 'table' ? dir : undefined,
+    // The chosen sort holds in both views; the table also re-sorts by header.
+    sort,
+    dir,
   });
   const adjust = useAdjustItem();
 
   const addToBag = (itemId: number, name: string) => {
     if (!session) {
       toast({ title: 'Sign in to keep a bag', description: 'Your items live on your trainer account.' });
-      navigate('/login');
+      navigate('/login', { state: { from: routerLocation.pathname + routerLocation.search } });
       return;
     }
     adjust.mutate(
@@ -114,14 +127,14 @@ const ItemCatalogue: React.FC = () => {
           value={searchInput}
           onChange={(value) => {
             setSearchInput(value);
-            if (value === '') setSearch('');
+            if (value === '') patchParams({ q: null });
           }}
-          onSubmit={() => setSearch(searchInput.trim())}
+          onSubmit={() => patchParams({ q: searchInput.trim() || null })}
           placeholder="Search items…"
           className="flex-1"
         />
 
-        <Select value={category} onValueChange={setCategory}>
+        <Select value={category} onValueChange={(next) => patchParams({ category: next === ALL ? null : next })}>
           <SelectTrigger className="w-full sm:w-64">
             <SelectValue />
           </SelectTrigger>
@@ -135,14 +148,18 @@ const ItemCatalogue: React.FC = () => {
           </SelectContent>
         </Select>
 
-        <div className="self-start">
-          <SegmentedToggle
-            options={ITEM_VIEWS}
-            value={view}
-            onChange={(next) => patchParams({ view: next === 'cards' ? null : next })}
-            ariaLabel="Item list style"
-          />
-        </div>
+        {/* One combined sorter, visible in both views; the table's headers
+            drive the same URL state. */}
+        <SortPicker
+          options={SORT_OPTIONS}
+          value={sort}
+          dir={dir}
+          onFieldChange={(field) =>
+            patchParams({ sort: field === 'name' ? null : field, dir: DESC_FIRST.has(field) ? 'desc' : null })
+          }
+          onDirChange={(next) => patchParams({ dir: next === 'desc' ? 'desc' : null })}
+          className="w-full sm:w-52"
+        />
       </div>
 
       {isLoading ? (
@@ -189,7 +206,7 @@ const ItemCatalogue: React.FC = () => {
                     {item.cost !== null && item.cost > 0 ? `₽${item.cost}` : '—'}
                   </TableCell>
                   <TableCell className="max-w-md text-sm text-muted-foreground">
-                    <span className="line-clamp-1">{item.effect ?? ''}</span>
+                    <span>{item.effect ?? ''}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -232,7 +249,7 @@ const ItemCatalogue: React.FC = () => {
                         </HoverTip>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground line-clamp-2">
+                    <div className="text-xs text-muted-foreground">
                       {item.effect ?? capitalize(item.category.replace(/-/g, ' '))}
                     </div>
                   </div>

@@ -1,59 +1,44 @@
 import React from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { LogIn } from 'lucide-react';
-import ItemInventory from '../components/ItemInventory';
-import ItemCatalogue from '../components/ItemCatalogue';
-import { useAuth } from '@/auth/AuthProvider';
+import { useSearchParams } from 'react-router-dom';
+import ItemCatalogue, { ITEM_VIEWS } from '../components/ItemCatalogue';
+import SegmentedToggle from '../components/SegmentedToggle';
 
 /**
- * Items page: the catalogue is public reference data; the bag is yours and
- * needs a session — but the page itself never locks you out.
+ * The item catalogue, pure reference data and open to everyone. Your bag
+ * lives on the trainer page (its Bag tab; the header's "My bag" lands there),
+ * so this page has exactly one job: every item the dex knows. The view
+ * switch rides the title row, like the Pokédex's, over the same URL state
+ * the catalogue reads.
  */
 const Items: React.FC = () => {
-  const { session } = useAuth();
-  // A ?q= deep link (from the omnisearch) is a catalogue search, not a bag
-  // visit; a ?view= or ?sort= link points at the catalogue's table too.
-  const [params] = useSearchParams();
-  const deepLinkedSearch = params.has('q') || params.has('view') || params.has('sort');
+  const [params, setParams] = useSearchParams();
+  const view = params.get('view') === 'table' ? 'table' : 'cards';
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Items</h1>
-      <p className="text-muted-foreground mb-8">Your bag, and every item known to the dex</p>
-
-      <Tabs defaultValue={session && !deepLinkedSearch ? 'bag' : 'catalogue'} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="bag">My Bag</TabsTrigger>
-          <TabsTrigger value="catalogue">Catalogue</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="bag">
-          {session ? (
-            <ItemInventory />
-          ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="font-medium mb-1">Sign in to see your bag</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Items you collect are stored on your trainer account.
-                </p>
-                <Link to="/login">
-                  <Button>
-                    <LogIn className="mr-2 h-4 w-4" /> Sign in
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="catalogue">
-          <ItemCatalogue />
-        </TabsContent>
-      </Tabs>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Items</h1>
+          <p className="text-muted-foreground">Catalogue of every item known to the dex</p>
+        </div>
+        <SegmentedToggle
+          options={ITEM_VIEWS}
+          value={view}
+          onChange={(next) =>
+            setParams(
+              (prev) => {
+                const nextParams = new URLSearchParams(prev);
+                if (next === 'cards') nextParams.delete('view');
+                else nextParams.set('view', next);
+                return nextParams;
+              },
+              { replace: true },
+            )
+          }
+          ariaLabel="Item list style"
+        />
+      </div>
+      <ItemCatalogue />
     </div>
   );
 };
