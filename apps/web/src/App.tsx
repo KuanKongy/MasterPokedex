@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "./auth/AuthProvider";
-import RequireAuth from "./auth/RequireAuth";
+import OAuthReturn from "./auth/OAuthReturn";
 import { SpritePrefProvider } from "./prefs/SpritePrefContext";
 import { BallPrefProvider } from "./prefs/BallPrefContext";
 import Layout from "./components/Layout";
@@ -57,6 +57,7 @@ const App = () => {
           <AuthProvider>
             <BrowserRouter basename={import.meta.env.BASE_URL}>
               <ScrollToTop />
+              <OAuthReturn />
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
@@ -77,9 +78,10 @@ const App = () => {
                     <Route path="/mega-evolutions" element={<MegaEvolutions />} />
                     <Route path="/gigantamax" element={<Gigantamax />} />
                     <Route path="/search" element={<SearchResults />} />
-                    <Route element={<RequireAuth />}>
-                      <Route path="/trainer" element={<Trainer />} />
-                    </Route>
+                    {/* Public: the directory and other trainers' profiles are
+                        open reading; My Profile shows a sign-in card instead. */}
+                    <Route path="/trainer" element={<Trainer />} />
+                    <Route path="/trainer/:username" element={<Trainer />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/:name" element={<ItemDetail />} />
                     <Route path="/pokemon-filter" element={<PokemonFilter />} />

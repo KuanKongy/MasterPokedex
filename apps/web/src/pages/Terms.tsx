@@ -36,8 +36,9 @@ const Terms: React.FC = () => (
       <p>
         Browsing the Pokédex, the map, items and public trainer profiles requires no account.
         Creating teams, catching Pokémon, keeping a bag, favorites and friendships require one.
-        You must provide a valid email address and are responsible for keeping your password
-        confidential and for all activity under your account.
+        You can sign up with a valid email address and password, or with your Google account
+        through Continue with Google; either way you are responsible for keeping your
+        credentials confidential and for all activity under your account.
       </p>
       <p>
         Usernames are unique, permanent, and visible to other users. Do not register a username
@@ -119,8 +120,9 @@ const Terms: React.FC = () => (
 
     <LegalSection n={12} title="Termination">
       <p>
-        You may stop using the Service at any time and may request deletion of your account, which
-        removes your trainer profile and everything attached to it. We may suspend or terminate
+        You may stop using the Service at any time and may delete your account yourself, from
+        the Danger zone under Edit Profile on your trainer page (or by emailing us, if you are
+        locked out); deletion removes your trainer profile and everything attached to it. We may suspend or terminate
         accounts that breach these Terms, with or without notice, though for anything short of
         abuse we will tell you why.
       </p>

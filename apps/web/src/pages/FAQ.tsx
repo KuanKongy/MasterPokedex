@@ -20,10 +20,15 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'What is this app, exactly?',
     a: (
       <p>
-        A National Pokédex you can live in. The reference side covers every Pokémon — stats,
-        types, matchups, evolutions, moves, items, and the regions and routes where they appear.
-        The trainer side is yours: build teams, catch Pokémon into them, keep a bag, favorite
-        species, and make friends with other trainers.
+        A National Pokédex you can live in. The reference side covers{' '}
+        <Link to="/" className="underline">every Pokémon</Link> — stats, types, matchups,{' '}
+        <Link to="/evolutions" className="underline">evolutions</Link>,{' '}
+        <Link to="/moves" className="underline">moves</Link>,{' '}
+        <Link to="/items" className="underline">items</Link>, and the{' '}
+        <Link to="/map" className="underline">regions and routes</Link> where they appear. The
+        trainer side is yours: build teams, catch Pokémon into them, keep a bag, favorite
+        species, and make friends with other trainers on the{' '}
+        <Link to="/trainer" className="underline">trainer page</Link>.
       </p>
     ),
   },
@@ -32,10 +37,14 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'Do I need an account?',
     a: (
       <p>
-        Not to browse. The Pokédex, the advanced filter, the map and the item catalogue are open
-        to everyone. You need an account (email + password) the moment something has to be{' '}
-        <em>yours</em> — teams, caught Pokémon, your bag, favorites, and friendships all live on
-        your trainer profile.
+        Not to browse. The Pokédex, the{' '}
+        <Link to="/pokemon-filter" className="underline">advanced search</Link>, the map, the
+        item catalogue and the <Link to="/trainer" className="underline">trainer directory</Link>{' '}
+        are open to everyone. You need an account the moment something has to be <em>yours</em>:
+        teams, caught Pokémon, your bag, favorites, and friendships all live on your trainer
+        profile. Create one with an email and password, or use{' '}
+        <strong>Continue with Google</strong>, on the{' '}
+        <Link to="/login" className="underline">sign-in page</Link>.
       </p>
     ),
   },
@@ -95,7 +104,8 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'How does the map work?',
     a: (
       <p>
-        One region at a time, Kanto through Paldea, plus Hisui and Orre. The 399 pins are placed
+        <Link to="/map" className="underline">One region at a time</Link>, Kanto through Paldea,
+        plus Hisui and Orre. The 399 pins are placed
         from the games' own Town Map data; the few regions that never drew one are placed by
         hand. Every pin opens a location with artwork, a description, its neighbours, and every
         Pokémon that lives there.
@@ -107,9 +117,9 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'What do the type badges mean?',
     a: (
       <p>
-        Every Pokémon and move wears its type — 18 in all. Open a{' '}
-        <Link to="/types" className="underline">type's page</Link> for the full effectiveness
-        chart: what it hits for double damage, what resists it, and what it can't touch at all.
+        Every Pokémon and move wears its type — 18 in all, charted on the{' '}
+        <Link to="/types" className="underline">type chart</Link>. Click any type badge anywhere,
+        or open a type's own page, for the full effectiveness picture: what it hits for double damage, what resists it, and what it can't touch at all.
         A Pokémon's own page already does the two-type math for you.
       </p>
     ),
@@ -182,8 +192,9 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: "What do the ranks next to trainers' names mean?",
     a: (
       <p>
-        Every trainer wears a rank: <strong>Rookie</strong>, Trainer, Ace Trainer, Veteran,
-        Elite, and Champion at the top. Everyone starts as a Rookie; the higher titles, and the
+        Every trainer in the <Link to="/trainer" className="underline">directory</Link> wears a
+        rank: <strong>Rookie</strong>, Trainer, Ace Trainer, Veteran, Elite, and Champion at the
+        top. Everyone starts as a Rookie; the higher titles, and the
         gym badges counted on a profile, are currently worn by the resident cast, whose careers
         came pre-lived. Climbing the ladder yourself isn't wired up yet; the numbers that are
         yours to grow today are your caught count, species and shinies.
@@ -196,8 +207,10 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     a: (
       <p>
         The catalogue lists every item known to the dex — over two thousand, from Poké Balls to
-        Ability Patches. Add any of them to your bag and adjust quantities with the steppers.
-        Quantities can't go below zero; the database checks, so no phantom Potions.
+        Ability Patches. Add any of them to your bag from the catalogue or an item's page; the
+        bag itself lives on your <Link to="/trainer?tab=bag" className="underline">trainer
+        page</Link>, where the steppers adjust quantities. Quantities can't go below zero; the
+        database checks, so no phantom Potions.
       </p>
     ),
   },
@@ -206,9 +219,11 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'How do friends work?',
     a: (
       <p>
-        Find a trainer in the directory and send a request; they accept or decline. Friends see
-        each other's activity feeds, and friendship is also the key to private profiles: a
-        trainer who has gone private is visible only to their accepted friends.
+        Find a trainer in the directory and send a request; they accept or decline. Friendship
+        is the key to private profiles: a trainer who has gone private is visible only to their
+        accepted friends. Beyond that, what anyone sees follows the profile's own section
+        switches; your activity feed, for example, shows only while{' '}
+        <strong>Show my activity</strong> is on, friends or not.
       </p>
     ),
   },
@@ -218,9 +233,10 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     a: (
       <p>
         Public profiles (the default) show your username, display name, bio, region, rank,
-        badges, counts, teams and caught Pokémon. Flip <strong>Public profile</strong> off in
-        your profile settings and only accepted friends see any of it. Your email address is
-        never visible to anyone, and your bag is private even from friends.
+        badges and counts, plus whichever sections you leave on: teams, bag, favorites,
+        activity and friends each have their own switch under <strong>Edit Profile</strong>,
+        all on at first. Flip <strong>Public profile</strong> off and only accepted friends see
+        any of it. Your email address is never visible to anyone.
       </p>
     ),
   },
@@ -229,7 +245,8 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'Who are Ash, Misty and the other trainers already in the directory?',
     a: (
       <p>
-        The resident cast — accounts we seeded so the directory has familiar faces to meet. They
+        The resident cast — accounts we seeded so the{' '}
+        <Link to="/trainer" className="underline">directory</Link> has familiar faces to meet. They
         wear a <strong>Resident</strong> badge, nobody signs in as them, and their teams don't
         change. Everyone else you meet is a real trainer. Feel free to judge Ash's box
         organization.
@@ -279,12 +296,13 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'How do I delete my account?',
     a: (
       <p>
-        Email us — the Contact card in{' '}
+        On your <Link to="/trainer" className="underline">trainer page</Link>, open Edit Profile
+        and use the Danger zone at the bottom: Delete account removes everything attached to
+        it (profile, teams, caught Pokémon, bag, friendships, favorites, activity) and the
+        sign-in itself. Deletion cascades at the database level, so nothing lingers. If you are
+        locked out, email us instead; the Contact card in{' '}
         <Link to="/settings" className="underline">Settings</Link> has the address, and it's in
-        the <Link to="/privacy" className="underline">Privacy Policy</Link> too — and the account
-        is removed along with everything attached to it: profile, teams, caught Pokémon, bag,
-        friendships, favorites, activity. Deletion cascades at the database level, so nothing
-        lingers.
+        the <Link to="/privacy" className="underline">Privacy Policy</Link> too.
       </p>
     ),
   },

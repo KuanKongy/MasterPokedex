@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MailCheck } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useAuth } from '@/auth/AuthProvider';
+import { RETURN_TO_KEY } from '@/auth/OAuthReturn';
 
 /**
  * Safari reports a failed fetch as "Load failed", Chrome as "Failed to
@@ -41,6 +42,16 @@ const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
+  // A fresh visit resets any return path a past, abandoned Google attempt
+  // left behind; only this visit's handleGoogle should set it.
+  React.useEffect(() => {
+    try {
+      window.sessionStorage.removeItem(RETURN_TO_KEY);
+    } catch {
+      // nothing stale to clear
+    }
+  }, []);
+
   if (!loading && session) {
     return <Navigate to={from} replace />;
   }
@@ -49,7 +60,14 @@ const Login: React.FC = () => {
     if (!isSupabaseConfigured) return;
     setError(null);
     // Supabase redirects through Google and back; detectSessionInUrl picks
-    // the session up on landing. BASE_URL keeps the GitHub Pages path intact.
+    // the session up on landing. BASE_URL keeps the GitHub Pages path intact,
+    // and OAuthReturn restores `from` once the session lands, since the
+    // allowlisted redirect itself must stay the app root.
+    try {
+      window.sessionStorage.setItem(RETURN_TO_KEY, from);
+    } catch {
+      // worst case the user lands on the root
+    }
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + import.meta.env.BASE_URL },

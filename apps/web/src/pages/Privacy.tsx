@@ -41,8 +41,10 @@ const Privacy: React.FC = () => (
 
     <LegalSection n={3} title="Information We Collect">
       <p>
-        Account: your email address and a salted, hashed password, held by our authentication
-        provider (Supabase). We never see or store your plaintext password.
+        Account: your email address, held by our authentication provider (Supabase), with a
+        salted, hashed password for email sign-ups. If you use Continue with Google instead,
+        Google gives us your email address, name and profile photo and we never receive any
+        password at all; in both cases we never see or store a plaintext password.
       </p>
       <p>
         Profile: the username you claim and whatever you choose to add — display name, bio, avatar
@@ -74,9 +76,10 @@ const Privacy: React.FC = () => (
     <LegalSection n={6} title="What Other Users See">
       <p>
         If your profile is public (the default), other users see your username, display name,
-        avatar, bio, region, rank, badges, counts, teams and caught Pokémon. If you switch your
-        profile to private in your profile settings, only accepted friends see it. Your email
-        address is never shown to anyone.
+        avatar, bio, region, rank, badges and counts, plus whichever sections you leave on:
+        teams, bag, favorites, activity and friends each have their own switch under Edit
+        Profile. If you switch your profile to private, only accepted friends see any of it.
+        Your email address is never shown to anyone.
       </p>
     </LegalSection>
 
@@ -168,8 +171,9 @@ const Privacy: React.FC = () => (
       <p>
         Wherever you live, we honor the same set of rights: access (ask what we hold about you),
         rectification (fix it — mostly self-service via your profile), erasure (delete your
-        account and everything cascades), and portability (ask and we will export your Trainer
-        Data in JSON). Contact us at the address below to exercise any of them.
+        account yourself from Edit Profile's Danger zone and everything cascades), and
+        portability (ask and we will export your Trainer Data in JSON). Contact us at the
+        address below for anything you cannot do yourself.
       </p>
     </LegalSection>
 
