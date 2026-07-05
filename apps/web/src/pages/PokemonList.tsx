@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import type { PokemonSortField, PokemonSummary, PokemonTypeName, SortDir } from '@masterpokedex/shared';
 import { POKEMON_SORT_FIELDS } from '@masterpokedex/shared';
 import { usePokemonList } from '@/hooks/api/pokemon';
@@ -13,25 +13,15 @@ import DexSpritesGrid from '../components/dex/DexSpritesGrid';
 import DexStatsTable from '../components/dex/DexStatsTable';
 import HelpTip from '../components/HelpTip';
 import SearchField from '../components/SearchField';
+import SortPicker from '../components/SortPicker';
+import { POKEMON_SORT_OPTIONS } from '../components/dex/sort-options';
+import GenerationFilter, { GENERATIONS, GenHeading } from '../components/dex/GenerationFilter';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, SortDesc } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const VIEW_STORAGE_KEY = 'masterpokedex.dexView';
-
-const GENERATIONS: Array<{ gen: number; region: string }> = [
-  { gen: 1, region: 'Kanto' },
-  { gen: 2, region: 'Johto' },
-  { gen: 3, region: 'Hoenn' },
-  { gen: 4, region: 'Sinnoh' },
-  { gen: 5, region: 'Unova' },
-  { gen: 6, region: 'Kalos' },
-  { gen: 7, region: 'Alola' },
-  { gen: 8, region: 'Galar' },
-  { gen: 9, region: 'Paldea' },
-];
 
 function readStoredView(): DexView {
   try {
@@ -43,7 +33,9 @@ function readStoredView(): DexView {
   return 'cards';
 }
 
-/** Cards get a hover catch button; the denser views link straight through. */
+/** Cards get a catch button (always visible on phones, hover-revealed from
+    sm up, where a pointer exists to hover with); the denser views link
+    straight through. */
 const CardsGrid: React.FC<{ pokemon: PokemonSummary[]; onCatch: (p: PokemonSummary) => void }> = ({
   pokemon,
   onCatch,
@@ -52,7 +44,7 @@ const CardsGrid: React.FC<{ pokemon: PokemonSummary[]; onCatch: (p: PokemonSumma
     {pokemon.map((p) => (
       <div key={p.id} className="relative group">
         <Button
-          className="absolute top-1.5 right-1.5 z-10 h-8 w-8 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+          className="absolute top-1.5 right-1.5 z-10 h-8 w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
           size="icon"
           variant="outline"
           aria-label={`Catch ${p.name}`}
@@ -79,26 +71,20 @@ const GenerationSection: React.FC<{
   const { data, isLoading } = usePokemonList({ generation: gen, limit: 200 });
   const pokemon = data?.pages.flatMap((page) => page.items) ?? [];
 
-  const heading = (
-    <>
-      <h2 className="text-xl font-bold">Generation {gen}</h2>
-      <span className="text-sm text-muted-foreground">
-        {region}
-        {pokemon.length > 0 && ` · ${pokemon.length} Pokémon`}
-      </span>
-      <HelpTip title="Generations">
-        A generation is the set of games that introduced these Pokémon, and the region is
-        the world those games take place in.
-      </HelpTip>
-    </>
-  );
+  const heading = <GenHeading gen={gen} region={region} count={pokemon.length} />;
 
   return (
     <section className="mb-10" aria-label={`Generation ${gen}`}>
       {/* In table view the heading moves into the table's toolbar so it shares
-          a row with the column picker instead of stacking above it. */}
+          a row with the column picker instead of stacking above it. The row
+          reserves the toolbar's height in every view (min-h 49px: the h-10
+          Columns button + pb-2 + border-b, since border-box min-height
+          counts all three), so switching
+          views never shifts the page. */}
       {(view !== 'table' || isLoading) && (
-        <div className="mb-3 flex items-baseline gap-3 border-b pb-2">{heading}</div>
+        <div className="mb-3 flex min-h-[49px] items-center border-b pb-2">
+          <div className="flex min-w-0 items-baseline gap-3">{heading}</div>
+        </div>
       )}
       {isLoading ? (
         <LoadingSpinner />
@@ -126,9 +112,12 @@ const PokemonList: React.FC = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const q = params.get('q') ?? '';
   const selectedType = params.get('type') ?? 'all';
+  const rawGenFilter = params.get('gen');
+  const genFilter = rawGenFilter && /^[1-9]$/.test(rawGenFilter) ? rawGenFilter : 'all';
   const rawSort = params.get('sort');
   const sortBy: PokemonSortField = (POKEMON_SORT_FIELDS as readonly string[]).includes(rawSort ?? '')
     ? (rawSort as PokemonSortField)
@@ -145,7 +134,10 @@ const PokemonList: React.FC = () => {
   const [searchInput, setSearchInput] = useState(q);
   useEffect(() => setSearchInput(q), [q]);
 
-  const [gensLoaded, setGensLoaded] = useState(1);
+  // How many generations are open rides the URL, so Back doesn't fold the
+  // dex back to Gen 1 after a detour through a Pokémon's page.
+  const rawGens = Number(params.get('gens') ?? 1);
+  const gensLoaded = Number.isInteger(rawGens) ? Math.min(Math.max(rawGens, 1), GENERATIONS.length) : 1;
 
   const patchParams = useCallback(
     (patch: Record<string, string | null>) => {
@@ -186,15 +178,20 @@ const PokemonList: React.FC = () => {
     patchParams({ sort: field === 'id' && nextDir === 'asc' ? null : field, dir: nextDir });
   };
 
-  // Generation browse only makes sense for the untouched default ordering.
-  const genMode = !q && selectedType === 'all' && sortBy === 'id' && dir === 'asc';
+  // Generation browse only makes sense for the untouched default ordering;
+  // picking a generation filter switches to the flat list of just that gen.
+  const genMode = !q && selectedType === 'all' && genFilter === 'all' && sortBy === 'id' && dir === 'asc';
 
   const flat = usePokemonList(
     {
       q: q || undefined,
       type: selectedType === 'all' ? undefined : (selectedType as PokemonTypeName),
+      generation: genFilter === 'all' ? undefined : Number(genFilter),
       sort: sortBy,
       dir,
+      // A chosen generation loads whole, like the browse sections (a gen is
+      // <=165 rows); otherwise the flat list pages by 72.
+      limit: genFilter === 'all' ? 72 : 200,
     },
     { enabled: !genMode },
   );
@@ -203,13 +200,19 @@ const PokemonList: React.FC = () => {
   const handleCatch = (target: PokemonSummary) => {
     if (!session) {
       toast({ title: 'Sign in to catch Pokémon', description: 'Your teams live on your trainer account.' });
-      navigate('/login');
+      navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
     setCatching(target);
   };
 
-  const showing = (
+  // The corner writing: the generation heading whenever a specific gen is
+  // chosen (the browse sections cover the all-gens, number-sorted case);
+  // otherwise the plain running count.
+  const genMeta = genFilter !== 'all' ? GENERATIONS[Number(genFilter) - 1] : null;
+  const showing = genMeta ? (
+    <GenHeading gen={genMeta.gen} region={genMeta.region} count={flatPokemon.length} />
+  ) : (
     <p className="text-sm text-muted-foreground">
       Showing {flatPokemon.length} Pokémon{flat.hasNextPage ? ', more below' : ''}
     </p>
@@ -250,53 +253,29 @@ const PokemonList: React.FC = () => {
           className="flex-1"
         />
 
-        <div className="w-full md:w-48 flex-shrink-0">
-          <Select
+        <GenerationFilter
+          value={genFilter}
+          onChange={(next) => patchParams({ gen: next === 'all' ? null : next })}
+          className="w-full md:w-44 flex-shrink-0"
+        />
+
+        <div className="w-full md:w-56 flex-shrink-0">
+          <SortPicker
+            options={POKEMON_SORT_OPTIONS}
             value={sortBy}
-            onValueChange={(value) => {
-              const field = value as PokemonSortField;
+            dir={dir}
+            onFieldChange={(field) =>
               patchParams({
                 sort: field === 'id' ? null : field,
                 dir: null,
-              });
-            }}
-          >
-            {/* The closed trigger clones the selected item's children, so the
-                two-line help subtitles are hidden here and shown only in the
-                open list. */}
-            <SelectTrigger className="w-full [&_.item-help]:hidden">
-              <div className="flex items-center gap-2">
-                <SortDesc className="h-4 w-4" />
-                <SelectValue placeholder="Sort by" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="id">Number</SelectItem>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="total">
-                <span className="flex flex-col items-start">
-                  Total Stats
-                  <span className="item-help text-xs text-muted-foreground">All six base stats added up</span>
-                </span>
-              </SelectItem>
-              <SelectItem value="hp">HP</SelectItem>
-              <SelectItem value="attack">Attack</SelectItem>
-              <SelectItem value="defense">Defense</SelectItem>
-              <SelectItem value="specialAttack">
-                <span className="flex flex-col items-start">
-                  Sp. Attack
-                  <span className="item-help text-xs text-muted-foreground">Powers special (non-physical) moves</span>
-                </span>
-              </SelectItem>
-              <SelectItem value="specialDefense">
-                <span className="flex flex-col items-start">
-                  Sp. Defense
-                  <span className="item-help text-xs text-muted-foreground">Withstands special moves</span>
-                </span>
-              </SelectItem>
-              <SelectItem value="speed">Speed</SelectItem>
-            </SelectContent>
-          </Select>
+              })
+            }
+            // Explicit only when it differs from the field's default, so a
+            // plain ?sort= link keeps meaning the readable direction.
+            onDirChange={(next) =>
+              patchParams({ dir: next === (sortBy === 'id' || sortBy === 'name' ? 'asc' : 'desc') ? null : next })
+            }
+          />
         </div>
       </div>
 
@@ -323,7 +302,7 @@ const PokemonList: React.FC = () => {
           ))}
           {gensLoaded < GENERATIONS.length && (
             <div className="flex justify-center mt-2">
-              <Button onClick={() => setGensLoaded((n) => n + 1)} variant="outline">
+              <Button onClick={() => patchParams({ gens: String(gensLoaded + 1) })} variant="outline">
                 Load Generation {gensLoaded + 1} — {GENERATIONS[gensLoaded].region}
               </Button>
             </div>
@@ -336,8 +315,13 @@ const PokemonList: React.FC = () => {
         // dim them until the new order lands, instead of blanking to a spinner.
         <div className={cn(flat.isFetching && !flat.isFetchingNextPage && 'opacity-60 transition-opacity')}>
           {/* In table view the count shares the table's toolbar row with the
-              column picker instead of stacking above it. */}
-          {view !== 'table' && <div className="mb-4">{showing}</div>}
+              column picker instead of stacking above it; the same reserved
+              height here keeps the view switch from shifting the page. */}
+          {view !== 'table' && (
+            <div className="mb-3 flex min-h-[49px] items-center border-b pb-2">
+              <div className="flex min-w-0 items-baseline gap-3">{showing}</div>
+            </div>
+          )}
 
           {view === 'sprites' ? (
             <DexSpritesGrid pokemon={flatPokemon} />

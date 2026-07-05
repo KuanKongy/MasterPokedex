@@ -44,27 +44,32 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
   const catchMutation = useCatchPokemon();
   const [teamId, setTeamId] = useState<string>('');
   const [nickname, setNickname] = useState('');
+  const [experience, setExperience] = useState('');
   const [isShiny, setIsShiny] = useState(false);
 
   const open = pokemon !== null;
   const selectableTeams = teams ?? [];
-  const chosenTeam = selectableTeams.find((t) => t.id === teamId) ?? null;
+  // The Select shows the first team before anything is picked, so the full
+  // check must look at that same effective choice, not the raw state.
   const effectiveTeamId = teamId || selectableTeams[0]?.id || '';
+  const chosenTeam = selectableTeams.find((t) => t.id === effectiveTeamId) ?? null;
+  const teamFull = !!chosenTeam && chosenTeam.members.length >= chosenTeam.capacity;
 
   const reset = () => {
     setTeamId('');
     setNickname('');
+    setExperience('');
     setIsShiny(false);
   };
 
   const handleCatch = () => {
-    if (!pokemon || !effectiveTeamId) return;
+    if (!pokemon || !effectiveTeamId || teamFull) return;
     catchMutation.mutate(
       {
         teamId: effectiveTeamId,
         pokemonId: pokemon.id,
         nickname: nickname.trim() ? nickname.trim() : null,
-        experience: 0,
+        experience: Math.max(0, Number(experience) || 0),
         isShiny,
       },
       {
@@ -108,7 +113,13 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Team</Label>
+              <Label>
+                Team
+                <HelpTip title="Teams" faq="teams" className="ml-1">
+                  Where the catch lives: a Party holds 6 like the games, a Box 30, a Showcase
+                  12. You can move it later.
+                </HelpTip>
+              </Label>
               <Select value={effectiveTeamId} onValueChange={setTeamId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pick a team" />
@@ -121,8 +132,10 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
                   ))}
                 </SelectContent>
               </Select>
-              {chosenTeam && chosenTeam.members.length >= chosenTeam.capacity && (
-                <p className="text-xs text-destructive">This team is already full.</p>
+              {teamFull && (
+                <p className="text-xs text-destructive">
+                  This team is already full. Pick another, or release a member first.
+                </p>
               )}
             </div>
 
@@ -134,6 +147,24 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
                 maxLength={24}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder={pokemon ? capitalize(pokemon.name) : ''}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="catch-experience">
+                Experience (optional)
+                <HelpTip title="Experience" faq="levels" className="ml-1">
+                  The level follows automatically from experience on the species' own growth
+                  curve; leave it at 0 for a fresh catch.
+                </HelpTip>
+              </Label>
+              <Input
+                id="catch-experience"
+                type="number"
+                min={0}
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+                placeholder="0"
               />
             </div>
 
@@ -157,7 +188,7 @@ const CatchPokemonDialog: React.FC<CatchPokemonDialogProps> = ({ pokemon, onClos
           </Button>
           <Button
             onClick={handleCatch}
-            disabled={!effectiveTeamId || catchMutation.isPending || selectableTeams.length === 0}
+            disabled={!effectiveTeamId || teamFull || catchMutation.isPending || selectableTeams.length === 0}
           >
             {catchMutation.isPending ? 'Catching…' : 'Catch'}
           </Button>
