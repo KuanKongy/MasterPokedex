@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PokemonTypeSchema, type PokemonTypeName } from '@masterpokedex/shared';
-import { useTypeInfo } from '@/hooks/api/pokemon';
+import { usePokemonList, useTypeInfo } from '@/hooks/api/pokemon';
+import { useMoves } from '@/hooks/api/dex';
 import LoadingSpinner from '../components/LoadingSpinner';
+import PokemonCard from '../components/PokemonCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TypeBadge } from '../components/ui/type-badge';
@@ -17,20 +19,26 @@ const MatchupRow: React.FC<{ label: string; types: PokemonTypeName[] }> = ({ lab
     {types.length === 0 ? (
       <span className="text-sm text-muted-foreground/60">none</span>
     ) : (
-      types.map((type) => (
-        <Link key={type} to={`/types/${type}`}>
-          <TypeBadge type={type} size="sm" icon />
-        </Link>
-      ))
+      types.map((type) => <TypeBadge key={type} type={type} size="sm" icon link />)
     )}
   </div>
 );
 
-/** One type's full offensive and defensive profile. */
+/** One type's full offensive and defensive profile, plus its Pokémon and moves. */
 const TypeDetail: React.FC = () => {
   const { name } = useParams();
   const parsed = PokemonTypeSchema.safeParse(name?.toLowerCase());
   const { data: info, isLoading } = useTypeInfo(parsed.success ? parsed.data : undefined);
+  const pokemonQuery = usePokemonList(
+    { type: parsed.success ? parsed.data : undefined, limit: 60 },
+    { enabled: parsed.success },
+  );
+  const movesQuery = useMoves(
+    { type: parsed.success ? parsed.data : undefined, limit: 60 },
+    { enabled: parsed.success },
+  );
+  const typePokemon = pokemonQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const typeMoves = movesQuery.data?.pages.flatMap((page) => page.items) ?? [];
 
   if (!parsed.success) {
     return (
@@ -95,11 +103,68 @@ const TypeDetail: React.FC = () => {
         </Card>
       </div>
 
-      <div className="mt-8">
-        <Link to={`/?type=${type}`}>
-          <Button variant="outline">Browse {capitalize(type)} Pokémon</Button>
-        </Link>
-      </div>
+      <Card className="mt-6">
+        <CardHeader className="flex flex-row items-baseline justify-between space-y-0 pb-3">
+          <CardTitle className="text-lg">{capitalize(type)} Pokémon</CardTitle>
+          <Link to={`/?type=${type}`} className="text-sm font-medium text-pokebrand-red hover:underline">
+            Browse in the Pokédex →
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {pokemonQuery.isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                {typePokemon.map((p) => (
+                  <PokemonCard key={p.id} pokemon={p} />
+                ))}
+              </div>
+              {pokemonQuery.hasNextPage && (
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => pokemonQuery.fetchNextPage()}
+                    disabled={pokemonQuery.isFetchingNextPage}
+                  >
+                    {pokemonQuery.isFetchingNextPage ? 'Loading…' : 'Load more'}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader className="flex flex-row items-baseline justify-between space-y-0 pb-3">
+          <CardTitle className="text-lg">{capitalize(type)} moves</CardTitle>
+          <Link to={`/moves?type=${type}`} className="text-sm font-medium text-pokebrand-red hover:underline">
+            See them all →
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {movesQuery.isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
+              {typeMoves.map((move) => (
+                <Link
+                  key={move.name}
+                  to={`/moves/${move.name}`}
+                  className="flex items-center justify-between gap-2 rounded-md border-b border-border/50 px-2 py-1.5 text-sm transition-colors hover:bg-muted/60"
+                >
+                  <span className="min-w-0 flex-1 truncate font-medium">{move.displayName}</span>
+                  <span className="shrink-0 text-xs capitalize text-muted-foreground">
+                    {move.damageClass}
+                    {move.power ? ` · ${move.power}` : ''}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Activity as ActivityIcon,
   Backpack,
+  Calendar,
   Check,
   ChevronDown,
   ChevronUp,
@@ -19,6 +20,16 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import HelpTip, { HoverTip } from './HelpTip';
 import { MemberCard } from './TeamsPanel';
 import ActivityFeed from './ActivityFeed';
@@ -45,7 +56,7 @@ import { cn } from '@/lib/utils';
 
 interface OtherTrainerProfileProps {
   username: string;
-  /** Opens another trainer's profile (friend rows); browsing is page state, not a route. */
+  /** Opens another trainer's profile (friend rows); routes to /trainer/:username. */
   onOpenTrainer?: (username: string) => void;
 }
 
@@ -59,6 +70,7 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
   const { session } = useAuth();
   const { toast } = useToast();
   const [bagExpanded, setBagExpanded] = useState(false);
+  const [confirmUnfriend, setConfirmUnfriend] = useState(false);
   const { data: trainer, isLoading, error } = useTrainerProfile(username);
   const { data: teams } = useTrainerTeams(username, trainer?.showTeams ?? false);
   const { data: friendships } = useMyFriends();
@@ -153,14 +165,14 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
           </div>
         );
       case 'accepted':
+        // Clicking opens a confirm; an "unfriend" hidden behind a button
+        // labelled Friends must never fire on a stray click.
         return (
           <Button
             size="sm"
             variant="outline"
             disabled={!pairRow || removeFriend.isPending}
-            onClick={() =>
-              pairRow && removeFriend.mutate(pairRow.id, { onSuccess: () => toast({ title: 'Unfriended' }) })
-            }
+            onClick={() => setConfirmUnfriend(true)}
           >
             <UserCheck className="mr-1 h-4 w-4" /> Friends
           </Button>
@@ -219,7 +231,7 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
                 {friendButton()}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-muted/50 p-3 rounded-md">
                   <div className="text-muted-foreground text-sm">
                     Badges
@@ -264,14 +276,54 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
                   </div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Favorite Type</div>
+                  <div className="text-muted-foreground text-sm">
+                    Favorite Type
+                    <HelpTip title="Favorite type" className="ml-1">
+                      The type this trainer picked on their profile; pure colours, no mechanics.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold capitalize">{trainer.favoriteType ?? '—'}</div>
+                </div>
+                <div className="bg-muted/50 p-3 rounded-md">
+                  <div className="text-muted-foreground text-sm">
+                    Joined
+                    <HelpTip title="Joined" className="ml-1">
+                      When the trainer account was created.
+                    </HelpTip>
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(trainer.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      <AlertDialog open={confirmUnfriend} onOpenChange={setConfirmUnfriend}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unfriend {trainer.displayName}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will stop seeing each other's friends-only profiles, and they would have to
+              send a new request to be friends again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay friends</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() =>
+                pairRow && removeFriend.mutate(pairRow.id, { onSuccess: () => toast({ title: 'Unfriended' }) })
+              }
+            >
+              Unfriend
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {trainer.showTeams &&
       (teams && teams.length > 0 ? (
@@ -280,12 +332,25 @@ const OtherTrainerProfile: React.FC<OtherTrainerProfileProps> = ({ username, onO
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 {team.name}
-                <Badge variant="secondary" className="text-xs">
-                  {team.members.length}/{team.capacity}
-                </Badge>
-                <span className="text-sm font-normal text-muted-foreground capitalize">
-                  {team.category}
-                </span>
+                <HoverTip
+                  title="Capacity"
+                  faq="teams"
+                  trigger={
+                    <Badge variant="secondary" className="text-xs">
+                      {team.members.length}/{team.capacity}
+                    </Badge>
+                  }
+                >
+                  Members out of the team's limit: a Party holds 6, a Box 30, a Showcase 12.
+                </HoverTip>
+                <HoverTip
+                  title="Team categories"
+                  faq="teams"
+                  className="text-sm font-normal text-muted-foreground capitalize"
+                  trigger={<>{team.category}</>}
+                >
+                  A Party holds 6, like the games; a Box holds 30; a Showcase holds 12.
+                </HoverTip>
               </CardTitle>
               {team.description && (
                 <p className="text-sm text-muted-foreground">{team.description}</p>

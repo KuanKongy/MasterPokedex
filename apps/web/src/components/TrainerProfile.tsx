@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import type { TrainerProfile as TrainerProfileType } from '@masterpokedex/shared';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -14,7 +14,8 @@ import TeamsPanel from './TeamsPanel';
 import FriendsPanel from './FriendsPanel';
 import PokemonCard from './PokemonCard';
 import ActivityFeed from './ActivityFeed';
-import { useActivityFeed, useMyFavorites } from '@/hooks/api/trainer';
+import ItemInventory from './ItemInventory';
+import { useActivityFeed, useMyFavorites, useSetFavorite } from '@/hooks/api/trainer';
 import { capitalize } from '../utils/helpers';
 import { resolveAsset } from '@/lib/assets';
 
@@ -32,6 +33,7 @@ const MyActivityFeed: React.FC = () => <ActivityFeed query={useActivityFeed()} /
 
 const FavoritesGrid: React.FC = () => {
   const { data: favorites, isLoading } = useMyFavorites();
+  const setFavorite = useSetFavorite();
   if (isLoading) return <p className="text-sm text-muted-foreground p-4">Loading favorites…</p>;
   if (!favorites || favorites.length === 0) {
     return (
@@ -46,7 +48,11 @@ const FavoritesGrid: React.FC = () => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       {favorites.map((pokemon) => (
-        <PokemonCard key={pokemon.id} pokemon={pokemon} />
+        <PokemonCard
+          key={pokemon.id}
+          pokemon={pokemon}
+          onUnfavorite={() => setFavorite.mutate({ pokemonId: pokemon.id, favorite: false })}
+        />
       ))}
     </div>
   );
@@ -64,7 +70,9 @@ interface TrainerProfileProps {
  */
 const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer }) => {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const navigate = useNavigate();
+  // The header's "My bag" deep-links the Bag tab as /trainer?tab=bag.
+  const [params] = useSearchParams();
+  const initialTab = params.get('tab') === 'bag' ? 'items' : 'teams';
 
   return (
     <div className="space-y-6">
@@ -102,7 +110,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                     Rookie; the higher ranks are worn by the resident cast for now.
                   </HoverTip>
                   {!profile.isPublic && (
-                    <HoverTip title="Private profile" trigger={<Badge variant="outline">Private</Badge>}>
+                    <HoverTip title="Private profile" faq="privacy" trigger={<Badge variant="outline">Private</Badge>}>
                       Only you and your friends can see this profile; it does not appear in
                       the trainer directory. Change this under Edit Profile.
                     </HoverTip>
@@ -161,11 +169,21 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
                   </div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Favorite Type</div>
+                  <div className="text-muted-foreground text-sm">
+                    Favorite Type
+                    <HelpTip title="Favorite type" className="ml-1">
+                      Your pick under Edit Profile; pure colours, no mechanics.
+                    </HelpTip>
+                  </div>
                   <div className="font-semibold capitalize">{profile.favoriteType ?? '—'}</div>
                 </div>
                 <div className="bg-muted/50 p-3 rounded-md">
-                  <div className="text-muted-foreground text-sm">Joined</div>
+                  <div className="text-muted-foreground text-sm">
+                    Joined
+                    <HelpTip title="Joined" className="ml-1">
+                      When your trainer account was created.
+                    </HelpTip>
+                  </div>
                   <div className="flex items-center gap-1 font-semibold">
                     <Calendar className="h-4 w-4" />
                     {new Date(profile.createdAt).toLocaleDateString()}
@@ -178,7 +196,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
       </Card>
 
       <Dialog open={isEditFormOpen} onOpenChange={setIsEditFormOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Your Profile</DialogTitle>
           </DialogHeader>
@@ -186,7 +204,7 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
         </DialogContent>
       </Dialog>
 
-      <Tabs defaultValue="teams" className="space-y-4">
+      <Tabs defaultValue={initialTab} className="space-y-4">
         {/* Labels hide below sm so five icon tabs still fit a phone. */}
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="teams" className="gap-1" aria-label="Teams">
@@ -201,17 +219,9 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
           <TabsTrigger value="activity" className="gap-1" aria-label="Activity">
             <ActivityIcon className="h-4 w-4" /> <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
-          {/* A plain button, not a TabsTrigger: it navigates to the Items page,
-              and Radix's automatic activation would fire that on arrow-key
-              focus if it lived inside the roving tablist. */}
-          <button
-            type="button"
-            onClick={() => navigate('/items')}
-            aria-label="Items"
-            className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <Backpack className="h-4 w-4" /> <span className="hidden sm:inline">Items</span>
-          </button>
+          <TabsTrigger value="items" className="gap-1" aria-label="Bag">
+            <Backpack className="h-4 w-4" /> <span className="hidden sm:inline">Bag</span>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="teams">
           <TeamsPanel />
@@ -224,6 +234,11 @@ const TrainerProfile: React.FC<TrainerProfileProps> = ({ profile, onOpenTrainer 
         </TabsContent>
         <TabsContent value="activity">
           <MyActivityFeed />
+        </TabsContent>
+        {/* The same bag others see on your profile, editable in place; the
+            full catalogue stays on the Items page. */}
+        <TabsContent value="items">
+          <ItemInventory />
         </TabsContent>
       </Tabs>
     </div>
