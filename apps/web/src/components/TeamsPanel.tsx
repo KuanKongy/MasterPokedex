@@ -82,14 +82,24 @@ export const MemberCard: React.FC<{ member: CaughtPokemon; actions?: React.React
       </div>
       <div className="text-center">
         <div className="font-medium flex items-center justify-center gap-1">
-          {member.isShiny && <Sparkles className="h-3.5 w-3.5 text-yellow-500" />}
+          {member.isShiny && (
+            <HoverTip
+              title="Shiny"
+              faq="shiny"
+              trigger={<Sparkles className="h-3.5 w-3.5 text-yellow-500" />}
+            >
+              Caught in its rare alternate colouring; it counts toward the shiny tally.
+            </HoverTip>
+          )}
           {member.nickname ?? capitalize(member.pokemon.name)}
         </div>
         {member.nickname && (
           <div className="text-xs text-muted-foreground">{capitalize(member.pokemon.name)}</div>
         )}
         <div className="text-sm text-muted-foreground">
-          Lv. {member.level}
+          <HoverTip title="Level" faq="levels" trigger={<>Lv. {member.level}</>}>
+            Derived from its experience on the species' own growth curve.
+          </HoverTip>
           {member.gender && member.gender !== 'genderless' && (
             <span className={member.gender === 'male' ? 'text-blue-500' : 'text-pink-500'}>
               {' '}

@@ -183,7 +183,13 @@ const Settings: React.FC = () => {
               htmlFor="always-show-megas"
               className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
             >
-              <span className="text-sm font-medium">Always show alternate forms</span>
+              <span className="text-sm font-medium">
+                Always show alternate forms
+                <HelpTip title="Alternate forms" faq="family-forms" className="ml-1">
+                  Megas, Gigantamax and regional forms appear with their switches already on,
+                  attached to every stage of the family.
+                </HelpTip>
+              </span>
               <Switch id="always-show-megas" checked={alwaysShowMegas} onCheckedChange={setAlwaysShowMegas} />
             </Label>
           </CardContent>

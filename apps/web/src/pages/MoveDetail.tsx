@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { MoveLearner } from '@masterpokedex/shared';
 import { useMove } from '@/hooks/api/dex';
+import { METHOD_SECTIONS } from '../components/pokemon/MovesTable';
 import LoadingSpinner from '../components/LoadingSpinner';
 import HelpTip from '../components/HelpTip';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,11 @@ const METHOD_TITLES: Record<string, string> = {
   egg: 'As an egg move',
   tutor: 'From a Move Tutor',
 };
+
+/** The moves table on a Pokemon's page already explains each method; reuse it. */
+const METHOD_HELP: Record<string, string> = Object.fromEntries(
+  METHOD_SECTIONS.map((section) => [section.method, section.help]),
+);
 
 const LearnerRow: React.FC<{ learner: MoveLearner; showLevel: boolean }> = ({ learner, showLevel }) => {
   const { spriteStyle } = useSpritePref();
@@ -39,7 +45,7 @@ const LearnerRow: React.FC<{ learner: MoveLearner; showLevel: boolean }> = ({ le
       <TableCell>
         <div className="flex gap-1">
           {learner.types.map((type) => (
-            <TypeBadge key={type} type={type} size="sm" />
+            <TypeBadge key={type} type={type} size="sm" link />
           ))}
         </div>
       </TableCell>
@@ -75,7 +81,7 @@ const MoveDetail: React.FC = () => {
   }
 
   const facts: Array<{ label: string; value: React.ReactNode; help?: string }> = [
-    { label: 'Type', value: <TypeBadge type={move.type} icon /> },
+    { label: 'Type', value: <TypeBadge type={move.type} icon link /> },
     {
       label: 'Class',
       value: capitalize(move.damageClass),
@@ -89,7 +95,11 @@ const MoveDetail: React.FC = () => {
       value: move.priority,
       help: 'Turn order jumper: higher priority acts first regardless of Speed; 0 is normal, negatives go last.',
     },
-    { label: 'Introduced', value: move.generation ? `Generation ${move.generation}` : '—' },
+    {
+      label: 'Introduced',
+      value: move.generation ? `Generation ${move.generation}` : '—',
+      help: 'The generation of games this move first appeared in.',
+    },
   ];
 
   return (
@@ -142,6 +152,11 @@ const MoveDetail: React.FC = () => {
           <div key={method}>
             <h3 className="mb-2 text-sm font-semibold capitalize text-muted-foreground">
               {METHOD_TITLES[method] ?? method.replace(/-/g, ' ')} · {learners.length}
+              {METHOD_HELP[method] && (
+                <HelpTip title={METHOD_TITLES[method] ?? method} className="ml-1">
+                  {METHOD_HELP[method]}
+                </HelpTip>
+              )}
             </h3>
             <div className="overflow-x-auto rounded-md border">
               <Table>

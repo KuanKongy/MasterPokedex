@@ -111,6 +111,10 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
                       <h3 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold">
                         <MapIcon className="h-3.5 w-3.5 text-pokebrand-red" />
                         Neighboring Locations
+                        <HelpTip title="Neighbours">
+                          The places this one connects to directly in the games: walk out one
+                          side and you are there.
+                        </HelpTip>
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {location.neighbors.map((neighbor) => (
@@ -128,13 +132,25 @@ const LocationSurfaceCard: React.FC<LocationSurfaceCardProps> = ({ locationId, o
 
               {location.items.length > 0 && (
                 <div>
-                  <h3 className="mb-1.5 text-sm font-semibold">Items found here</h3>
+                  <h3 className="mb-1.5 text-sm font-semibold">
+                    Items found here
+                    <HelpTip title="Field items" className="ml-1">
+                      Pickups lying in the overworld, straight from the games; hover a chip
+                      for exactly where. Shop stock isn't listed.
+                    </HelpTip>
+                  </h3>
                   <LocationItemChips items={location.items} compact limit={8} />
                 </div>
               )}
 
               <div>
-                <h3 className="mb-1.5 text-sm font-semibold">Pokémon Encounters</h3>
+                <h3 className="mb-1.5 text-sm font-semibold">
+                  Pokémon Encounters
+                  <HelpTip title="Encounters" className="ml-1">
+                    Wild encounters only; gifts, trades and one-off static Pokémon are
+                    covered on each Pokémon's own page under How to get one.
+                  </HelpTip>
+                </h3>
                 <EncounterList areas={location.areas} variant="compact" />
               </div>
             </div>

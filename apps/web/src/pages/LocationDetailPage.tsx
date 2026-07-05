@@ -86,6 +86,9 @@ const LocationDetailPage: React.FC = () => {
               <h2 className="mb-2 flex items-center gap-1.5 font-semibold">
                 <Swords className="h-4 w-4 text-pokebrand-red" />
                 Notable Trainers
+                <HelpTip title="Notable Trainers">
+                  Gym Leaders and named trainers the games place here.
+                </HelpTip>
               </h2>
               <div className="flex flex-wrap gap-2">
                 {location.notableTrainers!.map((trainer) => (
