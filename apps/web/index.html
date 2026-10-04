@@ -8,12 +8,17 @@
     <meta name="author" content="Saikou" />
     <meta name="theme-color" content="#E3350D" />
 
-    <!-- Icons live in ./favicon, not public/, so Vite fingerprints them into assets/.
-         The hashed URL can't collide with another localhost app's cached /favicon.ico.
+    <!-- The app's only icon: one drawing at 16, 32 and 48 in one file, so
+         nothing larger can be picked and shrunk in its place and no size shows
+         a different ball. Written root-relative, which Vite
+         rewrites to /MasterPokedex/favicon.ico in both the dev server and the
+         build: an absolute URL of our own gets the base put in front of it a
+         second time, and a relative one would resolve against the route when
+         404.html serves this page at a deep URL. Bump ?v= after redrawing it:
+         Chrome keeps favicons in a store of its own that clearing the cache
+         does not empty, so only a new URL is certain to be fetched.
          Regenerate with: node apps/web/scripts/generate-brand-assets.mjs -->
-    <link rel="icon" type="image/png" sizes="192x192" href="./favicon/favicon-192x192.png" />
-    <link rel="icon" sizes="16x16 32x32 48x48" href="./favicon/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico?v=4" />
 
     <!-- Crawlers need absolute URLs, so the card is served from public/ at a fixed path. -->
     <meta property="og:type" content="website" />

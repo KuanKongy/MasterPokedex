@@ -58,6 +58,18 @@ The offline override hardcodes a placeholder Supabase URL, so signing in and cre
 
 **Email confirmation:** hosted Supabase requires it by default; the login page treats "check your email" as the happy path. **Free-tier pause:** projects pause after ~a week idle — the keep-alive workflow below prevents that.
 
+### Google sign-in (one-time)
+
+"Continue with Google" goes through Supabase's OAuth flow, so it is dashboard configuration, not code:
+
+1. **Google Cloud Console** → create an OAuth client (type "Web application") with authorized redirect URI `https://<ref>.supabase.co/auth/v1/callback`.
+2. **Supabase → Authentication → Providers → Google** — enable it and paste the client ID and secret.
+3. **Supabase → Authentication → URL Configuration**:
+   - Site URL: `https://kuankongy.github.io/MasterPokedex/` (this also sets where email-confirmation links land).
+   - Redirect URLs: add `http://localhost:8080/MasterPokedex/` for local dev. The app always sends `redirectTo = origin + BASE_URL` (the app root) because only allowlisted URLs survive the round trip; `OAuthReturn` restores the page the user started from out of sessionStorage.
+
+Without step 3 the OAuth round trip silently lands on whatever Site URL is configured (the Supabase default is `http://localhost:3000`), which looks like a broken sign-in.
+
 ## Railway (API)
 
 `railway.json` at the repo root configures the build: Dockerfile builder pointing at `apps/api/Dockerfile` (Railway builds its final `prod` stage), healthcheck on `/health`, restart on failure. Setup:

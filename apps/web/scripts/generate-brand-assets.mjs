@@ -721,12 +721,12 @@ const BALL_16 = [
   '..KRRhRRRRRRRK..',
   '.KRhHhRRRRRRRrK.',
   '.KRRhRRRRRRRRrK.',
-  'KRRRRRRKKRRRRrrK',
-  'KRRRRRKWWKRRrrrK',
+  'KRRRRRKKKKRRRrrK',
+  'KRRRRKKWWKKRrrrK',
   'KKKKKKWWWWKKKKKK',
   'KKKKKKWWwwKKKKKK',
-  'KWWWWWKWwKWWWwwK',
-  'KWWWWWWKKWWWWwwK',
+  'KWWWWKKWwKKWWwwK',
+  'KWWWWWKKKKWWWwwK',
   '.KWWWWWWWWWWWwK.',
   '.KWWWWWWWWWWwwK.',
   '..KWWWWWWWwwwK..',
@@ -2347,8 +2347,9 @@ const outputs = {};
 
 // One logo per colourway, in public/ rather than favicon/: these are picked at
 // runtime from the stored preference, so they need stable unhashed URLs. The
-// header, the spinner, the Settings tiles and the browser tab all read them,
-// which is what makes the ball a site theme rather than a spinner skin.
+// header, the spinner and the Settings tiles all read them, which is what
+// makes the ball a site theme rather than a spinner skin. The browser tab is
+// not one of them: favicon.ico is the app's own mark, whatever ball is chosen.
 // Settings can swap the drawings for the game's own icons, which sit beside
 // them for the same reason.
 // The fine set is the same ten on the 64 grid, drawn four pixels to a cell, so
@@ -2366,15 +2367,24 @@ for (const [ball, spec] of Object.entries(BALLS)) {
   outputs[`public/logo/original/${ball}.png`] = () => encodePng(originalIcon(ball));
 }
 
-// index.html's tags resolve before any preference is known, so the default
-// ball keeps the fingerprinted favicon set it has always had.
-outputs['favicon/favicon.ico'] = () => {
-  const small = ballCanvas(BALL_16);
-  return encodeIco([small, ballCanvas(BALL_32), small.scaled(3)]);
+// The tab icon is the Poké Ball and only ever the Poké Ball, so index.html can
+// resolve it before any preference is known. This .ico is the app's icon and
+// the only one, and it holds one drawing: BALL_16, at 16, 32 and 48. It used
+// to carry BALL_32 as its middle frame, which is a second drawing of the same
+// ball with a ringed button and a softer shell, so a 2x display picked that
+// one and the tab showed a ball nobody had chosen. Whichever frame a platform
+// takes now, it gets the ball you see when you open the file.
+//
+// It sits in public/ so it is served at /MasterPokedex/favicon.ico, the path a
+// browser already expects an icon at, with no build step in between: Vite
+// copies public/ verbatim, so the same URL works in the dev server, in the
+// Docker image and on Pages. index.html versions the URL instead of hashing
+// it, since Chrome keeps favicons in a store that clearing the cache does not
+// empty, and a URL it has not seen is the only reliable way to refresh one.
+outputs['public/favicon.ico'] = () => {
+  const icon = ballCanvas(BALL_16);
+  return encodeIco([icon, icon.scaled(2), icon.scaled(3)]);
 };
-outputs['favicon/favicon-192x192.png'] = () => encodePng(ballCanvas(BALL_32).scaled(6));
-// iOS paints transparency black, so the touch icon gets a solid backdrop.
-outputs['favicon/apple-touch-icon.png'] = () => encodePng(ballCanvas(BALL_32).scaled(5, 10, C.bg));
 
 outputs['public/og-image.png'] = () => encodePng(ogImage());
 

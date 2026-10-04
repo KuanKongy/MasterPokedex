@@ -122,11 +122,9 @@ export const BallPrefProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // The art rides along so non-React code (the sprite fallback) can read it.
     document.documentElement.dataset.ballArt = ballArt;
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', BALL_THEME_COLOR[ballStyle]);
-    // The tab icon follows too. index.html's <link>s point at the
-    // fingerprinted default set; this swaps them for the chosen ball's logo,
-    // which lives in public/ precisely so it has a stable, unhashed URL.
-    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/png"]');
-    if (icon) icon.href = ballSprite(ballStyle, ballArt);
+    // The tab icon stays put: favicon.ico is the app's mark, drawn at 16, 32
+    // and 48 for exactly that box, and the logo PNGs carry a margin for the
+    // other balls' fins and caps that goes soft at tab size.
   }, [ballStyle, ballArt]);
 
   const setBallStyle = useCallback((style: BallStyle) => {
