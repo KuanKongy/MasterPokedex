@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "./auth/AuthProvider";
 import OAuthReturn from "./auth/OAuthReturn";
@@ -21,7 +21,8 @@ import Items from "./pages/Items";
 import ItemDetail from "./pages/ItemDetail";
 import PokemonFilter from "./pages/PokemonFilter";
 import Login from "./pages/Login";
-import Settings from "./pages/Settings";
+import Customisation from "./pages/Customisation";
+import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -86,7 +87,10 @@ const App = () => {
                     <Route path="/items/:name" element={<ItemDetail />} />
                     <Route path="/pokemon-filter" element={<PokemonFilter />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/customisation" element={<Customisation />} />
+                    {/* Settings was renamed; links out in the wild still point here. */}
+                    <Route path="/settings" element={<Navigate to="/customisation" replace />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />

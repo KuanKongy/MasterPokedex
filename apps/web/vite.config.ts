@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import fs from "fs";
 import path from "path";
@@ -8,7 +8,7 @@ import path from "path";
 // /favicon.ico gets a 404 and shows its blank page mark. Pages never sees that
 // (the site is not at the origin root there either, but nothing probes a
 // project page's root), so this is the dev server's job alone.
-const rootFavicon = () => ({
+const rootFavicon = (): Plugin => ({
   name: "root-favicon",
   configureServer(server) {
     server.middlewares.use("/favicon.ico", (_req, res) => {

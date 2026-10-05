@@ -36,10 +36,16 @@ services:
       - '8787:8787'
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8787/health || exit 1']
-      interval: 30s
+      # Every 30s this probe filled the API log with its own /health hits, since
+      # hono's logger runs on '*'. Five minutes is plenty for a local container.
+      # start_interval keeps the fast feedback where it matters: during startup
+      # the probe still runs every 5s, so the container flips to healthy right
+      # away instead of sitting on "starting" for the first interval.
+      interval: 5m
+      start_interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
   web:
     build:

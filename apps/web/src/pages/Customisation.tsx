@@ -6,48 +6,35 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRight, BookOpen, FileText, Github, Image as ImageIcon, Linkedin, Mail, Shield, Sparkles } from 'lucide-react';
+import { BookOpen, FileText, Image as ImageIcon, Mail, Shield, Sparkles } from 'lucide-react';
 import { SPRITE_STYLES, pokemonImage, useSpritePref, type SpriteStyle } from '@/prefs/SpritePrefContext';
 import { BALL_ARTS, BALL_STYLES, ballSprite, useBallPref, type BallArt, type BallStyle } from '@/prefs/BallPrefContext';
 import { BALL_SWATCHES } from '@/prefs/ballTheme';
-import { CONTACT } from '@/lib/contact';
 import HelpTip from '@/components/HelpTip';
-import { copyToClipboard } from '@/lib/clipboard';
-import { useToast } from '@/hooks/use-toast';
 import { ALWAYS_SHOW_MEGAS, useBooleanPref } from '@/hooks/useBooleanPref';
 import { cn } from '@/lib/utils';
 
 /** Pikachu previews the sprite styles; nobody needs a caption to recognise it. */
 const PREVIEW_ID = 25;
 
-const ARROW_LINK = 'inline-flex items-center gap-1 text-sm font-medium text-pokebrand-red hover:underline';
-
 /**
  * Device-level preferences. Deliberately public — how the app looks is not
  * account data, and the FAQ and legal pages linked here must be reachable
- * before anyone signs up.
+ * before anyone signs up. Reaching the maintainer is a separate errand, so
+ * Contact is its own page and only linked from here.
  */
-const Settings: React.FC = () => {
+const Customisation: React.FC = () => {
   const { spriteStyle, setSpriteStyle } = useSpritePref();
   const { ballStyle, setBallStyle, ballArt, setBallArt } = useBallPref();
   const { resolvedTheme } = useTheme();
-  const { toast } = useToast();
   const [alwaysShowMegas, setAlwaysShowMegas] = useBooleanPref(ALWAYS_SHOW_MEGAS);
   // Dark mode itself lives on the header's sun/moon button; only the swatch
   // preview needs to know which set of palettes is currently on screen.
   const swatchMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
-  const sendEmail = async () => {
-    if (await copyToClipboard(CONTACT.email)) {
-      toast({ title: 'Email copied to clipboard', description: CONTACT.email });
-    } else {
-      window.location.href = `mailto:${CONTACT.email}`;
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Settings</h1>
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Customisation</h1>
       <p className="text-muted-foreground mb-8">How the Pokédex looks on this device</p>
 
       <div className="space-y-6">
@@ -227,6 +214,14 @@ const Settings: React.FC = () => {
               </div>
             </Link>
             <Separator />
+            <Link to="/contact" className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors">
+              <Mail className="h-5 w-5 text-pokebrand-red" />
+              <div>
+                <div className="font-medium">Contact</div>
+                <div className="text-sm text-muted-foreground">Report a bug, send an idea, or just say hello</div>
+              </div>
+            </Link>
+            <Separator />
             <p className="text-xs text-muted-foreground pt-3">
               Pokémon data and sprites are served via{' '}
               <a href="https://pokeapi.co" target="_blank" rel="noreferrer" className="underline">
@@ -237,65 +232,9 @@ const Settings: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Contact
-            </CardTitle>
-            <CardDescription>Found a bug, have an idea, or want to talk about MasterPokédex?</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="flex flex-col rounded-lg border p-4">
-                <Github className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
-                <h3 className="mt-2 text-sm font-semibold">GitHub</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Browse the source, open an issue, or contribute.
-                </p>
-                <div className="mt-3 flex flex-1 items-end">
-                  <a href={CONTACT.repo} target="_blank" rel="noopener noreferrer" className={ARROW_LINK}>
-                    View on GitHub
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col rounded-lg border p-4">
-                <Linkedin className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
-                <h3 className="mt-2 text-sm font-semibold">LinkedIn</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Connect with the person behind the project.
-                </p>
-                <div className="mt-3 flex flex-1 items-end">
-                  <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer" className={ARROW_LINK}>
-                    Connect on LinkedIn
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col rounded-lg border p-4">
-                <Mail className="h-5 w-5 text-pokebrand-red" aria-hidden="true" />
-                <h3 className="mt-2 text-sm font-semibold">Email</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  For anything that doesn't fit GitHub: questions, feedback, ideas.
-                </p>
-                <div className="mt-3 flex flex-1 items-end">
-                  <button type="button" onClick={() => void sendEmail()} className={ARROW_LINK}>
-                    Send an email
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <p className="mt-6 text-center text-xs text-muted-foreground">
-              An independent fan project, maintained by Nam Le.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
 };
 
-export default Settings;
+export default Customisation;

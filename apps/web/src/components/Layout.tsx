@@ -19,9 +19,12 @@ const Layout: React.FC = () => {
             . Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. — this is an unaffiliated fan
             project.
           </p>
-          <nav aria-label="Footer" className="flex justify-center gap-6 sm:justify-end">
+          <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:justify-end">
             <Link to="/faq" className="hover:underline text-pokebrand-foreground/90">
               FAQ
+            </Link>
+            <Link to="/contact" className="hover:underline text-pokebrand-foreground/90">
+              Contact
             </Link>
             <Link to="/privacy" className="hover:underline text-pokebrand-foreground/90">
               Privacy

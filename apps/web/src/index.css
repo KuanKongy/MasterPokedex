@@ -200,4 +200,13 @@
   .pixelated {
     image-rendering: pixelated;
   }
+
+  /* Horizontal rails (tab strips) scroll without a bar eating into their
+     height; the fade at the edge is the affordance instead. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

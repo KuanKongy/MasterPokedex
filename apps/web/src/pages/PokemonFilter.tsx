@@ -382,11 +382,15 @@ const PokemonFilter: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Advanced search</h1>
           <p className="text-muted-foreground">Build multi-condition queries over the whole dex</p>
         </div>
-        <Tabs value={entity} onValueChange={(value) => switchEntity(value as FilterEntity)}>
+        <Tabs
+          value={entity}
+          onValueChange={(value) => switchEntity(value as FilterEntity)}
+          className="w-full min-w-0 md:w-auto"
+        >
           <TabsList>
             {FILTER_ENTITIES.map((option) => (
               <TabsTrigger key={option} value={option}>
@@ -398,7 +402,7 @@ const PokemonFilter: React.FC = () => {
       </div>
 
       <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
             Conditions
@@ -504,7 +508,7 @@ const PokemonFilter: React.FC = () => {
       </Card>
 
       <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardHeader className="flex flex-col gap-3 pb-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base">Columns</CardTitle>
           <div className="inline-flex items-center gap-1 rounded-lg border p-0.5">
             <Button

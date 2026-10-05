@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,8 @@ const Login: React.FC = () => {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const signupRequested = searchParams.get('mode') === 'signup';
   const from = (location.state as { from?: string } | null)?.from ?? '/trainer';
 
   const [email, setEmail] = useState('');
@@ -223,7 +225,8 @@ const Login: React.FC = () => {
             or with email
             <span className="h-px flex-1 bg-border" />
           </div>
-          <Tabs defaultValue="signin" onValueChange={() => setError(null)}>
+          {/* The header's account menu links straight at Create account. */}
+          <Tabs defaultValue={signupRequested ? 'signup' : 'signin'} onValueChange={() => setError(null)}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>

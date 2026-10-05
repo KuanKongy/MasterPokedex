@@ -53,7 +53,7 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
     q: 'Can I change how Pokémon look?',
     a: (
       <p>
-        Yes — in <Link to="/settings" className="underline">Settings</Link> pick the games' pixel
+        Yes — in <Link to="/customisation" className="underline">Customisation</Link> pick the games' pixel
         sprites, the official artwork, or Pokémon HOME renders; the choice applies everywhere a
         Pokémon is drawn and is remembered on this device. The site's chrome is yours too: choose
         one of ten Poké Balls to recolor the whole app, and how that ball is drawn — the games'
@@ -83,7 +83,8 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
         regional forms, because that's what you're really planning toward when you catch the
         first stage. Expand or collapse them per page, or flip{' '}
         <strong>Always show alternate forms</strong> in{' '}
-        <Link to="/settings" className="underline">Settings</Link> to keep them open everywhere.
+        <Link to="/customisation" className="underline">Customisation</Link> to keep them open
+        everywhere.
       </p>
     ),
   },
@@ -300,8 +301,8 @@ const FAQ_ITEMS: Array<{ id: string; q: string; a: React.ReactNode }> = [
         and use the Danger zone at the bottom: Delete account removes everything attached to
         it (profile, teams, caught Pokémon, bag, friendships, favorites, activity) and the
         sign-in itself. Deletion cascades at the database level, so nothing lingers. If you are
-        locked out, email us instead; the Contact card in{' '}
-        <Link to="/settings" className="underline">Settings</Link> has the address, and it's in
+        locked out, email us instead; the{' '}
+        <Link to="/contact" className="underline">Contact page</Link> has the address, and it's in
         the <Link to="/privacy" className="underline">Privacy Policy</Link> too.
       </p>
     ),
@@ -358,8 +359,8 @@ const FAQ: React.FC = () => {
       </Card>
 
       <p className="text-sm text-muted-foreground mt-8">
-        Something unanswered? The Contact card in{' '}
-        <Link to="/settings" className="underline">Settings</Link> is the fastest way to reach us;
+        Something unanswered? The{' '}
+        <Link to="/contact" className="underline">Contact page</Link> is the fastest way to reach us;
         the <Link to="/terms" className="underline">Terms of Service</Link> and{' '}
         <Link to="/privacy" className="underline">Privacy Policy</Link> cover the fine print.
       </p>
