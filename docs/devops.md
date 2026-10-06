@@ -115,7 +115,7 @@ Three workflows in `.github/workflows/`. They activate once main is pushed to Gi
 Builds `apps/web` and deploys `apps/web/dist` with the official Pages actions. One-time setup:
 
 1. **Settings → Pages → Source: "GitHub Actions"** (replaces the legacy `gh-pages` branch flow; that branch and the `gh-pages` devDep can be deleted once the first Actions deploy is green).
-2. **Settings → Secrets and variables → Actions → Variables** (variables, not secrets, since all three end up in the public bundle): `VITE_API_URL` (the Railway URL), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+2. **Settings → Secrets and variables → Actions → Secrets**: `VITE_API_URL` (the Railway URL), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. The secrets tab is bookkeeping, not protection: Vite inlines all three into the public JS bundle, so they are readable by anyone who loads the site. What matters is that `SUPABASE_SERVICE_ROLE_KEY`, which is a real secret, never joins them. A missing entry is silently the empty string, and the build then ships Vite's fallbacks (`placeholder.supabase.co` and `http://localhost:8787`) under a green check, so verify the bundle after the first deploy.
 
 There is deliberately no path filter: the bundle bakes in `packages/shared`, so contract changes must redeploy the site.
 
@@ -123,13 +123,13 @@ There is deliberately no path filter: the bundle bakes in `packages/shared`, so 
 `npm run lint`, `npm run typecheck`, `npm run test` across all workspaces on every push/PR. No database or env needed.
 
 ### `keep-alive.yml`: Supabase keep-alive
-Cron (every 6 h) curling `${{ vars.API_HEALTH_URL }}` (set it to `https://<railway-service>/health`). `/health` runs `select 1`, so one request keeps both Railway warm and Supabase unpaused; failures show up as red runs. Six hours is about the pause timer (~a week idle), not about uptime monitoring, so there is no reason to tighten it. GitHub disables cron workflows after ~60 days without repo activity, so re-enable from the Actions tab if the badge goes grey.
+Cron (every 6 h) curling `${{ secrets.API_HEALTH_URL }}` (set it to `https://<railway-service>/health`). `/health` runs `select 1`, so one request keeps both Railway warm and Supabase unpaused; failures show up as red runs. Six hours is about the pause timer (~a week idle), not about uptime monitoring, so there is no reason to tighten it. GitHub disables cron workflows after ~60 days without repo activity, so re-enable from the Actions tab if the badge goes grey.
 
 ### Deployment order (first time)
 
 1. Supabase migrated + seeded (above).
 2. Railway service live → gives you the API URL.
-3. Set the four Actions variables (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `API_HEALTH_URL`), flip the Pages source.
+3. Set the four Actions secrets (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `API_HEALTH_URL`), flip the Pages source.
 4. Push main. CI runs, Pages deploys, site live at `https://kuankongy.github.io/MasterPokedex/`.
 
 ## One-shot content scripts

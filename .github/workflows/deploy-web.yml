@@ -2,11 +2,13 @@
 #
 # One-time setup (see docs/devops.md):
 #   - Settings → Pages → Build and deployment → Source: "GitHub Actions"
-#   - Settings → Secrets and variables → Actions → Variables:
+#   - Settings → Secrets and variables → Actions → Secrets:
 #       VITE_API_URL            e.g. https://<service>.up.railway.app
 #       VITE_SUPABASE_URL       https://<ref>.supabase.co
 #       VITE_SUPABASE_ANON_KEY  the project's anon key
-#     Variables, not secrets — all three ship inside the public JS bundle anyway.
+#     Secrets for one place to look, not for secrecy: Vite inlines all three
+#     into the public JS bundle, so anyone who loads the site can read them.
+#     The service-role key is a real secret and belongs nowhere near this list.
 #
 # No path filter on purpose: the web bundle bakes in code from packages/shared,
 # so a shared-contract change must redeploy the site even when apps/web is
@@ -39,9 +41,9 @@ jobs:
       - run: npm ci
       - run: npm run build # vite build && cp dist/index.html dist/404.html (SPA fallback)
         env:
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
